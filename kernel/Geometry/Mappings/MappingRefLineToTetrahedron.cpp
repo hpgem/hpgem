@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,32 +35,37 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
-#define HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
-
-#include "MappingReferenceToPhysical.h"
-
-#include <map>
+#include "MappingRefLineToTetrahedron.h"
 
 namespace hpgem {
 namespace Geometry {
-class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
-   public:
-    explicit MappingToPhysTriangleQuadratic(
-        const PhysicalGeometry<2>* const physicalGeometry);
-    MappingToPhysTriangleQuadratic(
-        const MappingToPhysTriangleQuadratic& other) = default;
 
-    PointPhysical<2> transform(const PointReference<2>&) const final;
-    PointReference<2> inverseTransform(const PointPhysical<2>&) const final;
+MappingRefLineToTetrahedron::MappingRefLineToTetrahedron(
+    std::size_t face, const std::size_t nodesOnEdges[6][2],
+    const PointReference<3> nodes[4]) {
+    logger.assert_debug(face < 6, "Invalid face");
+    const auto& node1 = nodes[nodesOnEdges[face][0]].getCoordinates();
+    const auto& node2 = nodes[nodesOnEdges[face][1]].getCoordinates();
+    basis_ = (node1 + node2) / 2.0;
+    auto dir = (node2 - node1) / 2.0;
+    for(std::size_t i = 0; i < 3; ++i) {
+        jacobian_(i, 0) = dir[i];
+    }
+}
 
-    Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
+Geometry::PointReference<3> MappingRefLineToTetrahedron::transform(
+    const Geometry::PointReference<1> &p) const {
+    Geometry::PointReference<3> result(basis_);
+    for (std::size_t i = 0; i < 3; ++i) {
+        result[i] += jacobian_[i] * p[0];
+    }
+    return result;
+}
 
-    MappingReferenceToPhysicalBase* copy() const override;
+Geometry::Jacobian<1, 3> MappingRefLineToTetrahedron::calcJacobian(
+    const PointReference<1> &) const {
+    return jacobian_;
+}
 
-    void reinit() final;
-};
 }  // namespace Geometry
 }  // namespace hpgem
-
-#endif  // HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H

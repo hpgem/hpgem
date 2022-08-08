@@ -51,6 +51,7 @@
 #include "Geometry/Mappings/MappingToRefTriangleToTetrahedron.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
+#include "Mappings/MappingTestHelpers.h"
 
 #include "../catch.hpp"
 
@@ -333,4 +334,10 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
 
     ///\todo testing that the refinement maps behave exactly like the forwarded
     /// calls of this class
+}
+
+TEST_CASE("Tetrahedron codim2 mappings", "[090ReferenceTetrahedron_UnitTest]") {
+    using namespace Geometry;
+    const auto& tetrahedron = ReferenceTetrahedron::Instance();
+    testLinearCodim2Mappings<3>(tetrahedron);
 }

@@ -168,6 +168,26 @@ const ElementShape<3> pyramid{
     // Vertices
     Detail::generateVertices<3>(5)};
 
+const ElementShape<3> tetrahedron2{
+    // Faces
+    std::vector<Detail::ElementShapePart<2, 3>>{
+        Detail::ElementShapePart<2, 3>{&triangle2, {0, 6, 9, 3, 8, 5}},
+        Detail::ElementShapePart<2, 3>{&triangle2, {0, 1, 2, 6, 7, 9}},
+        Detail::ElementShapePart<2, 3>{&triangle2, {0, 3, 5, 1, 4, 2}},
+        Detail::ElementShapePart<2, 3>{&triangle2, {2, 4, 5, 7, 8, 9}},
+    },
+    // Edges
+    std::vector<Detail::ElementShapePart<1, 3>>{
+        Detail::ElementShapePart<1, 3>{&line2, {0, 1, 2}},
+        Detail::ElementShapePart<1, 3>{&line2, {0, 3, 5}},
+        Detail::ElementShapePart<1, 3>{&line2, {0, 6, 9}},
+        Detail::ElementShapePart<1, 3>{&line2, {5, 8, 9}},
+        Detail::ElementShapePart<1, 3>{&line2, {2, 7, 9}},
+        Detail::ElementShapePart<1, 3>{&line2, {2, 4, 5}},
+    },
+    // Vertices
+    Detail::generateVertices<3>(10)};
+
 namespace Detail {
 
 template <std::size_t dim>
@@ -192,7 +212,8 @@ std::vector<ElementShapePart<1, dim>> generateEdges(
 
 using Detail::ShapePointerVec;
 const TemplateArray<4, ShapePointerVec> hpgemShapes{
-    ShapePointerVec<3>{&tetrahedron, &cube, &triangularPrism, &pyramid},
+    ShapePointerVec<3>{&tetrahedron, &cube, &triangularPrism, &pyramid,
+                       &tetrahedron2},
     ShapePointerVec<2>{&triangle, &triangle2, &square},
     ShapePointerVec<1>{&line, &line2},
     ShapePointerVec<0>{&point},

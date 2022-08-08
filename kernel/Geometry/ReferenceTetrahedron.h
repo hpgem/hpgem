@@ -44,6 +44,8 @@
 #include "ReferenceSimplex_Impl.h"
 #include <vector>
 
+#include "Mappings/MappingRefLineToTetrahedron.h"
+
 namespace hpgem {
 
 namespace Geometry {
@@ -140,6 +142,8 @@ class ReferenceTetrahedron : public ReferenceSimplex<3> {
     //! Codimension 1 mappings, from a square to a tetrahedron face. (used to
     //! map a coordinate from a face to an element)
     const BoundaryFaceMapping* mappingsTriangleToTetrahedron_[4];
+
+    const std::array<MappingRefLineToTetrahedron, 6> mappingsLineToTetrahedron_;
     // const MappingReferenceToReference<0>*
     // mappingsTetrahedronToTetrahedron_[1];
 

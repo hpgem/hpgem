@@ -35,32 +35,42 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
-#define HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
 
-#include "MappingReferenceToPhysical.h"
+#include "../catch.hpp"
+#include <Base/CommandLineHelpers.h>
 
-#include <map>
+using namespace hpgem;
 
-namespace hpgem {
-namespace Geometry {
-class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
-   public:
-    explicit MappingToPhysTriangleQuadratic(
-        const PhysicalGeometry<2>* const physicalGeometry);
-    MappingToPhysTriangleQuadratic(
-        const MappingToPhysTriangleQuadratic& other) = default;
+TEST_CASE("Parse 1D point", "[CommandLineHelpers]") {
+    std::string sample;
+    LinearAlgebra::SmallVector<1> point;
+    std::size_t end;
 
-    PointPhysical<2> transform(const PointReference<2>&) const final;
-    PointReference<2> inverseTransform(const PointPhysical<2>&) const final;
+    sample = "1.0;";
+    end = Base::parsePoint(sample, 0, point);
+    REQUIRE(end == 3);
+    REQUIRE(point[0] == 1.0);
 
-    Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
+    sample = "asdf3.0ghjk";
+    end = Base::parsePoint(sample, 4, point);
+    REQUIRE(end == 7);
+    REQUIRE(point[0] == 3.0);
+}
 
-    MappingReferenceToPhysicalBase* copy() const override;
+TEST_CASE("Parse 2D point", "[CommandLineHelpers]") {
+    std::string sample;
+    LinearAlgebra::SmallVector<2> point;
+    std::size_t end;
 
-    void reinit() final;
-};
-}  // namespace Geometry
-}  // namespace hpgem
+    sample = "2.0,3.5";
+    end = Base::parsePoint(sample, 0, point);
+    REQUIRE(end == sample.size());
+    REQUIRE(point[0] == 2.0);
+    REQUIRE(point[1] == 3.5);
 
-#endif  // HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+    sample = "asd3,11fgh";
+    end = Base::parsePoint(sample, 3, point);
+    REQUIRE(end == 7);
+    REQUIRE(point[0] == 3.0);
+    REQUIRE(point[1] == 11.0);
+}
