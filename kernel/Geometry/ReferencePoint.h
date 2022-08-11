@@ -62,6 +62,10 @@ class ReferencePoint : public ReferenceGeometry {
 
     ReferencePoint(const ReferencePoint&) = delete;
 
+    double measure() const override {
+        return 1.0; // By convention
+    }
+
     /// \brief Return true.
     bool isInternalPoint(const PointReference<0>& p) const final;
 

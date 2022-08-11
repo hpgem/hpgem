@@ -45,6 +45,7 @@
 #include "Geometry/ReferenceLine.h"
 #include "Geometry/ReferenceTriangle.h"
 #include "Geometry/ReferencePoint.h"
+#include "ReferenceGeometryChecks.h"
 #include <iostream>
 #include "Logger.h"
 
@@ -58,6 +59,10 @@
 
 using namespace hpgem;
 using Geometry::ReferencePyramid;
+
+TEST_CASE("ReferencePyramid measure", "[110ReferencePyramid_UnitTest]") {
+    testMeasure<3>(ReferencePyramid::Instance());
+}
 
 TEST_CASE("110ReferencePyramid_UnitTest", "[110ReferencePyramid_UnitTest]") {
     ReferencePyramid& test = ReferencePyramid::Instance();

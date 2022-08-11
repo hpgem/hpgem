@@ -50,12 +50,17 @@
 #include "Geometry/Mappings/MappingToRefLineToTriangle.h"
 #include "Geometry/Mappings/MappingToRefTriangleToTriangle.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "ReferenceGeometryChecks.h"
 #include <cmath>
 
 #include "../catch.hpp"
 
 using namespace hpgem;
 using Geometry::ReferenceTriangle;
+
+TEST_CASE("ReferenceTriangle measure", "[070ReferenceTriangle_UnitTest]"){
+    testMeasure<2>(ReferenceTriangle::Instance());
+}
 
 TEST_CASE("070ReferenceTriangle_UnitTest", "[070ReferenceTriangle_UnitTest]") {
     ReferenceTriangle& test = ReferenceTriangle::Instance();

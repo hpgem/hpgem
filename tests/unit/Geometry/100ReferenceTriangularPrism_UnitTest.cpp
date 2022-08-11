@@ -44,6 +44,7 @@
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/ReferenceLine.h"
 #include "Geometry/ReferencePoint.h"
+#include "ReferenceGeometryChecks.h"
 #include <iostream>
 #include "Logger.h"
 
@@ -56,6 +57,11 @@
 
 using namespace hpgem;
 using Geometry::ReferenceTriangularPrism;
+
+TEST_CASE("ReferenceTriangularPrism measure",
+          "[100ReferenceTriangularPrism_UnitTest]") {
+    testMeasure<3>(ReferenceTriangularPrism::Instance());
+}
 
 TEST_CASE("100ReferenceTriangularPrism_UnitTest",
           "[100ReferenceTriangularPrism_UnitTest]") {

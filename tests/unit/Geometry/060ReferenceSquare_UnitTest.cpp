@@ -45,6 +45,7 @@
 #include "Geometry/ReferencePoint.h"
 #include "Geometry/Mappings/MappingToRefSquareToSquare.h"
 #include "Geometry/Mappings/MappingToRefLineToSquare.h"
+#include "ReferenceGeometryChecks.h"
 #include <iostream>
 #include "Logger.h"
 
@@ -56,6 +57,10 @@
 
 using namespace hpgem;
 using Geometry::ReferenceSquare;
+
+TEST_CASE("ReferenceSquare measure", "[060ReferenceSquare_UnitTest]") {
+    testMeasure<2>(ReferenceSquare::Instance());
+}
 
 TEST_CASE("060ReferenceSquare_UnitTest", "[060ReferenceSquare_UnitTest]") {
     ReferenceSquare& test = ReferenceSquare::Instance();

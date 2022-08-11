@@ -120,6 +120,8 @@ class ReferenceGeometry : public MappingCodimensions {
 
     ReferenceGeometry(const ReferenceGeometry& other) = delete;
 
+    virtual double measure() const = 0;
+
     /// \brief Check whether a given point is within the ReferenceGeometry.
     virtual bool isInternalPoint(const PointReference<0>& point) const {
         logger(ERROR, "You passed a point of the wrong dimension");

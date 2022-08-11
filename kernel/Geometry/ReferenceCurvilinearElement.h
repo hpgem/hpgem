@@ -58,6 +58,10 @@ class ReferenceCurvilinearElementBase : public ReferenceGeometry {
     /// The polynomial order of this curvilinear element
     std::size_t getOrder() const { return order_; }
 
+    double measure() const final {
+        return getBaseGeometry()->measure();
+    }
+
    private:
     std::size_t order_;
 };
