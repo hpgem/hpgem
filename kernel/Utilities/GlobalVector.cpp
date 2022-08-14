@@ -227,7 +227,6 @@ void GlobalPetscVector::constructFromTimeIntegrationVector(
 void GlobalPetscVector::writeTimeIntegrationVector(
     std::size_t timeIntegrationVectorId) {
 
-
     VecScatter scatter;
     Vec localB;
     // create a local vector...
@@ -242,12 +241,14 @@ void GlobalPetscVector::writeTimeIntegrationVector(
     // associated basis functions
     std::vector<PetscInt> positions;
     std::size_t totalPositions = 0;
-    for (Base::Element* element : mesh->getElementsList(Base::IteratorType::GLOBAL)) {
+    for (Base::Element* element :
+         mesh->getElementsList(Base::IteratorType::GLOBAL)) {
         totalPositions += element->getTotalNumberOfBasisFunctions();
     }
     positions.reserve(totalPositions);
     std::vector<PetscInt> newPositions;
-    for (Base::Element* element : mesh->getElementsList(Base::IteratorType::GLOBAL)) {
+    for (Base::Element* element :
+         mesh->getElementsList(Base::IteratorType::GLOBAL)) {
         indexing_.getGlobalIndices(element, newPositions);
         for (auto& a : newPositions) {
             positions.push_back(a);
@@ -372,12 +373,14 @@ void GlobalPetscVector::writeTimeIntegrationVector(
 
     std::vector<PetscInt> positions;
     std::size_t totalPositions = 0;
-    for (Base::Element* element : mesh->getElementsList(Base::IteratorType::GLOBAL)) {
+    for (Base::Element* element :
+         mesh->getElementsList(Base::IteratorType::GLOBAL)) {
         totalPositions += element->getTotalNumberOfBasisFunctions();
     }
     positions.reserve(totalPositions);
     std::vector<PetscInt> localPositions;
-    for (Base::Element* element : mesh->getElementsList(Base::IteratorType::GLOBAL)) {
+    for (Base::Element* element :
+         mesh->getElementsList(Base::IteratorType::GLOBAL)) {
         indexing_.getGlobalIndices(element, localPositions);
         for (auto& a : localPositions) {
             positions.push_back(a);
