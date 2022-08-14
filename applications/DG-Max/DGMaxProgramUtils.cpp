@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "CMakeDefinitions.h"
+#include <Base/CommandLineHelpers.h>
 
 using namespace hpgem;
 
@@ -81,38 +82,6 @@ template std::unique_ptr<Base::MeshManipulator<3>> readMesh(
     std::string, Base::ConfigurationData*,
     StructureDescription& structureDescription, std::size_t);
 
-/// Parse DIM comma separated numbers as the coordinates of a point.
-/// \tparam DIM The dimension of the point
-/// \param pointString The string containing the point coordinates
-/// \param start The starting index in pointString
-/// \param point The point (out)
-/// \return The first index in pointString after the number.
-template <std::size_t DIM>
-std::size_t parsePoint(const std::string& pointString, std::size_t start,
-                       LinearAlgebra::SmallVector<DIM>& point) {
-    for (std::size_t i = 0; i < DIM; ++i) {
-        if (start >= pointString.size()) {
-            throw std::invalid_argument(
-                "Not enough coordinates for a reciprocal point");
-        }
-        std::size_t len = 0;
-        try {
-            point[i] = std::stod(pointString.substr(start), &len);
-        } catch (const std::invalid_argument&) {
-            // No parse, i.e. len == 0
-            throw std::invalid_argument("Number point parsing failed at '" +
-                                        pointString.substr(start) +
-                                        "', expected a coordinate");
-        }
-        start += len;
-        if (i < DIM - 1) {
-            // Skip the comma, space, whatever that ended the point
-            start++;
-        }
-    }
-    return start;
-}
-
 template <std::size_t DIM>
 PointPath<DIM> parsePath(const std::string& path) {
     LinearAlgebra::SmallVector<DIM> point;
@@ -134,7 +103,7 @@ PointPath<DIM> parsePath(const std::string& path) {
     std::vector<LinearAlgebra::SmallVector<DIM>> points;
     while (index < path.length()) {
         LinearAlgebra::SmallVector<DIM> point;
-        index = parsePoint(path, index, point);
+        index = Base::parsePoint(path, index, point);
         points.push_back(point);
         // Strip character if needed
         while (

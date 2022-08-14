@@ -92,8 +92,18 @@ endif()
 
 find_package(CLANG_FORMAT 10 EXACT)
 if(CLANG_FORMAT_FOUND)
-    file(GLOB_RECURSE FORMAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
-  add_custom_target(format
-    COMMAND ${CLANG_FORMAT_EXECUTABLE} -i -style=file ${FORMAT_SOURCES}
-    DEPENDS ${FORMAT_SOURCES})
+    set(format_files)
+    foreach(sourcedir kernel tests applications)
+        file(GLOB_RECURSE format_files_dir
+                ${CMAKE_CURRENT_SOURCE_DIR}/${sourcedir}/*.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/${sourcedir}/*.h)
+        list(APPEND formatfiles ${format_files_dir})
+        list(LENGTH formatfiles nff)
+        message(STATUS "Formatting ${nff} files")
+    endforeach()
+    list(LENGTH FORMAT_SOURCES nff)
+    message(STATUS "Formatting ${nff} files")
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} -i -style=file ${FORMAT_SOURCES}
+        DEPENDS ${format_files})
 endif()

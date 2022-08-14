@@ -52,7 +52,7 @@ void FortranUnformattedFile::readRawRecord(std::uint32_t size, char *buffer) {
     logger.assert_debug(readRecordSize(recordSize),
                         "record size reading failed.");
     logger.assert_debug(recordSize == size,
-                        "Record size does not match expected size.");
+                        "Record size (%) does not match expected size (%)", recordSize, size);
     // Read content
     std::streamsize read = file_.sgetn(buffer, recordSize);
     logger.assert_debug(read == recordSize, "Incomplete record read");

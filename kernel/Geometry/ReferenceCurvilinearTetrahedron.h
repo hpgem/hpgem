@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,32 +35,35 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
-#define HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#ifndef HPGEM_REFERENCECURVILINEARTETRAHEDRON_H
+#define HPGEM_REFERENCECURVILINEARTETRAHEDRON_H
 
-#include "MappingReferenceToPhysical.h"
-
-#include <map>
+#include "ReferenceCurvilinearElement.h"
 
 namespace hpgem {
 namespace Geometry {
-class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
+
+/// Curvilinear tetrahedron of arbitrary order based on the standard reference
+/// tetrahedron.
+///
+/// The vertices are generate such that if the coordinates are listed in
+/// lexicographic order with x the fastest and z the slowest changing
+/// coordinate. This order ensures that the four corners of the reference
+/// tetrahedron follow this ordering.
+
+class ReferenceCurvilinearTetrahedron : public ReferenceCurvilinearElement<3> {
    public:
-    explicit MappingToPhysTriangleQuadratic(
-        const PhysicalGeometry<2>* const physicalGeometry);
-    MappingToPhysTriangleQuadratic(
-        const MappingToPhysTriangleQuadratic& other) = default;
+    static int getOrderFromPoints(std::size_t numberOfPoints);
+    static ReferenceCurvilinearTetrahedron& getReferenceCurvilinearTetrahedron(
+        std::size_t order);
 
-    PointPhysical<2> transform(const PointReference<2>&) const final;
-    PointReference<2> inverseTransform(const PointPhysical<2>&) const final;
-
-    Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
-
-    MappingReferenceToPhysicalBase* copy() const override;
-
-    void reinit() final;
+   private:
+    explicit ReferenceCurvilinearTetrahedron(std::size_t order);
+    static std::vector<Geometry::PointReference<3>> createPoints(
+        std::size_t order);
 };
+
 }  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#endif  // HPGEM_REFERENCECURVILINEARTETRAHEDRON_H

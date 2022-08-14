@@ -35,32 +35,54 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
-#define HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#ifndef HPGEM_TRANSFORMATIONCONNECTOR_H
+#define HPGEM_TRANSFORMATIONCONNECTOR_H
 
-#include "MappingReferenceToPhysical.h"
+#include "mesh/Mesh.h"
+#include "MergePlan.h"
 
-#include <map>
+#include <set>
+#include <LinearAlgebra/SmallVector.h>
 
-namespace hpgem {
-namespace Geometry {
-class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
-   public:
-    explicit MappingToPhysTriangleQuadratic(
-        const PhysicalGeometry<2>* const physicalGeometry);
-    MappingToPhysTriangleQuadratic(
-        const MappingToPhysTriangleQuadratic& other) = default;
+namespace Preprocessor {
 
-    PointPhysical<2> transform(const PointReference<2>&) const final;
-    PointReference<2> inverseTransform(const PointPhysical<2>&) const final;
+template <std::size_t dim>
+void translationConnect(Mesh<dim>& mesh,
+                        LinearAlgebra::SmallVector<dim> translation) {
+    // Stage 1: Find coordinates on the boundary
+    std::set<CoordId> boundaryCoords;
+    for (const MeshEntity<dim - 1, dim>& face : mesh.getFaces()) {
+        if (face.getNumberOfElements() != 1) {
+            // Not a boundary face, also excludes unused faces
+            continue;
+        }
+        const Element<dim>& element = face.getElement(0);
+        // Find the coord id for the nodes on the face
+        for (EntityLId localNodeId :
+             element.template getLocalIncidenceListAsIndices<0>(face)) {
+            boundaryCoords.insert(element.getCoordinateIndex(localNodeId));
+        }
+    }
 
-    Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
+    // Stage 2: Find connected coordinates
+    // We don't have any efficient datastructures for quickly matching the nodes
+    // Hence perform an O(N^2) loop to match them
+    std::map<CoordId, CoordId> pairing;
+    for (CoordId coord1 : boundaryCoords) {
+        auto translatedCoord = mesh.getCoordinate(coord1) + translation;
+        for (CoordId coord2 : boundaryCoords) {
+            auto diff = translatedCoord - mesh.getCoordinate(coord2);
+            if (diff.l2NormSquared() < 1e-16) {
+                // Matching coordinates
+                pairing[coord1] = coord2;
+            }
+        }
+    }
+    // Stage 3: Actual merging
+    MergePlan<dim> mergePlan = MergePlan<dim>::computeMergePlan(&mesh, pairing);
+    mergePlan.executeMerge();
+}
 
-    MappingReferenceToPhysicalBase* copy() const override;
+}  // namespace Preprocessor
 
-    void reinit() final;
-};
-}  // namespace Geometry
-}  // namespace hpgem
-
-#endif  // HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#endif  // HPGEM_TRANSFORMATIONCONNECTOR_H
