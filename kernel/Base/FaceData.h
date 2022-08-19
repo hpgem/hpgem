@@ -69,8 +69,11 @@ class FaceData {
     /// \deprecated For safety and also efficiency it is advised to use the
     /// other version of this function instead, which takes a FaceMatrix as
     /// input. This is actually a dated function and should be removed.
-    void setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix,
-                       std::size_t matrixID = 0);
+    [[deprecated(
+        "Use the FaceMatrix variant, this one is less efficient and assumes "
+        "left and right size.")]] void
+        setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix,
+                      std::size_t matrixID = 0);
 
     /// \brief Sets face matrix number 'matrixID' using a standard matrix.
     void setFaceMatrix(const FaceMatrix& faceMatrix, std::size_t matrixID = 0);

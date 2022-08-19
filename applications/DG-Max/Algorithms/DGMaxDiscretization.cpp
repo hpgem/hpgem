@@ -160,6 +160,10 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
              mesh.faceColBegin();
          it != end; ++it) {
         Base::Face* face = *it;
+        if (!face->isOwnedByCurrentProcessor()) {
+            // Not interested in non-owned faces
+            continue;
+        }
 
         if (integrals == LocalIntegrals::ALL) {
             computeFaceMatrix(face, boundaryIndicator);
@@ -346,16 +350,18 @@ template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceMatrix(
     Base::Face* face, DGMax::BoundaryConditionIndicator boundaryIndicator) {
     std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
+    std::size_t leftDoFs =
+        face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
     const bool internalFace = face->isInternal();
 
     using BCT = DGMax::BoundaryConditionType;
     BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator(*face);
 
-    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(0, 0);
+    Base::FaceMatrix stiffnessMatrix(0, 0);
     if (!internalFace && DGMax::isNaturalBoundary(bct)) {
         // The Neumann boundary condition is a natural boundary condition and
         // such a face does not have a contribution to the stiffness matrix.
-        stiffnessMatrix.resize(numDoFs, numDoFs);
+        stiffnessMatrix.resize(leftDoFs, numDoFs - leftDoFs);
     } else if (bct == BCT::INTERNAL || bct == BCT::DIRICHLET) {
         // Internal and Dirichlet faces have SIPG like face integrals:
         //  -[[u]]_T {{curl v}} - {{curl u}} [[v]]_T
@@ -363,8 +369,6 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
 
         auto& materialLeft = ElementInfos::get(*face->getPtrElementLeft());
         auto* materialRight = ElementInfos::get(face->getPtrElementRight());
-        std::size_t leftDoFs =
-            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
 
         // Factor for averaging. Negative sign is from the weak formulation
         double factor = -(internalFace ? 0.5 : 1.);
@@ -373,7 +377,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
         double localStab = stab_ / face->getDiameter();
         stiffnessMatrix =
             faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& pfa) {
-                LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
+                Base::FaceMatrix ret(leftDoFs, numDoFs - leftDoFs);
 
                 auto p = pfa.getPointPhysical();
                 const auto materialLeftCurl =
@@ -419,7 +423,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
             std::complex<double>(0, material->getImpedance());
         stiffnessMatrix = faceIntegrator_.integrate(
             face, [numDoFs, impedance](Base::PhysicalFace<DIM>& pfa) {
-                LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
+                Base::FaceMatrix result(numDoFs, 0);
                 for (std::size_t i = 0; i < numDoFs; ++i) {
                     LinearAlgebra::SmallVector<DIM> phiUNi;
                     pfa.basisFunctionUnitNormalCross(i, phiUNi, 0);
