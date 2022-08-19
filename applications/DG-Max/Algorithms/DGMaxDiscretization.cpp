@@ -461,12 +461,6 @@ void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
             massMatrices[1] =
                 &face->getPtrElementRight()->getElementMatrix(MASS_MATRIX_ID);
         }
-        if (!isInternal) {
-            auto& mat = faceMatrix.getElementMatrix(sides[0], sides[0]);
-            std::cout << "Size " << mat.getNumberOfRows() << 'x'
-                      << mat.getNumberOfColumns() << "Mat size"
-                      << massMatrices[0]->getNumberOfRows() << std::endl;
-        }
         for (std::size_t i = 0; i < sideCount; ++i) {
             for (std::size_t j = 0; j < sideCount; ++j) {
                 LinearAlgebra::MiddleSizeMatrix& subMatrix =
