@@ -71,8 +71,8 @@ class FaceData {
     /// input. This is actually a dated function and should be removed.
     [[deprecated(
         "Use the FaceMatrix variant, this one is less efficient and assumes "
-        "left and right size.")]]
-    void setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix,
+        "left and right size.")]] void
+        setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix,
                       std::size_t matrixID = 0);
 
     /// \brief Sets face matrix number 'matrixID' using a standard matrix.
