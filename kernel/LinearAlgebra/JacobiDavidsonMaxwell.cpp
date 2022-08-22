@@ -100,9 +100,11 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices()
 void  JacobiDavidsonMaxwellSolver::initializeSearchSpace(int nev) {
 
     PetscInt        ncols, nrows;
+    PetscInt        local_ncols, local_nrows;
 
     // get sizes
     MatGetSize(this->A, &nrows, &ncols);
+    MatGetLocalSize(this->A, &local_nrows, &local_ncols);
 
     // set the current size
     this->search_space_current_size = 1;
@@ -110,7 +112,7 @@ void  JacobiDavidsonMaxwellSolver::initializeSearchSpace(int nev) {
     // allocate the search space
     this->Qt_current_size = 1;
     BVCreate(PETSC_COMM_WORLD, &this->Qt);
-    BVSetSizes(this->Qt, PETSC_DECIDE, nrows, this->search_space_maxsize);
+    BVSetSizes(this->Qt, local_nrows, nrows, this->search_space_maxsize);
     BVSetFromOptions(this->Qt);
     BVInsertVec(this->Qt, 0, this->search_vect);
     BVSetActiveColumns(this->Qt, 0, this->search_space_current_size);
@@ -118,7 +120,7 @@ void  JacobiDavidsonMaxwellSolver::initializeSearchSpace(int nev) {
     // allocate the search space
     this->V_current_size = 1;
     BVCreate(PETSC_COMM_WORLD, &this->V);
-    BVSetSizes(this->V, PETSC_DECIDE, nrows, this->search_space_maxsize);
+    BVSetSizes(this->V, local_nrows, nrows, this->search_space_maxsize);
     BVSetFromOptions(this->V);
     BVInsertVec(this->V, 0, this->search_vect);
     BVSetActiveColumns(this->V, 0, this->V_current_size);
@@ -126,7 +128,7 @@ void  JacobiDavidsonMaxwellSolver::initializeSearchSpace(int nev) {
     // allocate the search space
     this->Q_current_size = 0;
     BVCreate(PETSC_COMM_WORLD, &this->Q);
-    BVSetSizes(this->Q, PETSC_DECIDE, nrows, nev);
+    BVSetSizes(this->Q, local_nrows, nrows, nev);
     BVSetFromOptions(this->Q);
     BVSetActiveColumns(this->Q, 0, this->Q_current_size);
 }
@@ -135,14 +137,16 @@ void JacobiDavidsonMaxwellSolver::initializeVectors(){
 
     PetscRandom     rctx;
     PetscInt        y_nrows, y_ncols;
+    PetscInt        y_local_nrows, y_local_ncols;
 
     MatGetSize(this->Y, &y_nrows, &y_ncols);
+    MatGetLocalSize(this->Y, &y_local_nrows, &y_local_ncols);
 
     // init the initial search vector
     PetscRandomCreate(PETSC_COMM_WORLD, &rctx);
     PetscRandomSetFromOptions(rctx);
     VecCreate(PETSC_COMM_WORLD, &this->search_vect);
-    VecSetSizes(this->search_vect, PETSC_DECIDE, y_nrows);
+    VecSetSizes(this->search_vect, y_local_nrows, y_nrows);
     VecSetFromOptions(this->search_vect);
     // VecSetRandom(this->search_vect, rctx);
 
@@ -208,13 +212,15 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::VecxTAx(const Vec &x, const Mat &K, 
     // Compute val = x.T K X
     Vec             tmp;
     PetscInt        ncols, nrows;
+    PetscInt        local_ncols, local_nrows;
 
     // get sizes
     MatGetSize(K, &nrows, &ncols);
+    MatGetLocalSize(K, &local_nrows, &local_ncols);
 
     // create tmp = K * x
     VecCreate(PETSC_COMM_WORLD, &tmp);
-    VecSetSizes(tmp,PETSC_DECIDE,nrows);
+    VecSetSizes(tmp,local_nrows,nrows);
     VecSetFromOptions(tmp);
     MatMult(K, x, tmp);
 
@@ -321,6 +327,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(const Vec &r
     KSP         ksp;
     PC          pc;
     PetscInt    ncols, nrows;
+    PetscInt    local_ncols, local_nrows;
     Vec         rhs;
     PetscErrorCode ierr;
     PetscInt    its;
@@ -332,12 +339,13 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(const Vec &r
     this->print_time = false;
 
     // get the linear operator
-    MatGetLocalSize(this->A, &nrows, &ncols);
-    MatCreateShell(PETSC_COMM_WORLD, nrows, ncols, PETSC_DECIDE,PETSC_DECIDE, this, &op);
+    MatGetSize(this->A, &nrows, &ncols);
+    MatGetLocalSize(this->A, &local_nrows, &local_ncols);
+    MatCreateShell(PETSC_COMM_WORLD, local_nrows, local_ncols, nrows, ncols, this, &op);
     MatShellSetOperation(op, MATOP_MULT, (void (*)(void))staticMatMultCorrOp);
 
 
-    MatCreateShell(PETSC_COMM_WORLD, nrows, ncols, PETSC_DECIDE,PETSC_DECIDE, this, &prec);
+    MatCreateShell(PETSC_COMM_WORLD, local_nrows, local_ncols, nrows, ncols, this, &prec);
     MatShellSetOperation(prec, MATOP_MULT, (void (*)(void))staticMatMultCorrPrec);
 
 
@@ -448,23 +456,25 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::projectCorrectionVector(Vec &corr)
      // compute corr = corr - Y H^{-1} C.T corr
 
     Vec         rhs, ksp_sol, tmp_vec;
-    PetscInt    c_ncols, c_nrows;
+    PetscInt    c_ncols, c_nrows, c_local_ncols, c_local_nrows; 
+    PetscInt    corr_size, rhs_size;
     KSP         ksp;
     PetscInt    its;
 
     auto tstart = std::chrono::high_resolution_clock::now();
 
     MatGetSize(this->C, &c_nrows, &c_ncols);
-
+    MatGetLocalSize(this->C, &c_local_nrows, &c_local_ncols);
 
     // create tmp_row vec
     VecCreate(PETSC_COMM_WORLD, &rhs);
-    VecSetSizes(rhs,PETSC_DECIDE,c_ncols);
+    VecSetSizes(rhs,c_local_ncols,c_ncols);
     VecSetFromOptions(rhs);
+
 
     // compute rhs = C.T corr
     MatMultHermitianTranspose(this->C, corr, rhs);
-
+    
     // set up the linear system
     KSPCreate(PETSC_COMM_WORLD,&ksp);
     KSPSetType(ksp,KSPGMRES);
@@ -654,13 +664,16 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     }
 
     // init the solver matrices and vectors
+    
     initializeMatrices();
-    initializeVectors();
-    initializeSearchSpace(nev);
 
+    initializeVectors();
+    
+    initializeSearchSpace(nev);
+    
     // rayleigh quotient
     computeRayleighQuotient(this->search_vect, &rho);
- 
+    
     // compute initial residue vector
     computeResidueVector(this->search_vect, rho, this->residue_vect);
 
