@@ -140,7 +140,7 @@ class JacobiDavidsonMaxwellSolver final {
 
     std::vector<PetscScalar>  eigenvalues;    
 
-    bool print_time = true;
+    bool print_time = false;
     bool print_small_evs = false;
 };
 
