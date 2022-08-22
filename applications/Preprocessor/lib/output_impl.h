@@ -101,6 +101,7 @@ void outputMesh(Mesh<dimension>& mesh,
         logger(WARN, "outputting empty mesh");
     }
     std::ofstream output(outputFileName.getValue());
+    logger(INFO, "Writing processed mesh to %", outputFileName.getValue());
     output << std::hexfloat;
     size_t version = 2;
     output << "mesh " << version << std::endl;

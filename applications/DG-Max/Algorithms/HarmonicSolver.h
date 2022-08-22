@@ -43,12 +43,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../ProblemTypes/AbstractHarmonicSolverDriver.h"
 
 #include "AbstractDiscretization.h"
+#include "Utils/Dispersive.h"
 
 namespace DGMax {
 
 /// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
-class HarmonicSolver {
+class HarmonicSolver : public DispersionContainer {
    public:
     HarmonicSolver(std::shared_ptr<AbstractDiscretization<DIM>> discretization)
         : discretization_(discretization){};

@@ -64,7 +64,15 @@ ReferenceTetrahedron::ReferenceTetrahedron()
       ReferenceSimplex(ReferenceGeometryType::TETRAHEDRON,
                        "ReferenceTetrahedron"),
       referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()),
-      referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()) {
+      referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()),
+      mappingsLineToTetrahedron_({
+          MappingRefLineToTetrahedron(0, localNodesOnEdge_, getPoints()),
+          MappingRefLineToTetrahedron(1, localNodesOnEdge_, getPoints()),
+          MappingRefLineToTetrahedron(2, localNodesOnEdge_, getPoints()),
+          MappingRefLineToTetrahedron(3, localNodesOnEdge_, getPoints()),
+          MappingRefLineToTetrahedron(4, localNodesOnEdge_, getPoints()),
+          MappingRefLineToTetrahedron(5, localNodesOnEdge_, getPoints()),
+      }) {
     mappingsTriangleToTetrahedron_[0] =
         &MappingToRefTriangleToTetrahedron0::Instance();
     mappingsTriangleToTetrahedron_[1] =
@@ -147,9 +155,9 @@ const ReferenceGeometry* ReferenceTetrahedron::getCodim2ReferenceGeometry(
 }
 
 const MappingReferenceToReference<2>* ReferenceTetrahedron::getCodim2MappingPtr(
-    const std::size_t faceIndex) const {
-    logger(FATAL, "ERROR: Line to tetrahedron mappings do not exist.\n");
-    return nullptr;
+    const std::size_t edgeIndex) const {
+    logger.assert_debug(edgeIndex < 6, "Invalid face number");
+    return &mappingsLineToTetrahedron_[edgeIndex];
 }
 
 // ================================== Codimension 3

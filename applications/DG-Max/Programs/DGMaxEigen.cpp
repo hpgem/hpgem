@@ -116,6 +116,7 @@ template <std::size_t DIM>
 void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh);
 
 int main(int argc, char** argv) {
+    registerLogLevelCommandLineFlag();
     Base::parse_options(argc, argv);
     initDGMaxLogging();
     DGMax::printArguments(argc, argv);

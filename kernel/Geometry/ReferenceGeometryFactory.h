@@ -69,6 +69,7 @@ class ReferenceGeometryFactory {
     ReferenceGeometry& getGeometry4(std::size_t numberOfPoints);
     /// Cache for higher order 2D elements, indexed by numberOfPoints.
     std::map<std::size_t, ReferenceGeometry*> cached2DGeometries_;
+    std::map<std::size_t, ReferenceGeometry*> cached3DGeometries_;
 };
 }  // namespace Geometry
 }  // namespace hpgem

@@ -190,6 +190,12 @@ class GSmallVector {
         std::copy(data.begin(), data.end(), data_.begin());
     }
 
+    static GSmallVector constant(EntryT entry) {
+        GSmallVector result;
+        result.set(entry);
+        return result;
+    }
+
     GSmallVector& operator=(const GSmallVector& right) {
         std::copy(right.data_.begin(), right.data_.end(), data_.begin());
         return *this;

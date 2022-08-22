@@ -298,12 +298,9 @@ void DivDGMaxEigenvalue<DIM>::solve(
     PetscErrorCode error;
     DGMaxLogger(INFO, "Starting assembly");
 
-    // Using dispersive materials is not supported
-    const double dispersionFrequency =
-        std::numeric_limits<double>::signaling_NaN();
     discretization.initializeBasisFunctions(mesh_);
-    discretization.computeElementIntegrals(mesh_, {}, dispersionFrequency);
-    discretization.computeFaceIntegrals(mesh_, {}, dispersionFrequency);
+    discretization.computeElementIntegrals(mesh_, {});
+    discretization.computeFaceIntegrals(mesh_, {});
 
     SolverWorkspace workspace(&mesh_);
 

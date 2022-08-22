@@ -40,6 +40,8 @@
 
 #include "MappingReferenceToPhysical.h"
 
+#include <map>
+
 namespace hpgem {
 namespace Geometry {
 class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
