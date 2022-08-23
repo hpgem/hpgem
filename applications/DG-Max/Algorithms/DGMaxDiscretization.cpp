@@ -156,14 +156,8 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
         std::shared_ptr<Base::CoordinateTransformation<DIM>>(
             new Base::HCurlConformingTransformation<DIM>()));
     auto end = mesh.faceColEnd();
-    for (typename Base::MeshManipulator<DIM>::FaceIterator it =
-             mesh.faceColBegin();
-         it != end; ++it) {
+    for (auto it = mesh.faceColBegin(); it != end; ++it) {
         Base::Face* face = *it;
-        if (!face->isOwnedByCurrentProcessor()) {
-            // Not interested in non-owned faces
-            continue;
-        }
 
         if (integrals == LocalIntegrals::ALL) {
             computeFaceMatrix(face, boundaryIndicator);
