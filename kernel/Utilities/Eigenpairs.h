@@ -80,8 +80,8 @@ class Eigenpairs final {
      * @param eps The solver to load the eigenpairs from
      * @param sample A sample vector to duplicate for storing eigenvectors
      */
-    void loadEigenpairs(EPS eps, Vec sample);
-    void loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver eps, Vec sample);
+    void loadEigenpairs(EPS &eps, Vec sample);
+    void loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver &eps, Vec sample);
 
     /**
      * Reorder the currently stored eigenpairs

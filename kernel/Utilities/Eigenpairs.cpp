@@ -98,7 +98,7 @@ void Eigenpairs::reserve(std::size_t newSize, Vec sample) {
  * @param eps The solver to load the eigenpairs from
  * @param sample A sample vector to duplicate for storing eigenvectors
  */
-void Eigenpairs::loadEigenpairs(EPS eps, Vec sample) {
+void Eigenpairs::loadEigenpairs(EPS &eps, Vec sample) {
     PetscInt converged;
     PetscErrorCode err;
     err = EPSGetConverged(eps, &converged);
@@ -118,7 +118,7 @@ void Eigenpairs::loadEigenpairs(EPS eps, Vec sample) {
     std::iota(ordering_.begin(), ordering_.end(), 0);
 }
 
-void Eigenpairs::loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver jdmax, Vec sample) {
+void Eigenpairs::loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver &jdmax, Vec sample) {
     
     PetscInt converged;
     PetscErrorCode err;
