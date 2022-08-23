@@ -335,9 +335,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(const Vec &r
 
     auto tstart = std::chrono::high_resolution_clock::now();
 
-    print_time_local = this->print_time;
-    this->print_time = false;
-
     // get the linear operator
     MatGetSize(this->A, &nrows, &ncols);
     MatGetLocalSize(this->A, &local_nrows, &local_ncols);
@@ -378,11 +375,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(const Vec &r
     auto tstop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
 
-    this->print_time = print_time_local;
-
-    if(this->print_time){
-        PetscPrintf(PETSC_COMM_WORLD, "  -- solveCorrectionEquation done in %d mu s [%d its]\n", duration.count(),its);
-    }
+    logger(DEBUG, "  -- solveCorrectionEquation done in %d mu s [%d its]\n", duration.count(),its);
 
     return(0);
 
@@ -409,9 +402,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeResidueVector(const Vec &q, c
     auto tstop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
 
-    if(this->print_time){
-        PetscPrintf(PETSC_COMM_WORLD, "  -- computeResidueVector done in %d mu s \n", duration.count());
-    }
+    logger(DEBUG, "  -- computeResidueVector done in %d mu s \n", duration.count());
 
     return(0);
 
@@ -442,9 +433,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeProjection(Vec &v, const BV &
     auto tstop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
 
-    if(this->print_time){
-        PetscPrintf(PETSC_COMM_WORLD, "  -- computeProjection done in %d mu s \n", duration.count());
-    }
+    logger(DEBUG,"  -- computeProjection done in %d mu s \n", duration.count());
+    
 
     return (0);
 
@@ -503,9 +493,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::projectCorrectionVector(Vec &corr)
     auto tstop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
 
-    if(this->print_time){
-        PetscPrintf(PETSC_COMM_WORLD, "  -- projectCorrectionVector done in %d mu s [%d its]\n", duration.count(), its);
-    }
+    
+    logger(DEBUG,"  -- projectCorrectionVector done in %d mu s [%d its]\n", duration.count(), its);
 
     return(0);
 }
@@ -582,8 +571,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
     for (i=0; i<nconv; i++){
 
         if(eval_tmp_real[i] < 1E-6){
-            PetscPrintf(PETSC_COMM_WORLD, " Warning : Zero Eigenvalue detected: %d %f\n", i, eval_tmp_real[i]);
-            // return(0);
+            logger(WARN, " Zero Eigenvalue detected: %d %f\n", i, eval_tmp_real[i]);
         }
         
         eigenvalues.push_back(eval_tmp_real[i]);
@@ -610,13 +598,10 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
         for (int ii=0; ii<this->V_current_size;ii++)
         {
             PetscPrintf(PETSC_COMM_WORLD, "eigenvalue: %6.12f\n", eigenvalues[ii]);
-            // VecView(small_evects[ii], PETSC_VIEWER_STDOUT_WORLD);
         }
     }
 
-    if(this->print_time){
-        PetscPrintf(PETSC_COMM_WORLD, "  -- computeSmallEigenvalues done in %d mu s \n", duration.count());
-    }
+    logger(DEBUG,"  -- computeSmallEigenvalues done in %d mu s \n", duration.count());
 
     return(0);
 }
@@ -657,6 +642,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     this->search_space_minsize = nev+1;
     this->nconverged = 0;
 
+    logger(INFO, "Sovling EigenValue problem using JacobiDavidsonSolver");
 
     if(this->search_space_minsize >= search_space_maxsize){
         PetscPrintf(PETSC_COMM_WORLD, " Too many eigenvalues required");
@@ -688,8 +674,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     for (this->iter=0; this->iter<this->maxIter; this->iter++)
     {
 
-        // PetscPrintf(PETSC_COMM_WORLD, "== iteration : %d, k = %d, rho = %f\n", iter, k, rho);
-        logger(INFO, "JacobiDavidsonSolver iteration : %, k = %, rho = %", iter, k, rho);
+        logger(DEBUG, "JacobiDavidsonSolver iteration : %, k = %, rho = %", iter, k, rho);
 
         // determine eta
         eps = (PetscReal)(std::rand())/ (PetscReal)(RAND_MAX);
@@ -757,7 +742,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
             found = (eps < this->tolerance && k>0) ? PETSC_TRUE : PETSC_FALSE;
             if(found)
             {
-                logger(INFO, "JacobiDavidsonSolver new eigenvector found with eigenvalue %", rho);
+                logger(VERBOSE, "JacobiDavidsonSolver new eigenvector found with eigenvalue %", rho);
                 // store the eigenvalue/eigenvector
                 this->eigenvalues.push_back(rho);
 
