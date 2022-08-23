@@ -52,7 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base/MeshManipulator.h"
 #include "LinearAlgebra/SmallVector.h"
-#include "LinearAlgebra/JacobiDavidsonMaxwell.h"
+#include "EigenSolvers/JacobiDavidsonMaxwell.h"
 #include "Utilities/Eigenpairs.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"

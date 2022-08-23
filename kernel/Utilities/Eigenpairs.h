@@ -44,7 +44,7 @@
 #include <vector>
 #include <slepc.h>
 #include "Logger.h"
-#include "../LinearAlgebra/JacobiDavidsonMaxwell.h"
+#include "../EigenSolvers/JacobiDavidsonMaxwell.h"
 
 namespace hpgem {
 namespace Utilities {
