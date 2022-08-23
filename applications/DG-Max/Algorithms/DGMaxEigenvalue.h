@@ -66,7 +66,7 @@ class DGMaxEigenvalueBase {
               shiftFactor_(0),
               stab_(100),
               useProjector_(NONE),
-              use_jdmax_(true){};
+              use_jdmax_(false){};
 
         /// Whether to solve M^{-1}S x = omega^2 (non Hermitian) or
         /// L^{-1} S L^{-T}y = omega^2 y (Hermitian)
