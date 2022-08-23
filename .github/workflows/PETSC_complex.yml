@@ -21,6 +21,8 @@ jobs:
     - name: dependencies
       run: |
         sudo apt update
+        apt-cache search petsc
+        apt-cache search slepc
         sudo apt install libblas-dev liblapack-dev libopenmpi-dev libpetsc-complex-dev libslepc-complex3.12-dev
     - name: configure
       env:
