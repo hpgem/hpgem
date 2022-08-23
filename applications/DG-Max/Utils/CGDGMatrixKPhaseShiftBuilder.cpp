@@ -177,6 +177,14 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addElementPhaseShift(
     // If the owning element and the current element are not on different sides
     // of the periodic boundary, then dx = a_T = 0 and there is no phase shift.
     if (dx.l2Norm() > 1e-12) {
+        std::size_t numProjectorDoF = geom->getLocalNumberOfBasisFunctions(1);
+        if (numProjectorDoF == 0) {
+            // The basis functions for this geometry part need to be shifted,
+            // but there are none. This is primarily the case with lower order
+            // basis functions.
+            return;
+        }
+
         const Geometry::PointReference<DIM>& center =
             element->getReferenceGeometry()->getCenter();
 
@@ -186,8 +194,6 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addElementPhaseShift(
             // trial basis functions use the - sign.
             dx -= extraShift_(element);
         }
-
-        std::size_t numProjectorDoF = geom->getLocalNumberOfBasisFunctions(1);
 
         // Difference in coordinates for the node => shift is needed
         std::size_t numSolutionDoF = element->getLocalNumberOfBasisFunctions(0);
