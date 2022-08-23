@@ -33,3 +33,5 @@ nbproject/
 # Prevent accidental addition of an old .svn folder
 .svn/
 
+# Test if they are created
+Testing/*

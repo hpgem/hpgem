@@ -113,18 +113,23 @@ int main(int argc, char** argv) {
     // number of tests.
     // TODO: Modify this to use the Braggstack (need: git fix theory to work in
     // 2D)
-    config.shiftFactor_ = 0.0;
+    config.shiftFactor_ = -1.0;
     config.useHermitian_ = true;
     config.useProjector_ = DGMaxEigenvalueBase::ALL;
-    config.use_jdmax_ = true;
     DGMax::DGMaxEVConvergenceTest<2> testCase2(testPoint, meshes, 1e-8, 1,
                                                config, &expected2);
     DGMax::EVConvergenceResult result2 = testCase2.run(runAsTest);
 
-    // Test the Jacobi-Davidson Algorithm, 
-    config.shiftFactor_ = -1.0;
+    // // Test the Jacobi-Davidson Algorithm, 
+    config.shiftFactor_ = 0;
+    config.stab_ = 100;
     config.useHermitian_ = true;
     config.useProjector_ = DGMaxEigenvalueBase::ALL;
+    config.use_jdmax_ = true;
+    config.jdmax_niter_ = 5000;
+    config.jdmax_search_space_max_size_ = 50;
+    config.jdmax_corr_iter_ = 10;
+    config.jdmax_tol_ = 1E-3;
     DGMax::DGMaxEVConvergenceTest<2> testCase3(testPoint, meshes, 1e-8, 1,
                                                config, &expected3);
     DGMax::EVConvergenceResult result3 = testCase3.run(runAsTest);
@@ -164,5 +169,19 @@ int main(int argc, char** argv) {
             0.01, true);  // Small eigenvalues are to be expected from DGMax
         result2.printFrequencyTable(linear);
         result2.printErrorTable(linear);
+
+        // Some spacing between the results for the two seperate tests
+        std::cout << "\n\n";
+
+        std::cout << "Raw frequency table 3" << std::endl;
+        result3.printFrequencyTable(linear);
+
+        result3.printResultCode(10);
+
+        std::cout << "Cleanup results" << std::endl;
+        result3.filterResults(
+            0.01, true);  // Small eigenvalues are to be expected from DGMax
+        result3.printFrequencyTable(linear);
+        result3.printErrorTable(linear);
     }
 }

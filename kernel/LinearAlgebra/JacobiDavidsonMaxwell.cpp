@@ -706,7 +706,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
         k++;
 
         // Add column to V
-        // VecView(search_vect, PETSC_VIEWER_STDOUT_SELF);
         ierr = BVInsertVec(this->V, this->V_current_size, search_vect); CHKERRABORT(PETSC_COMM_WORLD, ierr);
         this->V_current_size ++;
         ierr = BVSetActiveColumns(this->V, 0, this->V_current_size); CHKERRABORT(PETSC_COMM_WORLD, ierr);
@@ -736,7 +735,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
 
             // compute residue threshold
             computeThreshold(q, this->residue_vect, &eps);
-
 
             // compute covnergence criteria
             found = (eps < this->tolerance && k>0) ? PETSC_TRUE : PETSC_FALSE;
