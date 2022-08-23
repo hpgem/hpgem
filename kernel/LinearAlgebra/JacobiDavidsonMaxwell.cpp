@@ -650,11 +650,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     }
 
     // init the solver matrices and vectors
-    
     initializeMatrices();
-
     initializeVectors();
-    
     initializeSearchSpace(nev);
     
     // rayleigh quotient
