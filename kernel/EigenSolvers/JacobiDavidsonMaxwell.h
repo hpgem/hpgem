@@ -85,10 +85,10 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
     PetscInt getIterationCount();
 
-    void set_maxIter(int n);
-    void set_search_space_maxsize(int n);
-    void set_correction_niter(int n);
-    void set_tolerance(PetscReal tol);
+    void setMaxIter(int n);
+    void setSearchSpaceMaxSize(int n);
+    void setCorrectionNiter(int n);
+    void setTolerance(PetscReal tol);
 
 
    private:

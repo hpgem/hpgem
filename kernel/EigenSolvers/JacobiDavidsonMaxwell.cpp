@@ -14,10 +14,10 @@ void dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda,
 
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
-void JacobiDavidsonMaxwellSolver::set_maxIter(int niter){ this->maxIter = niter; }
-void JacobiDavidsonMaxwellSolver::set_search_space_maxsize(int n){ this->search_space_maxsize = n; }
-void JacobiDavidsonMaxwellSolver::set_correction_niter(int n){this->correction_niter = n;}
-void JacobiDavidsonMaxwellSolver::set_tolerance(PetscReal tol){this->tolerance=tol;}
+void JacobiDavidsonMaxwellSolver::setMaxIter(int niter){ this->maxIter = niter; }
+void JacobiDavidsonMaxwellSolver::setSearchSpaceMaxSize(int n){ this->search_space_maxsize = n; }
+void JacobiDavidsonMaxwellSolver::setCorrectionNiter(int n){this->correction_niter = n;}
+void JacobiDavidsonMaxwellSolver::setTolerance(PetscReal tol){this->tolerance=tol;}
 
 PetscInt JacobiDavidsonMaxwellSolver::getConverged(){ return this->Q_current_size;}
 
