@@ -152,6 +152,17 @@ class PMLElementInfos : public ElementInfos, public DGMax::Dispersive {
 
     bool isDispersive() const final { return true; }
 
+    /**
+     * Vector denoting the dampening for each coordinate direction.
+     * Values:
+     *  - -1, dampens in negative direction
+     *  - 0, does not dampen
+     *  - +1 dampens in positive direction
+     */
+    const VecR& getDampeningDirections() const {
+        return directions_;
+    }
+
     /// \brief Compute the required scaling parameter for an attenuation.
     ///
     /// Computes the scaling parameter to get the desired attenuation. This

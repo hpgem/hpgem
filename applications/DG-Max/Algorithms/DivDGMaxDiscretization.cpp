@@ -416,6 +416,33 @@ LinearAlgebra::SmallVector<4> DivDGMaxDiscretization<DIM>::computeEnergyFluxes(
 }
 
 template <std::size_t DIM>
+double DivDGMaxDiscretization<DIM>::computeFieldL2Integral(
+    Base::Face& face, Base::Side side, std::size_t vector_id) {
+    const LinearAlgebra::MiddleSizeVector& coefficients =
+        face.getTimeIntegrationVector(vector_id);
+    using VecC = LinearAlgebra::SmallVectorC<DIM>;
+    std::size_t dofOffset =
+        side == Base::Side::LEFT
+            ? 0
+            : face.getPtrElementLeft()->getTotalNumberOfBasisFunctions();
+    std::size_t numDoFs =
+        side == Base::Side::LEFT
+            ? face.getPtrElementLeft()->getNumberOfBasisFunctions(0)
+            : face.getPtrElementRight()->getNumberOfBasisFunctions(0);
+
+    return faceIntegrator_.integrate(
+        &face, [&coefficients, dofOffset, numDoFs](Base::PhysicalFace<DIM>& pface) {
+            VecC field;
+            LinearAlgebra::SmallVector<DIM> phi;
+            for (std::size_t i = 0; i < numDoFs; ++i) {
+                pface.basisFunction(i + dofOffset, phi);
+                field += coefficients[i + dofOffset] * phi;
+            }
+            return field.l2NormSquared();
+        });
+}
+
+template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementMatrices(
     Base::Element* element, Utilities::ElementLocalIndexing& indexing) {
 
