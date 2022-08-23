@@ -102,8 +102,8 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
     // The face is a periodic boundary, but could also be a subdomain boundary.
     // For a non-subdomain boundary the current processor is responsible for
     // both off diagonal blocks in the face matrix. On a subdomain boundary it
-    // is only responsible of the off diagonal block that has locally owned rows
-    // (i.e. test functions).
+    // is only responsible for the off diagonal block that has locally owned
+    // rows (i.e. test functions).
     bool isSubdomainBoundary;
     // Element that this processor owns
     const Base::Element* ownedElement = face->getPtrElementLeft();

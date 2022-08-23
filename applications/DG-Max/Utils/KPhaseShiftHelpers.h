@@ -47,7 +47,7 @@ using namespace hpgem;
 
 // Several helper functions needed for implemting KPhase shifts
 
-inline void checkMatrixSize(const LinearAlgebra::MiddleSizeMatrix mat,
+inline void checkMatrixSize(const LinearAlgebra::MiddleSizeMatrix& mat,
                             std::size_t rows, std::size_t cols) {
     logger.assert_always(mat.getNumberOfRows() == rows,
                          "Incorrect number of rows, expected % got %", rows,
