@@ -307,7 +307,6 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
     std::size_t numberOfEigenvalues = driver.getTargetNumberOfEigenvalues();
 
     initializeMatrices();
-    // bool use_jdmax = true;
 
     SolverWorkspace workspace(config_, &mesh_, numberOfEigenvalues);
 
@@ -333,7 +332,7 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
         DGMaxEigenvalue<DIM>::Result result(workspace, &mesh_, discretization_);
         
         driver.handleResult(result);
-        // exit(0);
+
     }
 }
 
