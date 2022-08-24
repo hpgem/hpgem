@@ -168,7 +168,7 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
     EPS eps_solver_;
 
     // Jacobi Davidson solver
-    LinearAlgebra::JacobiDavidsonMaxwellSolver jdmax_solver_;
+    EigenSolvers::JacobiDavidsonMaxwellSolver jdmax_solver_;
 
 
     // Phase offset shifts

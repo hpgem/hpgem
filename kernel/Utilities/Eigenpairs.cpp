@@ -118,7 +118,7 @@ void Eigenpairs::loadEigenpairs(EPS &eps, Vec sample) {
     std::iota(ordering_.begin(), ordering_.end(), 0);
 }
 
-void Eigenpairs::loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver &jdmax, Vec sample) {
+void Eigenpairs::loadEigenpairs(EigenSolvers::JacobiDavidsonMaxwellSolver &jdmax, Vec sample) {
     
     PetscInt converged;
     PetscErrorCode err;
