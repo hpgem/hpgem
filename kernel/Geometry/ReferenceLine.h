@@ -61,9 +61,7 @@ class ReferenceLine : public ReferenceGeometry {
 
     ReferenceLine(const ReferenceLine&) = delete;
 
-    double measure() const override {
-        return 2.0;
-    }
+    double measure() const override { return 2.0; }
 
     //! (see ReferenceGeometry.h)
     bool isInternalPoint(const PointReference<1>&) const final;

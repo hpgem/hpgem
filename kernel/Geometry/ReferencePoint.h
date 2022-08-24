@@ -63,7 +63,7 @@ class ReferencePoint : public ReferenceGeometry {
     ReferencePoint(const ReferencePoint&) = delete;
 
     double measure() const override {
-        return 1.0; // By convention
+        return 1.0;  // By convention
     }
 
     /// \brief Return true.

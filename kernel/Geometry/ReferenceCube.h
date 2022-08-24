@@ -67,9 +67,7 @@ class ReferenceCube : public ReferenceGeometry {
 
     ReferenceCube(const ReferenceCube& other) = delete;
 
-    double measure() const override {
-        return 8.0;
-    }
+    double measure() const override { return 8.0; }
 
     //! (see ReferenceGeometry.h)
     bool isInternalPoint(const PointReference<3>& p) const final;

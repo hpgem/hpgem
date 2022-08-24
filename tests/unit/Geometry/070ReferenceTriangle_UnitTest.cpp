@@ -58,7 +58,7 @@
 using namespace hpgem;
 using Geometry::ReferenceTriangle;
 
-TEST_CASE("ReferenceTriangle measure", "[070ReferenceTriangle_UnitTest]"){
+TEST_CASE("ReferenceTriangle measure", "[070ReferenceTriangle_UnitTest]") {
     testMeasure<2>(ReferenceTriangle::Instance());
 }
 
