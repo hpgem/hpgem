@@ -8,13 +8,13 @@ on:
 jobs:
   check-formatting:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2 
     - name: dependencies
       run: |
         sudo apt update
-        sudo apt-get install libblas-dev liblapack-dev libopenmpi-dev clang-format-11
+        sudo apt-get install libblas-dev liblapack-dev libopenmpi-dev clang-format-10
     - name: cmake
       run: cmake -B builddir
     - name: Format
