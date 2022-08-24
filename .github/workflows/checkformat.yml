@@ -14,7 +14,7 @@ jobs:
     - name: dependencies
       run: |
         sudo apt update
-        sudo apt-get install libblas-dev liblapack-dev libopenmpi-dev clang-format-10
+        sudo apt-get install libblas-dev liblapack-dev libopenmpi-dev clang-format-11
     - name: cmake
       run: cmake -B builddir
     - name: Format
