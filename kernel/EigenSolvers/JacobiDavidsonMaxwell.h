@@ -39,8 +39,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef JACOBIDAVIDSONMAXWELLSOLVER_H
 #define JACOBIDAVIDSONMAXWELLSOLVER_H
 
-
-
 #include <petsc.h>
 #include <petscksp.h>
 
@@ -56,7 +54,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <utility>
 #include <valarray>
-
 
 /**
  * Solver of the Maxwell equation based on the paper
@@ -78,7 +75,7 @@ class JacobiDavidsonMaxwellSolver final {
 
    public:
     JacobiDavidsonMaxwellSolver();
-    
+
     void setMatrices(const Mat &Ain, const Mat &Cin);
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
@@ -90,32 +87,30 @@ class JacobiDavidsonMaxwellSolver final {
     void setCorrectionNiter(int n);
     void setTolerance(PetscReal tol);
 
-
    private:
-
     void initializeMatrices();
     void initializeVectors();
     void initializeSearchSpace(int nev);
 
-    
     PetscErrorCode computeRayleighQuotient(const Vec &x, PetscReal *out);
     PetscErrorCode normalizeVector(Vec &x);
     PetscErrorCode VecxTAx(const Vec &x, const Mat &K, PetscScalar *val);
     PetscErrorCode getCorrectionOperator(Mat &op);
     PetscErrorCode solveCorrectionEquation(const Vec &res, Vec &sol);
-    PetscErrorCode computeResidueVector(const Vec &q, const PetscReal rho, Vec &res);
-    
+    PetscErrorCode computeResidueVector(const Vec &q, const PetscReal rho,
+                                        Vec &res);
+
     PetscErrorCode computeProjection(Vec &v, const BV &Q);
-    
+
     PetscErrorCode projectCorrectionVector(Vec &corr);
     PetscErrorCode addVectorToSearchSpace(const Vec &v, PetscInt idx);
-    PetscErrorCode computeSmallEigenvalues(std::vector<PetscReal> &eval, Vec *evec);
+    PetscErrorCode computeSmallEigenvalues(std::vector<PetscReal> &eval,
+                                           Vec *evec);
     PetscErrorCode correctionOperatorMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrOp(Mat M, Vec x, Vec y);
     PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
     PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrPrec(Mat M, Vec x, Vec y);
-    
 
     PetscReal tau = 1.2;
     PetscReal eta;
@@ -131,19 +126,18 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt nconverged = 0;
     PetscReal tolerance = 1E-3;
 
-
     Mat A, C;
     Mat Y, H;
     BV Qt, Q, V;
     Vec search_vect;
     Vec residue_vect;
 
-    std::vector<PetscScalar>  eigenvalues;    
+    std::vector<PetscScalar> eigenvalues;
 
     bool print_small_evs = false;
 };
 
-} // namespace LinearAlgebra
+}  // namespace LinearAlgebra
 
 }  // namespace hpgem
 
