@@ -103,9 +103,12 @@ std::vector<double> PMLTransmission<dim>::pmlTransmission(
     for (std::size_t i = 0; i < facetNames_.size(); ++i) {
         double totalField = 0.0;
         for (Base::Face* face : resultFacets_[i]) {
-            totalField += result.computeFieldL2Integral(*face, Base::Side::LEFT);
+            totalField +=
+                result.computeFieldL2Integral(*face, Base::Side::LEFT);
         }
-        transmission[i] = totalField / surfaceArea_[i];
+        logger(INFO, "%:%;%", facetNames_[i], std::sqrt(totalField),
+               surfaceArea_[i]);
+        transmission[i] = std::sqrt(totalField / surfaceArea_[i]);
     }
     return transmission;
 }

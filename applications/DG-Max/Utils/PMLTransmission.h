@@ -54,11 +54,18 @@ namespace DGMax {
  *
  * As proxy for the actual transmission we consider the boundary faces where the
  * normal is in a dampening direction. On these faces we compute the L2-norm of
- * the solution and normalize this by the surface area.
+ * the solution and normalize this by the surface area:
+ * sqrt(integral_{faces} |E|^2 dS / integral_{faces} 1 dS)
+ *
+ * For each zone the the faces are included that:
+ *  - Are boundary faces.
+ *  - The inner product between the outward normal of the face and the
+ *    PML dampening direction is positive.
+ *  - Are a PML (determined by having a PMLElementInfos as userData).
  *
  * @tparam dim The dimension of the mesh
  */
- template<std::size_t dim>
+template <std::size_t dim>
 class PMLTransmission {
    public:
     PMLTransmission(const hpgem::Base::MeshManipulator<dim>& mesh);

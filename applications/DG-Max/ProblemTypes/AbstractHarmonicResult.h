@@ -97,7 +97,8 @@ class AbstractHarmonicResult {
         Base::Face& face, Base::Side side, double waveNumber,
         const FieldPattern<dim>* background) = 0;
 
-    virtual double computeFieldL2Integral(Base::Face& face, Base::Side side) = 0;
+    virtual double computeFieldL2Integral(Base::Face& face,
+                                          Base::Side side) = 0;
 };
 
 }  // namespace DGMax

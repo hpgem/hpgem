@@ -747,15 +747,21 @@ double DGMaxDiscretization<DIM>::computeFieldL2Integral(Base::Face& face,
         side == Base::Side::LEFT
             ? face.getPtrElementLeft()->getNumberOfBasisFunctions(0)
             : face.getPtrElementRight()->getNumberOfBasisFunctions(0);
-
+    auto& elementInfo = ElementInfos::get(*face.getPtrElement(side));
     return faceIntegrator_.integrate(
-        &face, [&coefficients, dofOffset, numDoFs](Base::PhysicalFace<DIM>& pface) {
+        &face, [&coefficients, dofOffset, numDoFs, side,
+                &elementInfo](Base::PhysicalFace<DIM>& pface) {
             VecC field;
             LinearAlgebra::SmallVector<DIM> phi;
             for (std::size_t i = 0; i < numDoFs; ++i) {
-                pface.basisFunction(i + dofOffset, phi);
+                pface.basisFunction(i + dofOffset, phi, 0);
                 field += coefficients[i + dofOffset] * phi;
             }
+            // Rescale fields for PMLs
+            field = elementInfo
+                        .getFieldRescaling(
+                            pface.getPhysicalElement(side).getPointPhysical())
+                        .applyDiv(field);
             return field.l2NormSquared();
         });
 }
