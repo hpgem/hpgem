@@ -76,7 +76,7 @@ class JacobiDavidsonMaxwellSolver final {
    public:
     JacobiDavidsonMaxwellSolver();
 
-    void setMatrices(const Mat &Ain, const Mat &Cin);
+    void setMatrices(const Mat Ain, const Mat Cin);
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);

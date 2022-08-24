@@ -46,7 +46,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index,
     return (0);
 }
 
-void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Cin) {
+void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
     // Set the A and C matrices describing the problem
     // Ax = lambda x with C x = 0
     PetscErrorCode ierr;

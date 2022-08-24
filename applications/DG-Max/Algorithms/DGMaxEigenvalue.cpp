@@ -519,8 +519,8 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
         jdmax_solver_.setTolerance(config_.jdmax_tol_);
 
         // set the matrices in the solver
-        jdmax_solver_.setMatrices(stiffnessMatrix_.A_, 
-                                  projector->projectorMatrix_.A_);
+        jdmax_solver_.setMatrices(stiffnessMatrix_, 
+                                  projector->projectorMatrix_);
        
     }
     else {
