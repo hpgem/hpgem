@@ -682,9 +682,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         eps = (PetscReal)(std::rand()) / (PetscReal)(RAND_MAX);
         this->eta = (this->iter > 0 && eps < 0.5) ? rho : this->tau;
 
-        // FOR now keep eta = tau
-        // this->eta = this->tau;
-
         // copy res to res_new and left project
         ierr = VecCopy(this->residue_vect, residue_vect_copy);
         CHKERRABORT(PETSC_COMM_WORLD, ierr);
