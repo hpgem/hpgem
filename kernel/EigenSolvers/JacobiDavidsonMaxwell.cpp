@@ -3,7 +3,7 @@
 
 namespace hpgem {
 
-namespace LinearAlgebra {
+namespace EigenSolvers {
 
 extern "C" {
 // lapack diag

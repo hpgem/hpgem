@@ -69,7 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace hpgem {
 
-namespace LinearAlgebra {
+namespace EigenSolvers {
 
 class JacobiDavidsonMaxwellSolver final {
 
@@ -137,7 +137,7 @@ class JacobiDavidsonMaxwellSolver final {
     bool print_small_evs = false;
 };
 
-}  // namespace LinearAlgebra
+}  // namespace EigenSolvers
 
 }  // namespace hpgem
 
