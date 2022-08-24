@@ -106,8 +106,6 @@ std::vector<double> PMLTransmission<dim>::pmlTransmission(
             totalField +=
                 result.computeFieldL2Integral(*face, Base::Side::LEFT);
         }
-        logger(INFO, "%:%;%", facetNames_[i], std::sqrt(totalField),
-               surfaceArea_[i]);
         transmission[i] = std::sqrt(totalField / surfaceArea_[i]);
     }
     return transmission;
