@@ -72,6 +72,10 @@ class ReferenceTriangularPrism : public ReferenceGeometry {
 
     ReferenceTriangularPrism(const ReferenceTriangularPrism& copy) = delete;
 
+    double measure() const override {
+        return 1.0;  // triangle of size 1/2, extruded over length 2
+    }
+
     //! (see ReferenceGeometry.h)
     bool isInternalPoint(const PointReference<3>& point) const final;
 

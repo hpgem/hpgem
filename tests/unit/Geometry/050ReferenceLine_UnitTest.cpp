@@ -48,6 +48,7 @@
 #include "Geometry/Mappings/MappingToRefLineToLine.h"
 #include "Geometry/Mappings/MappingToRefPointToLine.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "ReferenceGeometryChecks.h"
 #include "Logger.h"
 #include <cmath>
 
@@ -55,6 +56,10 @@
 
 using namespace hpgem;
 using Geometry::ReferenceLine;
+
+TEST_CASE("Reference Line measure", "[050ReferenceLine_UnitTest]") {
+    testMeasure<1>(ReferenceLine::Instance());
+}
 
 TEST_CASE("050ReferenceLine_UnitTest", "[050ReferenceLine_UnitTest]") {
     ReferenceLine& test = ReferenceLine::Instance();

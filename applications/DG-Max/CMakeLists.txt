@@ -35,6 +35,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/CGDGMatrixKPhaseShiftBuilder.cpp
 		Utils/FaceKPhaseShiftBuilder.cpp
 		Utils/FluxFacets.cpp
+		Utils/PMLTransmission.cpp
 		Utils/PredefinedStructure.cpp
 		Utils/StructureDescription.cpp
 		Utils/ZoneStructureDescription.cpp

@@ -187,6 +187,9 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
         std::size_t timeIntegrationVectorId,
         const DGMax::FieldPattern<DIM>* background) final;
 
+    double computeFieldL2Integral(Base::Face& face, Base::Side side,
+                                  std::size_t vector_id) final;
+
    private:
     /**
      * Compute element matrices and vectors

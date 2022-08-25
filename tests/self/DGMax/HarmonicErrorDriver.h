@@ -40,6 +40,7 @@
 
 #include <ProblemTypes/AbstractHarmonicSolverDriver.h>
 #include <Output/VTKSpecificTimeWriter.h>
+#include <Utils/PMLTransmission.h>
 
 template <std::size_t dim>
 class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
@@ -53,11 +54,13 @@ class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     };
 
    public:
-    HarmonicErrorDriver(ExactHarmonicProblem<dim>& problem)
+    HarmonicErrorDriver(ExactHarmonicProblem<dim>& problem,
+                        bool computePMLTransmission = false)
         : problem_(&problem),
           nextCalled_(false),
           errorResult_(std::nan("")),
-          plotter_(nullptr){};
+          plotter_(nullptr),
+          computePMLTransmission_(computePMLTransmission){};
 
     bool stop() const override { return nextCalled_; }
     void nextProblem() override { nextCalled_ = true; }
@@ -92,9 +95,24 @@ class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
                 },
                 scalars, vectors);
         }
+        if (computePMLTransmission_) {
+            DGMax::PMLTransmission<dim> pmlTransmission(result.getMesh());
+            pmlTransmissionFacetNames_ = pmlTransmission.getFacetNames();
+            pmlTransmissionValues_ = pmlTransmission.pmlTransmission(result);
+        }
     }
 
     double getError() { return errorResult_; }
+    double getPMLTransmission(const std::string& facetName) const {
+        logger.assert_always(computePMLTransmission_,
+                             "PML transmission is not computed");
+        for (std::size_t i = 0; i < pmlTransmissionFacetNames_.size(); ++i) {
+            if (pmlTransmissionFacetNames_[i] == facetName) {
+                return pmlTransmissionValues_[i];
+            }
+        }
+        logger.fail("No facet named %", facetName);
+    }
 
     void setOutputPlotter(Output::VTKSpecificTimeWriter<dim>* plotter) {
         plotter_ = plotter;
@@ -105,6 +123,11 @@ class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     bool nextCalled_;
     double errorResult_;
     Output::VTKSpecificTimeWriter<dim>* plotter_;
+
+    // Optional, compute transmission through a PML
+    bool computePMLTransmission_;
+    std::vector<std::string> pmlTransmissionFacetNames_;
+    std::vector<double> pmlTransmissionValues_;
 };
 
 #endif  // HPGEM_HARMONICERRORDRIVER_H
