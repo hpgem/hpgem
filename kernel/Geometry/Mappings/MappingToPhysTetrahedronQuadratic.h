@@ -56,7 +56,6 @@ class MappingToPhysTetrahedronQuadratic : public MappingReferenceToPhysical<3> {
     PointPhysical<3> transform(const PointReference<3>& p) const final;
     PointReference<3> inverseTransform(const PointPhysical<3>& p) const final;
     Jacobian<3, 3> calcJacobian(const PointReference<3>& p) const final;
-
 };
 
 }  // namespace Geometry
