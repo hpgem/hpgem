@@ -270,7 +270,9 @@ inline MappingReferenceToPhysicalBase* ElementGeometry::createMappings(
             logger(VERBOSE, "ElementGeometry created a mapping for a cube.");
             return new Geometry::MappingToPhysHypercubeLinear<3>(pGeo);
         case 10:
-            logger(VERBOSE, "ElementGeometry created a mapping for a quadratic tetrahedron.");
+            logger(VERBOSE,
+                   "ElementGeometry created a mapping for a quadratic "
+                   "tetrahedron.");
             return new Geometry::MappingToPhysTetrahedronQuadratic(pGeo);
     }
     logger(FATAL, "No know entities contain this many nodes. \n");

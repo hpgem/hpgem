@@ -54,9 +54,7 @@ class MappingRefLineToTetrahedron : public MappingReferenceToReference<2> {
         const Geometry::PointReference<1>&) const final;
     Geometry::Jacobian<1, 3> calcJacobian(const PointReference<1>&) const final;
 
-    size_t getTargetDimension() const override {
-        return 3;
-    }
+    size_t getTargetDimension() const override { return 3; }
 
    private:
     LinearAlgebra::SmallVector<3> basis_;
