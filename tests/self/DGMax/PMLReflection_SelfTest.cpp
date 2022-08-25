@@ -111,8 +111,9 @@ struct ProblemData {
     DGMax::TrenchReflectionProblem<2> problem;
 };
 
-double solve(std::string meshFile, std::size_t level, const std::string& prefix,
-             std::shared_ptr<DGMax::AbstractDiscretization<2>> discretization) {
+std::vector<double> solve(
+    std::string meshFile, std::size_t level, const std::string& prefix,
+    std::shared_ptr<DGMax::AbstractDiscretization<2>> discretization) {
     ProblemData problemData;
 
     Base::ConfigurationData config(discretization->getNumberOfUnknowns());
@@ -126,10 +127,12 @@ double solve(std::string meshFile, std::size_t level, const std::string& prefix,
     outputfileName << prefix << "-" << level;
     Output::VTKSpecificTimeWriter<2> output(outputfileName.str(), mesh.get(), 0,
                                             discretization->getOrder());
-    HarmonicErrorDriver<2> driver(problemData.problem);
+    HarmonicErrorDriver<2> driver(problemData.problem, true);
     driver.setOutputPlotter(&output);
     solver.solve(*mesh, driver);
-    return driver.getError();
+    double pmlTransmissionError = driver.getPMLTransmission("Main") -
+                                  problemData.problem.farSideL2FieldIntegral();
+    return {driver.getError(), pmlTransmissionError};
 }
 
 int main(int argc, char** argv) {
@@ -153,12 +156,23 @@ int main(int argc, char** argv) {
     ConvergenceTestSet meshesDGMax{
         getUnitSquareTriangleMeshes(3),
     };
+    // Using second order elements -> expecting convergence rate 2^2=4
     meshesDGMax.addExpectedErrors("L2error",
                                   {
                                       4.71091751e-02,  //------
                                       1.17673957e-02,  //  4.00
                                       2.94181156e-03,  //  4.00
                                       7.35406176e-04,  //  4.00
+                                  });
+    // The PMLTransmission error is an L2 integral over part of the faces. There
+    // without a convergence rate. However, convergence is expected as the
+    // solution gets better.
+    meshesDGMax.addExpectedErrors("PMLTransmissionError",
+                                  {
+                                      4.00173761e-02,  //------
+                                      8.08088856e-03,  //  4.95
+                                      1.79334628e-03,  //  4.51
+                                      4.22240907e-04,  //  4.25
                                   });
     auto dgmax = std::make_shared<DGMaxDiscretization<2>>(2, 100);
     runConvergenceTest(meshesDGMax, runToDebug.getValue(),
@@ -169,12 +183,21 @@ int main(int argc, char** argv) {
     // DivDGMax
 
     ConvergenceTestSet meshesDivDGMax{getUnitSquareTriangleMeshes(3)};
+    // See remarks for DGMax for the convergence rate
     meshesDivDGMax.addExpectedErrors("L2error",
                                      {
                                          4.69745300e-02,  //------
                                          1.17584389e-02,  //  3.99
                                          2.94123592e-03,  //  4.00
                                          7.35369615e-04,  //  4.00
+                                     });
+    meshesDivDGMax.addExpectedErrors("PMLTransmissionError",
+                                     {
+                                         4.00454582e-02,  //------
+                                         8.08356729e-03,  //  4.95
+                                         1.79353605e-03,  //  4.51
+                                         4.22253413e-04,  //  4.25
+
                                      });
 
     DivDGMaxDiscretizationBase::Stab stab;

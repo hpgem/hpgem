@@ -54,6 +54,7 @@
 #include <ProblemTypes/Harmonic/InterfaceReflectionField.h>
 
 #include <PMLElementInfos.h>
+#include <Utils/PMLTransmission.h>
 
 auto& meshFileName = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
@@ -90,6 +91,9 @@ auto& fieldIndices = Base::register_argument<std::string>(
     "Computational indices at which to output the fields, comma separated "
     "(default = all)",
     false);
+
+auto& computePMLTransmission = Base::register_argument<bool>(
+    '\0', "pmltransmission", "Compute L2 intregral at far end of PML", false);
 
 template <std::size_t dim>
 void runWithDimension();
@@ -238,7 +242,8 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
           wavenumbers_(parseWaveNumbers()),
           problem_(),
           nextCalled_(-1),
-          fluxFacets_(mesh) {
+          fluxFacets_(mesh),
+          pmlTransmission_(mesh) {
 
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
             outfile.open("harmonic.csv");
@@ -250,6 +255,11 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
                     outfile << "," << facetName << "-incident";
                     outfile << "," << facetName << "-extinction";
                     outfile << "," << facetName << "-total";
+                }
+            }
+            if (computePMLTransmission.isUsed()) {
+                for (const auto& facetName : pmlTransmission_.getFacetNames()) {
+                    outfile << "," << facetName << "-pmltransmission";
                 }
             }
             outfile << std::endl;
@@ -284,6 +294,9 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         //        double omega = 2 * M_PI * (0.001 + 0.001 * (nextCalled_ - 1));
 
         double omega = wavenumbers_[nextCalled_].first;
+        DGMaxLogger(INFO,
+                    "Current wavenumber: (computational %, real % cm^{-1})",
+                    omega, wavenumbers_[nextCalled_].second);
 
         LinearAlgebra::SmallVector<dim> k;
         LinearAlgebra::SmallVectorC<dim> E0;
@@ -363,6 +376,20 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             }
             totalFlux += entry;
         }
+        if (computePMLTransmission.isUsed()) {
+            std::vector<double> transmission =
+                pmlTransmission_.pmlTransmission(result);
+            double maxTransmission = 0.0, totalTransmission = 0.0;
+            for (const auto& trans : transmission) {
+                outfile << "," << std::setprecision(16) << trans;
+                maxTransmission = std::max(maxTransmission, trans);
+                totalTransmission += trans;
+            }
+            // For quick inspection
+            DGMaxLogger(INFO,
+                        "Maximum PML-transmission %, sum PML-transmission %",
+                        maxTransmission, totalTransmission);
+        }
         outfile << std::endl;
         DGMaxLogger(INFO, "Total net flux %", totalFlux);
     }
@@ -378,6 +405,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     std::ofstream outfile;
     int nextCalled_;
     DGMax::FluxFacets fluxFacets_;
+    DGMax::PMLTransmission<dim> pmlTransmission_;
 };
 
 template <std::size_t dim>

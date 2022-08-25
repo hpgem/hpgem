@@ -68,6 +68,10 @@ class ReferencePyramid : public ReferenceGeometry {
 
     ReferencePyramid(const ReferencePyramid& copy) = delete;
 
+    double measure() const override {
+        return 4.0 / 3;  // Pyramid of height 1 and base area 4
+    }
+
     //! (see ReferenceGeometry.h)
     bool isInternalPoint(const PointReference<3>& point) const final;
 
