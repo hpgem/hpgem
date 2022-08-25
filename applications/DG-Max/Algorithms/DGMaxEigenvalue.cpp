@@ -165,10 +165,10 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
     Mat shell_;
 
     // SLEPC Solver
-    EPS eps_solver_;
+    EPS epsSolver_;
 
     // Jacobi Davidson solver
-    EigenSolvers::JacobiDavidsonMaxwellSolver jdmax_solver_;
+    EigenSolvers::JacobiDavidsonMaxwellSolver jdmaxSolver_;
 
 
     // Phase offset shifts
@@ -399,7 +399,7 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::~SolverWorkspace() {
     }
 
     if(!config_.use_jdmax_) {
-        error = EPSDestroy(&eps_solver_);
+        error = EPSDestroy(&epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
     }
 
@@ -507,48 +507,47 @@ PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br,
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
 
-    MatType mtype;
     EPSType etype;
 
     if (config_.use_jdmax_)
     {
         // set the parameters of the solver based on the config_
-        jdmax_solver_.setMaxIter(config_.jdmax_niter_);
-        jdmax_solver_.setSearchSpaceMaxSize(config_.jdmax_search_space_max_size_);
-        jdmax_solver_.setCorrectionNiter(config_.jdmax_corr_iter_);
-        jdmax_solver_.setTolerance(config_.jdmax_tol_);
+        jdmaxSolver_.setMaxIter(config_.jdmax_niter_);
+        jdmaxSolver_.setSearchSpaceMaxSize(config_.jdmax_search_space_max_size_);
+        jdmaxSolver_.setCorrectionNiter(config_.jdmax_corr_iter_);
+        jdmaxSolver_.setTolerance(config_.jdmax_tol_);
 
         // set the matrices in the solver
-        jdmax_solver_.setMatrices(stiffnessMatrix_, 
+        jdmaxSolver_.setMatrices(stiffnessMatrix_, 
                                   projector->projectorMatrix_);
        
     }
     else {
 
-        PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &eps_solver_);
+        PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
         err =
-            EPSSetProblemType(eps_solver_, config_.useHermitian_ ? EPS_HEP : EPS_NHEP);
+            EPSSetProblemType(epsSolver_, config_.useHermitian_ ? EPS_HEP : EPS_NHEP);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        err = EPSSetWhichEigenpairs(eps_solver_, EPS_WHICH_USER);
+        err = EPSSetWhichEigenpairs(epsSolver_, EPS_WHICH_USER);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        err = EPSSetEigenvalueComparison(eps_solver_, compareEigen,
+        err = EPSSetEigenvalueComparison(epsSolver_, compareEigen,
                                         &(this->targetFrequency_));
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        err = EPSSetTarget(eps_solver_, targetFrequency_ * targetFrequency_);
+        err = EPSSetTarget(epsSolver_, targetFrequency_ * targetFrequency_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
         // So far we have configured the the parameters of the eigenvalue solver in
         // code. This overrides these settings with the values that are in SLEPc's
         // options database (if there are any). This can be used for commandline
         // overrides of the standard values.
-        err = EPSSetFromOptions(eps_solver_);
+        err = EPSSetFromOptions(epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        err = EPSSetOperators(eps_solver_, shell_, nullptr);
+        err = EPSSetOperators(epsSolver_, shell_, nullptr);
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
-        EPSGetType(eps_solver_, &etype);
+        EPSGetType(epsSolver_, &etype);
         DGMaxLogger(INFO, "EPS Type : %", etype);
     }   
 }
@@ -625,11 +624,11 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     std::swap(eigenpairs_, previousEigenpairs_);
     if (config_.use_jdmax_)
     {
-        eigenpairs_.loadEigenpairs(jdmax_solver_, tempFieldVector_);
+        eigenpairs_.loadEigenpairs(jdmaxSolver_, tempFieldVector_);
     }
     else
     {
-        eigenpairs_.loadEigenpairs(eps_solver_, tempFieldVector_);
+        eigenpairs_.loadEigenpairs(epsSolver_, tempFieldVector_);
     }
 
     // Reorder
@@ -715,12 +714,12 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     if (config_.use_jdmax_) {
 
         auto start = std::chrono::high_resolution_clock::now();
-        error = jdmax_solver_.solve(targetNumberOfEigenvalues);
+        error = jdmaxSolver_.solve(targetNumberOfEigenvalues);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         std::chrono::duration<double> time = std::chrono::high_resolution_clock::now() - start;
         
-        numEigenvalues = jdmax_solver_.getConverged();
-        iterations = jdmax_solver_.getIterationCount();
+        numEigenvalues = jdmaxSolver_.getConverged();
+        iterations = jdmaxSolver_.getIterationCount();
 
         DGMaxLogger(INFO,
                     "Eigenvalue solver stopped after % iterations with % "
@@ -732,7 +731,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     else {
 
         // Use solution of previous time as starting point for the next one.
-        error = EPSSetInitialSpace(eps_solver_, eigenpairs_.size(),
+        error = EPSSetInitialSpace(epsSolver_, eigenpairs_.size(),
                                 eigenpairs_.getRawEigenvectors());
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
@@ -740,12 +739,12 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         ///////////////////
 
         // Set the actual target number of eigenvalues for this solve
-        error = EPSSetDimensions(eps_solver_, targetNumberOfEigenvalues, PETSC_DECIDE,
+        error = EPSSetDimensions(epsSolver_, targetNumberOfEigenvalues, PETSC_DECIDE,
                                 PETSC_DECIDE);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         // Final overrides from the command line just before solving.
-        error = EPSSetFromOptions(eps_solver_);
+        error = EPSSetFromOptions(epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         // Actual Solve //
@@ -753,21 +752,21 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
 
         DGMaxLogger(INFO, "Solving eigenvalue problem");
 
-        error = EPSSetUp(eps_solver_);
+        error = EPSSetUp(epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         DGMaxLogger(INFO, "Solver setup completed");
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        error = EPSSolve(eps_solver_);
+        error = EPSSolve(epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         // Some basic statistics
         std::chrono::duration<double> time = std::chrono::high_resolution_clock::now() - start;
         
-        error = EPSGetConverged(eps_solver_, &numEigenvalues);
+        error = EPSGetConverged(epsSolver_, &numEigenvalues);
         CHKERRABORT(PETSC_COMM_WORLD, error);
-        error = EPSGetIterationNumber(eps_solver_, &iterations);
+        error = EPSGetIterationNumber(epsSolver_, &iterations);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         DGMaxLogger(INFO,

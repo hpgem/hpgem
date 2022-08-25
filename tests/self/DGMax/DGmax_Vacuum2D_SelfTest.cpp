@@ -177,10 +177,6 @@ int main(int argc, char** argv) {
         result3.printFrequencyTable(linear);
 
         result3.printResultCode(10);
-
-        std::cout << "Cleanup results" << std::endl;
-        result3.filterResults(
-            0.01, true);  // Small eigenvalues are to be expected from DGMax
         result3.printFrequencyTable(linear);
         result3.printErrorTable(linear);
     }
