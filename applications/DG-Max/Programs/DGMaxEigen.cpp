@@ -35,11 +35,13 @@ auto& method = Base::register_argument<std::string>(
 
 // use Jacobi Davidson solver or Krylov-Schur
 auto& useJDMax = Base::register_argument<bool>(
-    '\0', "use_jdmax", "boolean to use Jacobi-Davidson eigensolver (default)", false, false);
+    '\0', "use_jdmax", "boolean to use Jacobi-Davidson eigensolver (default)",
+    false, false);
 
 // Max number of Jacobi Davidson iterations, e.g. -jd_iter 140
 auto& jdNiter = Base::register_argument<std::size_t>(
-    '\0', "jd_niter", "The maximum number of Jacobi Davidson iterations", false, 100);
+    '\0', "jd_niter", "The maximum number of Jacobi Davidson iterations", false,
+    100);
 
 // Max size of the JD max search space
 auto& jdMaxSize = Base::register_argument<std::size_t>(
@@ -47,7 +49,8 @@ auto& jdMaxSize = Base::register_argument<std::size_t>(
 
 // Max size of the JD max search space
 auto& jdCorrIter = Base::register_argument<std::size_t>(
-    '\0', "jd_corr_iter", "The maximum number of iteration for the correction equation", false, 10);
+    '\0', "jd_corr_iter",
+    "The maximum number of iteration for the correction equation", false, 10);
 
 // Max size of the JD max search space
 auto& jdTol = Base::register_argument<std::string>(

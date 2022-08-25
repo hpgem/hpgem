@@ -80,7 +80,6 @@ DGMax::EVConvergenceResult expected3({
     {1.2041622361,5.4418221838,5.5560580595,7.1390027626,7.2263959872,7.6847615808,8.8975507256,9.0377472103,10.0897957246,11.6884390538}
 });
 
-
 // clang-format on
 
 int main(int argc, char** argv) {
@@ -120,7 +119,7 @@ int main(int argc, char** argv) {
                                                config, &expected2);
     DGMax::EVConvergenceResult result2 = testCase2.run(runAsTest);
 
-    // // Test the Jacobi-Davidson Algorithm, 
+    // // Test the Jacobi-Davidson Algorithm,
     config.shiftFactor_ = 0;
     config.stab_ = 100;
     config.useHermitian_ = true;

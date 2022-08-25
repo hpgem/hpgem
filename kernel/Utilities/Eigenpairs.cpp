@@ -40,10 +40,6 @@
 #include <numeric>
 #include "Eigenpairs.h"
 
-
-
-
-
 namespace hpgem {
 namespace Utilities {
 
@@ -118,8 +114,9 @@ void Eigenpairs::loadEigenpairs(EPS &eps, Vec sample) {
     std::iota(ordering_.begin(), ordering_.end(), 0);
 }
 
-void Eigenpairs::loadEigenpairs(EigenSolvers::JacobiDavidsonMaxwellSolver &jdmax, Vec sample) {
-    
+void Eigenpairs::loadEigenpairs(
+    EigenSolvers::JacobiDavidsonMaxwellSolver &jdmax, Vec sample) {
+
     PetscInt converged;
     PetscErrorCode err;
     converged = jdmax.getConverged();
@@ -138,14 +135,12 @@ void Eigenpairs::loadEigenpairs(EigenSolvers::JacobiDavidsonMaxwellSolver &jdmax
     // Reset the ordering
     std::iota(ordering_.begin(), ordering_.end(), 0);
 
-    auto lcomp = [this](int a, int b){
-        return PetscRealPart(this->eigenvalues_[a]) < PetscRealPart(this->eigenvalues_[b]);
+    auto lcomp = [this](int a, int b) {
+        return PetscRealPart(this->eigenvalues_[a]) <
+               PetscRealPart(this->eigenvalues_[b]);
     };
     std::sort(ordering_.begin(), ordering_.end(), lcomp);
-    
 }
-
-
 
 void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
     logger.assert_always(ordering.size() == size(),

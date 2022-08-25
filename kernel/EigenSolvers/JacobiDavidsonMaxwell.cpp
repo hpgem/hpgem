@@ -884,6 +884,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
     return (0);
 }
 
-}  // namespace LinearAlgebra
+}  // namespace EigenSolvers
 
 }  // namespace hpgem
