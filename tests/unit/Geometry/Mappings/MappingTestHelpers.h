@@ -110,12 +110,12 @@ void testLinearCodim2Mappings(const Geometry::ReferenceGeometry& geometry) {
                         .getCoordinates()
                         .l2NormSquared() < 1e-16);
             INFO("Checking Jacobian at corner point " << i);
-            testJacobian<dim-2,2>(codimPoint, *codimMapping);
+            testJacobian<dim - 2, 2>(codimPoint, *codimMapping);
         }
         // Test Jacobian at the centre
         INFO("Checking Jacobian at the centre ");
-        testJacobian<dim-2,2>(codimGeom->getCenter().castDimension<dim - 2>(),
-                     *codimMapping);
+        testJacobian<dim - 2, 2>(
+            codimGeom->getCenter().castDimension<dim - 2>(), *codimMapping);
     }
 }
 

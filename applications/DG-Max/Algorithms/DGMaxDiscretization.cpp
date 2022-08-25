@@ -730,6 +730,40 @@ LinearAlgebra::SmallVector<4> DGMaxDiscretization<DIM>::computeEnergyFluxes(
     return flux / (wavenumber * infos->getPermeability());
 }
 
+template <std::size_t DIM>
+double DGMaxDiscretization<DIM>::computeFieldL2Integral(Base::Face& face,
+                                                        Base::Side side,
+                                                        std::size_t vector_id) {
+    const LinearAlgebra::MiddleSizeVector& coefficients =
+        face.getTimeIntegrationVector(vector_id);
+    using VecC = LinearAlgebra::SmallVectorC<DIM>;
+    std::size_t dofOffset =
+        side == Base::Side::LEFT
+            ? 0
+            : face.getPtrElementLeft()->getTotalNumberOfBasisFunctions();
+    std::size_t numDoFs =
+        side == Base::Side::LEFT
+            ? face.getPtrElementLeft()->getNumberOfBasisFunctions(0)
+            : face.getPtrElementRight()->getNumberOfBasisFunctions(0);
+    auto& elementInfo = ElementInfos::get(*face.getPtrElement(side));
+    return faceIntegrator_.integrate(
+        &face, [&coefficients, dofOffset, numDoFs, side,
+                &elementInfo](Base::PhysicalFace<DIM>& pface) {
+            VecC field;
+            LinearAlgebra::SmallVector<DIM> phi;
+            for (std::size_t i = 0; i < numDoFs; ++i) {
+                pface.basisFunction(i + dofOffset, phi, 0);
+                field += coefficients[i + dofOffset] * phi;
+            }
+            // Rescale fields for PMLs
+            field = elementInfo
+                        .getFieldRescaling(
+                            pface.getPhysicalElement(side).getPointPhysical())
+                        .applyDiv(field);
+            return field.l2NormSquared();
+        });
+}
+
 // TODO: The code saves snapshots in the timeIntegrationVector, this is not
 // particularly nice It might be better to pass the global vector here and
 // distribute it ourselves.
