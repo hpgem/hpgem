@@ -44,6 +44,7 @@
 #include "Geometry/ReferenceTriangle.h"
 #include "Geometry/ReferenceLine.h"
 #include "Geometry/ReferencePoint.h"
+#include "ReferenceGeometryChecks.h"
 #include <iostream>
 #include "Logger.h"
 
@@ -57,6 +58,11 @@
 
 using namespace hpgem;
 using Geometry::ReferenceTetrahedron;
+
+TEST_CASE("ReferenceTetrahedron measure",
+          "[090ReferenceTetrahedron_UnitTest]") {
+    testMeasure<3>(ReferenceTetrahedron::Instance());
+}
 
 TEST_CASE("090ReferenceTetrahedron_UnitTest",
           "[090ReferenceTetrahedron_UnitTest]") {

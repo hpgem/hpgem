@@ -55,6 +55,8 @@ class ReferenceHypercube : public ReferenceGeometry {
 
     ReferenceHypercube(const ReferenceHypercube& copy) = delete;
 
+    double measure() const override { return 16.0; }
+
     //! (see ReferenceGeometry.h)
     bool isInternalPoint(const PointReference<4>& point) const final;
 

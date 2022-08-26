@@ -134,6 +134,15 @@ class FaceLocalIndexing {
         return left_.getNumberOfDoFs() + right_.getNumberOfDoFs();
     }
 
+    /// \return The total nnumber of DoFs on one side
+    std::size_t getNumberOfDoFs(Base::Side side) const {
+        if (side == Base::Side::LEFT) {
+            return left_.getNumberOfDoFs();
+        } else {
+            return right_.getNumberOfDoFs();
+        }
+    }
+
     /// \return The unknowns that are included.
     const std::vector<std::size_t>& getIncludedUnknowns() const {
         return left_.getIncludedUnknowns();

@@ -97,13 +97,13 @@ if(CLANG_FORMAT_FOUND)
         file(GLOB_RECURSE format_files_dir
                 ${CMAKE_CURRENT_SOURCE_DIR}/${sourcedir}/*.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/${sourcedir}/*.h)
-        list(APPEND formatfiles ${format_files_dir})
-        list(LENGTH formatfiles nff)
+        list(APPEND format_files ${format_files_dir})
+        list(LENGTH format_files nff)
         message(STATUS "Formatting ${nff} files")
     endforeach()
     list(LENGTH FORMAT_SOURCES nff)
     message(STATUS "Formatting ${nff} files")
     add_custom_target(format
-        COMMAND ${CLANG_FORMAT_EXECUTABLE} -i -style=file ${FORMAT_SOURCES}
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} -i -style=file ${format_files}
         DEPENDS ${format_files})
 endif()

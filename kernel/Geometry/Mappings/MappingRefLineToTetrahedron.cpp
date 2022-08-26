@@ -48,13 +48,13 @@ MappingRefLineToTetrahedron::MappingRefLineToTetrahedron(
     const auto& node2 = nodes[nodesOnEdges[face][1]].getCoordinates();
     basis_ = (node1 + node2) / 2.0;
     auto dir = (node2 - node1) / 2.0;
-    for(std::size_t i = 0; i < 3; ++i) {
+    for (std::size_t i = 0; i < 3; ++i) {
         jacobian_(i, 0) = dir[i];
     }
 }
 
 Geometry::PointReference<3> MappingRefLineToTetrahedron::transform(
-    const Geometry::PointReference<1> &p) const {
+    const Geometry::PointReference<1>& p) const {
     Geometry::PointReference<3> result(basis_);
     for (std::size_t i = 0; i < 3; ++i) {
         result[i] += jacobian_[i] * p[0];
@@ -63,7 +63,7 @@ Geometry::PointReference<3> MappingRefLineToTetrahedron::transform(
 }
 
 Geometry::Jacobian<1, 3> MappingRefLineToTetrahedron::calcJacobian(
-    const PointReference<1> &) const {
+    const PointReference<1>&) const {
     return jacobian_;
 }
 

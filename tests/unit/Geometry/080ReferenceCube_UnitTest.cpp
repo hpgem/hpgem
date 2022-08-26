@@ -44,6 +44,7 @@
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/ReferenceLine.h"
 #include "Geometry/ReferencePoint.h"
+#include "ReferenceGeometryChecks.h"
 #include <iostream>
 #include "Logger.h"
 
@@ -57,6 +58,10 @@
 
 using namespace hpgem;
 using Geometry::ReferenceCube;
+
+TEST_CASE("ReferenceCube measure", "[080ReferenceCube_UnitTest]") {
+    testMeasure<3>(ReferenceCube::Instance());
+}
 
 TEST_CASE("080ReferenceCube_UnitTest", "[080ReferenceCube_UnitTest]") {
     ReferenceCube& test = ReferenceCube::Instance();

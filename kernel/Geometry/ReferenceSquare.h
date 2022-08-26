@@ -65,6 +65,8 @@ class ReferenceSquare : public ReferenceGeometry {
 
     ReferenceSquare(const ReferenceSquare& copy) = delete;
 
+    double measure() const override { return 4.0; }
+
     //! (see ReferenceGeometry.h)
     bool isInternalPoint(const PointReference<2>& point) const final;
 
