@@ -11,6 +11,7 @@
 #include "Utils/KSpacePath.h"
 #include "Utils/StructureDescription.h"
 #include "Utils/PredefinedStructure.h"
+#include "Geometry/ReferenceCurvilinearElement.h"
 
 using namespace hpgem;
 
@@ -537,7 +538,23 @@ DivDGMaxDiscretizationBase::Stab parsePenaltyParmaters() {
 
 template <std::size_t DIM>
 void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
-    Output::VTKSpecificTimeWriter<DIM> writer(fileName, mesh);
+    // Determine the geometric order of the mesh
+    std::int32_t meshOrder = 1;
+    for (const Base::Element* element : mesh->getElementsList()) {
+        const auto* refGeom = element->getReferenceGeometry();
+        const auto* refGeomC =
+            dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
+                refGeom);
+        if (refGeomC != nullptr) {
+            meshOrder = std::max((std::int32_t)refGeomC->getOrder(), meshOrder);
+        }
+    }
+#ifdef HPGEM_USE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &meshOrder, 1, MPI_INT32_T, MPI_MAX,
+                  MPI_COMM_WORLD);
+#endif
+
+    Output::VTKSpecificTimeWriter<DIM> writer(fileName, mesh, 0, meshOrder);
     writer.write(
         [&](Base::Element* element, const Geometry::PointReference<DIM>&,
             std::size_t) {
