@@ -11,7 +11,6 @@
 #include "Utils/KSpacePath.h"
 #include "Utils/StructureDescription.h"
 #include "Utils/PredefinedStructure.h"
-#include "Geometry/ReferenceCurvilinearElement.h"
 
 using namespace hpgem;
 
@@ -83,15 +82,6 @@ double parseDGMaxPenaltyParameter();
 DivDGMaxDiscretizationBase::Stab parsePenaltyParmaters();
 template <std::size_t DIM>
 KSpacePath<DIM> parsePath();
-
-/// Write out a visualization file for the mesh, including the material
-/// parameter (epsilon)
-///
-/// \tparam DIM The dimension of the mesh
-/// \param fileName File name (without extension) for the mesh file
-/// \param mesh Pointer to the mesh.
-template <std::size_t DIM>
-void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh);
 
 int main(int argc, char** argv) {
     registerLogLevelCommandLineFlag();
@@ -348,7 +338,7 @@ void runWithDimension() {
                                      *structureDesc, numberOfElementMatrices);
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(),
            mesh->getNumberOfElements());
-    writeMesh<DIM>("mesh", mesh.get());
+    DGMax::writeMesh<DIM>("mesh", *mesh);
     // TODO: Parameterize
 
     KSpacePath<DIM> path = parsePath<DIM>();
@@ -534,35 +524,4 @@ DivDGMaxDiscretizationBase::Stab parsePenaltyParmaters() {
         stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::BREZZI);
         return stab;
     }
-}
-
-template <std::size_t DIM>
-void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
-    // Determine the geometric order of the mesh
-    std::int32_t meshOrder = 1;
-    for (const Base::Element* element : mesh->getElementsList()) {
-        const auto* refGeom = element->getReferenceGeometry();
-        const auto* refGeomC =
-            dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
-                refGeom);
-        if (refGeomC != nullptr) {
-            meshOrder = std::max((std::int32_t)refGeomC->getOrder(), meshOrder);
-        }
-    }
-#ifdef HPGEM_USE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &meshOrder, 1, MPI_INT32_T, MPI_MAX,
-                  MPI_COMM_WORLD);
-#endif
-
-    Output::VTKSpecificTimeWriter<DIM> writer(fileName, mesh, 0, meshOrder);
-    writer.write(
-        [&](Base::Element* element, const Geometry::PointReference<DIM>&,
-            std::size_t) {
-            const ElementInfos* elementInfos =
-                dynamic_cast<ElementInfos*>(element->getUserData());
-            logger.assert_debug(elementInfos != nullptr,
-                                "Incorrect user data type");
-            return elementInfos->getPermittivity();
-        },
-        "epsilon");
 }
