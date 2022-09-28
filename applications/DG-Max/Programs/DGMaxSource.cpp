@@ -135,9 +135,6 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-template <std::size_t dim>
-void writeMesh(std::string, const Base::MeshManipulator<dim>* mesh);
-
 /// Parses the wavenumbers passed to the program.
 ///
 /// \return A list of wavenumbers as pair. First the computational value, second
@@ -443,7 +440,7 @@ void runWithDimension() {
 
     logger(INFO, "Loaded mesh % with % local elements", meshFileName.getValue(),
            mesh->getNumberOfElements());
-    writeMesh<dim>("mesh", mesh.get());
+    DGMax::writeMesh<dim>("mesh", *mesh);
 
     DGMax::HarmonicSolver<dim> solver(discretization);
     for (auto& pml : pmlElementInfos) {
@@ -452,21 +449,6 @@ void runWithDimension() {
 
     Driver<dim> driver(*mesh);
     solver.solve(*mesh, driver);
-}
-
-template <std::size_t DIM>
-void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
-    Output::VTKSpecificTimeWriter<DIM> writer(fileName, mesh);
-    writer.write(
-        [](Base::Element* element, const Geometry::PointReference<DIM>&,
-           std::size_t) {
-            const ElementInfos* elementInfos =
-                dynamic_cast<ElementInfos*>(element->getUserData());
-            logger.assert_debug(elementInfos != nullptr,
-                                "Incorrect user data type");
-            return elementInfos->getPermittivity();
-        },
-        "epsilon");
 }
 
 template <std::size_t dim>
