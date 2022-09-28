@@ -87,6 +87,10 @@ class HarmonicSolver<DIM>::Result : public AbstractHarmonicResult<DIM> {
         return workspace_->computeFieldCurl(element, p);
     }
 
+    double computeFieldL2Integral(Base::Face& face, Base::Side side) final {
+        return workspace_->computeFieldL2Integral(face, side);
+    }
+
    private:
     const HarmonicProblem<DIM>* problem_;
     HarmonicSolver<DIM>::Workspace* workspace_;
@@ -153,6 +157,10 @@ class HarmonicSolver<DIM>::Workspace {
         const FieldPattern<DIM>* background) {
         return discretization_->computeEnergyFluxes(face, side, wavenumber,
                                                     VECTOR_ID, background);
+    }
+
+    double computeFieldL2Integral(Base::Face& face, Base::Side side) {
+        return discretization_->computeFieldL2Integral(face, side, VECTOR_ID);
     }
 
    private:

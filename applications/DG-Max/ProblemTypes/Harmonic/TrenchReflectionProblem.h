@@ -114,6 +114,8 @@ class TrenchReflectionProblem : public SampleHarmonicProblem<dim> {
         pmlScaling_ = scaling / (depth * depth * depth);
     }
 
+    double farSideL2FieldIntegral() const;
+
     BoundaryConditionType getBoundaryConditionType(
         const Base::Face& face) const final;
     LinearAlgebra::SmallVectorC<dim> exactSolution(

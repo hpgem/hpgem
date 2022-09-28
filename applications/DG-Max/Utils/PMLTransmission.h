@@ -35,33 +35,71 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MAPPINGREFLINETOTETRAHEDRON_H
-#define HPGEM_MAPPINGREFLINETOTETRAHEDRON_H
+#ifndef HPGEM_PMLTRANSMISSION_H
+#define HPGEM_PMLTRANSMISSION_H
 
-#include "MappingReferenceToReference.h"
+#include <memory>
+#include <vector>
+#include <map>
 
 #include <LinearAlgebra/SmallVector.h>
+#include <Base/MeshManipulator.h>
 
-namespace hpgem {
-namespace Geometry {
+#include <ProblemTypes/AbstractHarmonicResult.h>
 
-class MappingRefLineToTetrahedron : public MappingReferenceToReference<2> {
+namespace DGMax {
+
+/**
+ * Computes the transmission through the PML in an actual solution.
+ *
+ * As proxy for the actual transmission we consider the boundary faces where the
+ * normal is in a dampening direction. On these faces we compute the L2-norm of
+ * the solution and normalize this by the surface area:
+ * sqrt(integral_{faces} |E|^2 dS / integral_{faces} 1 dS)
+ *
+ * For each zone the the faces are included that:
+ *  - Are boundary faces.
+ *  - The inner product between the outward normal of the face and the
+ *    PML dampening direction is positive.
+ *  - Are a PML (determined by having a PMLElementInfos as userData).
+ *
+ * @tparam dim The dimension of the mesh
+ */
+template <std::size_t dim>
+class PMLTransmission {
    public:
-    MappingRefLineToTetrahedron(std::size_t face,
-                                const std::size_t nodesOnEdges[6][2],
-                                const PointReference<3> nodes[4]);
-    Geometry::PointReference<3> transform(
-        const Geometry::PointReference<1>&) const final;
-    Geometry::Jacobian<1, 3> calcJacobian(const PointReference<1>&) const final;
+    PMLTransmission(const hpgem::Base::MeshManipulator<dim>& mesh);
 
-    size_t getTargetDimension() const override { return 3; }
+    /**
+     * Compute the transmission through the PML for a given solution.
+     *
+     * @param result The computed result
+     * @return For each of the included faces the integral of the square of the
+     * solution.
+     */
+    std::vector<double> pmlTransmission(
+        AbstractHarmonicResult<dim>& result) const;
+
+    const std::vector<std::string>& getFacetNames() const {
+        return facetNames_;
+    }
 
    private:
-    LinearAlgebra::SmallVector<3> basis_;
-    Geometry::Jacobian<1, 3> jacobian_;
+    /**
+     * For each of the facets in the output, the local faces that contribute to
+     * that facet.
+     */
+    std::vector<std::vector<Base::Face*>> resultFacets_;
+    /**
+     * Names of the facets as used in the output.
+     */
+    std::vector<std::string> facetNames_;
+    /**
+     * Surface area of the facets (for normalization)
+     */
+    std::vector<double> surfaceArea_;
 };
 
-}  // namespace Geometry
-}  // namespace hpgem
+}  // namespace DGMax
 
-#endif  // HPGEM_MAPPINGREFLINETOTETRAHEDRON_H
+#endif  // HPGEM_PMLTRANSMISSION_H

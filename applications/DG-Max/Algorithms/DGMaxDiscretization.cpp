@@ -156,9 +156,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
         std::shared_ptr<Base::CoordinateTransformation<DIM>>(
             new Base::HCurlConformingTransformation<DIM>()));
     auto end = mesh.faceColEnd();
-    for (typename Base::MeshManipulator<DIM>::FaceIterator it =
-             mesh.faceColBegin();
-         it != end; ++it) {
+    for (auto it = mesh.faceColBegin(); it != end; ++it) {
         Base::Face* face = *it;
 
         if (integrals == LocalIntegrals::ALL) {
@@ -346,16 +344,18 @@ template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceMatrix(
     Base::Face* face, DGMax::BoundaryConditionIndicator boundaryIndicator) {
     std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
+    std::size_t leftDoFs =
+        face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
     const bool internalFace = face->isInternal();
 
     using BCT = DGMax::BoundaryConditionType;
     BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator(*face);
 
-    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(0, 0);
+    Base::FaceMatrix stiffnessMatrix(0, 0);
     if (!internalFace && DGMax::isNaturalBoundary(bct)) {
         // The Neumann boundary condition is a natural boundary condition and
         // such a face does not have a contribution to the stiffness matrix.
-        stiffnessMatrix.resize(numDoFs, numDoFs);
+        stiffnessMatrix.resize(leftDoFs, numDoFs - leftDoFs);
     } else if (bct == BCT::INTERNAL || bct == BCT::DIRICHLET) {
         // Internal and Dirichlet faces have SIPG like face integrals:
         //  -[[u]]_T {{curl v}} - {{curl u}} [[v]]_T
@@ -363,8 +363,6 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
 
         auto& materialLeft = ElementInfos::get(*face->getPtrElementLeft());
         auto* materialRight = ElementInfos::get(face->getPtrElementRight());
-        std::size_t leftDoFs =
-            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
 
         // Factor for averaging. Negative sign is from the weak formulation
         double factor = -(internalFace ? 0.5 : 1.);
@@ -373,7 +371,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
         double localStab = stab_ / face->getDiameter();
         stiffnessMatrix =
             faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& pfa) {
-                LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
+                Base::FaceMatrix ret(leftDoFs, numDoFs - leftDoFs);
 
                 auto p = pfa.getPointPhysical();
                 const auto materialLeftCurl =
@@ -419,7 +417,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
             std::complex<double>(0, material->getImpedance());
         stiffnessMatrix = faceIntegrator_.integrate(
             face, [numDoFs, impedance](Base::PhysicalFace<DIM>& pfa) {
-                LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
+                Base::FaceMatrix result(numDoFs, 0);
                 for (std::size_t i = 0; i < numDoFs; ++i) {
                     LinearAlgebra::SmallVector<DIM> phiUNi;
                     pfa.basisFunctionUnitNormalCross(i, phiUNi, 0);
@@ -730,6 +728,40 @@ LinearAlgebra::SmallVector<4> DGMaxDiscretization<DIM>::computeEnergyFluxes(
         dynamic_cast<ElementInfos*>(face.getPtrElement(side)->getUserData());
     logger.assert_debug(infos != nullptr, "No material information");
     return flux / (wavenumber * infos->getPermeability());
+}
+
+template <std::size_t DIM>
+double DGMaxDiscretization<DIM>::computeFieldL2Integral(Base::Face& face,
+                                                        Base::Side side,
+                                                        std::size_t vector_id) {
+    const LinearAlgebra::MiddleSizeVector& coefficients =
+        face.getTimeIntegrationVector(vector_id);
+    using VecC = LinearAlgebra::SmallVectorC<DIM>;
+    std::size_t dofOffset =
+        side == Base::Side::LEFT
+            ? 0
+            : face.getPtrElementLeft()->getTotalNumberOfBasisFunctions();
+    std::size_t numDoFs =
+        side == Base::Side::LEFT
+            ? face.getPtrElementLeft()->getNumberOfBasisFunctions(0)
+            : face.getPtrElementRight()->getNumberOfBasisFunctions(0);
+    auto& elementInfo = ElementInfos::get(*face.getPtrElement(side));
+    return faceIntegrator_.integrate(
+        &face, [&coefficients, dofOffset, numDoFs, side,
+                &elementInfo](Base::PhysicalFace<DIM>& pface) {
+            VecC field;
+            LinearAlgebra::SmallVector<DIM> phi;
+            for (std::size_t i = 0; i < numDoFs; ++i) {
+                pface.basisFunction(i + dofOffset, phi, 0);
+                field += coefficients[i + dofOffset] * phi;
+            }
+            // Rescale fields for PMLs
+            field = elementInfo
+                        .getFieldRescaling(
+                            pface.getPhysicalElement(side).getPointPhysical())
+                        .applyDiv(field);
+            return field.l2NormSquared();
+        });
 }
 
 // TODO: The code saves snapshots in the timeIntegrationVector, this is not

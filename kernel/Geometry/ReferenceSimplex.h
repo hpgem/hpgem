@@ -20,6 +20,14 @@ class ReferenceSimplex : public ReferenceGeometry {
    public:
     ReferenceSimplex(const ReferenceGeometryType& geoT, std::string name);
 
+    double measure() const override {
+        double m = 1.0;
+        for (int i = 2; i <= DIM; ++i) {
+            m /= i;
+        }
+        return m;
+    }
+
     /// Compute the bary centric coordinates of a point
     /// \param p The point
     /// \return The barycentric coordinates

@@ -126,6 +126,13 @@ std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     Base::MeshManipulator<dim>& mesh,
     const std::vector<PMLZoneDescription<dim>>& pmls);
 
+/// Write a mesh (including epsilon) to file
+/// \tparam dim The dimension of the mesh (instantiated for 2,3)
+/// \param fileName The prefix for the vtk files
+/// \param mesh The mesh to write
+template <std::size_t dim>
+void writeMesh(const std::string& fileName, Base::MeshManipulator<dim>& mesh);
+
 }  // namespace DGMax
 
 #endif  // HPGEM_APP_DGMAXPROGRAMUTILS_H

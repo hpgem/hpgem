@@ -784,11 +784,13 @@ void MiddleSizeMatrix::solveLowerTriangular(LinearAlgebra::MiddleSizeMatrix& B,
     if (side == Side::OP_LEFT) {
         logger.assert_debug(
             numberOfRows_ == B.numberOfRows_,
-            "size of the RHS does not match the size of the matrix");
+            "size of the RHS (%) does not match the size of the matrix (%)",
+            B.numberOfRows_, numberOfRows_);
     } else {
         logger.assert_debug(
             numberOfColumns_ == B.numberOfColumns_,
-            "size of RHS does not match the size of the matrix");
+            "size of RHS (%) does not match the size of the matrix (%)",
+            B.numberOfColumns_, numberOfColumns_);
     }
 
     int m = B.numberOfRows_;

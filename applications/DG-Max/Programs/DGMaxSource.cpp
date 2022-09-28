@@ -54,6 +54,7 @@
 #include <ProblemTypes/Harmonic/InterfaceReflectionField.h>
 
 #include <PMLElementInfos.h>
+#include <Utils/PMLTransmission.h>
 
 auto& meshFileName = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
@@ -90,6 +91,9 @@ auto& fieldIndices = Base::register_argument<std::string>(
     "Computational indices at which to output the fields, comma separated "
     "(default = all)",
     false);
+
+auto& computePMLTransmission = Base::register_argument<bool>(
+    '\0', "pmltransmission", "Compute L2 intregral at far end of PML", false);
 
 template <std::size_t dim>
 void runWithDimension();
@@ -130,9 +134,6 @@ int main(int argc, char** argv) {
     DGMaxLogger(INFO, "Runtime %s", elapsedTime.count());
     return 0;
 }
-
-template <std::size_t dim>
-void writeMesh(std::string, const Base::MeshManipulator<dim>* mesh);
 
 /// Parses the wavenumbers passed to the program.
 ///
@@ -238,7 +239,8 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
           wavenumbers_(parseWaveNumbers()),
           problem_(),
           nextCalled_(-1),
-          fluxFacets_(mesh) {
+          fluxFacets_(mesh),
+          pmlTransmission_(mesh) {
 
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
             outfile.open("harmonic.csv");
@@ -250,6 +252,11 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
                     outfile << "," << facetName << "-incident";
                     outfile << "," << facetName << "-extinction";
                     outfile << "," << facetName << "-total";
+                }
+            }
+            if (computePMLTransmission.isUsed()) {
+                for (const auto& facetName : pmlTransmission_.getFacetNames()) {
+                    outfile << "," << facetName << "-pmltransmission";
                 }
             }
             outfile << std::endl;
@@ -284,6 +291,9 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         //        double omega = 2 * M_PI * (0.001 + 0.001 * (nextCalled_ - 1));
 
         double omega = wavenumbers_[nextCalled_].first;
+        DGMaxLogger(INFO,
+                    "Current wavenumber: (computational %, real % cm^{-1})",
+                    omega, wavenumbers_[nextCalled_].second);
 
         LinearAlgebra::SmallVector<dim> k;
         LinearAlgebra::SmallVectorC<dim> E0;
@@ -363,6 +373,20 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             }
             totalFlux += entry;
         }
+        if (computePMLTransmission.isUsed()) {
+            std::vector<double> transmission =
+                pmlTransmission_.pmlTransmission(result);
+            double maxTransmission = 0.0, totalTransmission = 0.0;
+            for (const auto& trans : transmission) {
+                outfile << "," << std::setprecision(16) << trans;
+                maxTransmission = std::max(maxTransmission, trans);
+                totalTransmission += trans;
+            }
+            // For quick inspection
+            DGMaxLogger(INFO,
+                        "Maximum PML-transmission %, sum PML-transmission %",
+                        maxTransmission, totalTransmission);
+        }
         outfile << std::endl;
         DGMaxLogger(INFO, "Total net flux %", totalFlux);
     }
@@ -378,6 +402,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     std::ofstream outfile;
     int nextCalled_;
     DGMax::FluxFacets fluxFacets_;
+    DGMax::PMLTransmission<dim> pmlTransmission_;
 };
 
 template <std::size_t dim>
@@ -415,7 +440,7 @@ void runWithDimension() {
 
     logger(INFO, "Loaded mesh % with % local elements", meshFileName.getValue(),
            mesh->getNumberOfElements());
-    writeMesh<dim>("mesh", mesh.get());
+    DGMax::writeMesh<dim>("mesh", *mesh);
 
     DGMax::HarmonicSolver<dim> solver(discretization);
     for (auto& pml : pmlElementInfos) {
@@ -424,21 +449,6 @@ void runWithDimension() {
 
     Driver<dim> driver(*mesh);
     solver.solve(*mesh, driver);
-}
-
-template <std::size_t DIM>
-void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
-    Output::VTKSpecificTimeWriter<DIM> writer(fileName, mesh);
-    writer.write(
-        [](Base::Element* element, const Geometry::PointReference<DIM>&,
-           std::size_t) {
-            const ElementInfos* elementInfos =
-                dynamic_cast<ElementInfos*>(element->getUserData());
-            logger.assert_debug(elementInfos != nullptr,
-                                "Incorrect user data type");
-            return elementInfos->getPermittivity();
-        },
-        "epsilon");
 }
 
 template <std::size_t dim>

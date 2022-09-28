@@ -226,7 +226,6 @@ void GlobalPetscVector::constructFromTimeIntegrationVector(
 
 void GlobalPetscVector::writeTimeIntegrationVector(
     std::size_t timeIntegrationVectorId) {
-    PetscScalar* data;
 
     VecScatter scatter;
     Vec localB;
@@ -238,14 +237,18 @@ void GlobalPetscVector::writeTimeIntegrationVector(
     const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
     logger.assert_always(mesh != nullptr, "No mesh to for the GlobalVector");
 
+    // Vector with for each element the global indices of the
+    // associated basis functions
     std::vector<PetscInt> positions;
     std::size_t totalPositions = 0;
-    for (Base::Element* element : mesh->getElementsList()) {
+    for (Base::Element* element :
+         mesh->getElementsList(Base::IteratorType::GLOBAL)) {
         totalPositions += element->getTotalNumberOfBasisFunctions();
     }
     positions.reserve(totalPositions);
     std::vector<PetscInt> newPositions;
-    for (Base::Element* element : mesh->getElementsList()) {
+    for (Base::Element* element :
+         mesh->getElementsList(Base::IteratorType::GLOBAL)) {
         indexing_.getGlobalIndices(element, newPositions);
         for (auto& a : newPositions) {
             positions.push_back(a);
@@ -262,12 +265,13 @@ void GlobalPetscVector::writeTimeIntegrationVector(
     VecScatterDestroy(&scatter);
     ISDestroy(&scatterIS);
 
+    PetscScalar* data;
     int ierr = VecGetArray(localB, &data);
     CHKERRV(ierr);
-    // Question: wat doet deze lijn
+    auto end = mesh->elementColEnd(Base::IteratorType::GLOBAL);
     for (Base::MeshManipulatorBase::ConstElementIterator it =
-             mesh->elementColBegin();
-         it != mesh->elementColEnd(); ++it) {
+             mesh->elementColBegin(Base::IteratorType::GLOBAL);
+         it != end; ++it) {
         // Create vector for the local data that has to be written
         LinearAlgebra::MiddleSizeVector localData(
             (*it)->getTotalNumberOfBasisFunctions());
@@ -369,12 +373,14 @@ void GlobalPetscVector::writeTimeIntegrationVector(
 
     std::vector<PetscInt> positions;
     std::size_t totalPositions = 0;
-    for (Base::Element* element : mesh->getElementsList()) {
+    for (Base::Element* element :
+         mesh->getElementsList(Base::IteratorType::GLOBAL)) {
         totalPositions += element->getTotalNumberOfBasisFunctions();
     }
     positions.reserve(totalPositions);
     std::vector<PetscInt> localPositions;
-    for (Base::Element* element : mesh->getElementsList()) {
+    for (Base::Element* element :
+         mesh->getElementsList(Base::IteratorType::GLOBAL)) {
         indexing_.getGlobalIndices(element, localPositions);
         for (auto& a : localPositions) {
             positions.push_back(a);
@@ -393,9 +399,10 @@ void GlobalPetscVector::writeTimeIntegrationVector(
 
     int ierr = VecGetArray(localB, &data);
     CHKERRV(ierr);
+    auto end = mesh->elementColEnd(Base::IteratorType::GLOBAL);
     for (Base::MeshManipulatorBase::ConstElementIterator it =
-             mesh->elementColBegin();
-         it != mesh->elementColEnd(); ++it) {
+             mesh->elementColBegin(Base::IteratorType::GLOBAL);
+         it != end; ++it) {
         LinearAlgebra::MiddleSizeVector localData(
             (*it)->getTotalNumberOfBasisFunctions());
         std::size_t runningTotal = 0;

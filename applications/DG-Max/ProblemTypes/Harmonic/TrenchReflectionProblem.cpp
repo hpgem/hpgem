@@ -162,6 +162,7 @@ T TrenchReflectionProblem<dim>::combineWaves(T forward, T backward,
         // PML rescaling from attenuation
         double pmly = (y - pmlYstart_);
         if (pmly > 0) {
+            // Scaling of the field inside the PML layer
             // Scales as exp(-1/omega int_(pmly, y) pmlscaling (y-pmly)^2)
             double exponent =
                 -pmlScaling_ * ky / (3 * omega_) * pmly * pmly * pmly;
@@ -171,6 +172,7 @@ T TrenchReflectionProblem<dim>::combineWaves(T forward, T backward,
             // exponentially towards the far side.
             backward /= scaling;
         }
+        // Scaling for roundtrips through the PML
         double pmlDepth = (length_ - pmlYstart_);
         double exponent =
             -pmlScaling_ * ky / (3 * omega_) * pmlDepth * pmlDepth * pmlDepth;
@@ -179,9 +181,9 @@ T TrenchReflectionProblem<dim>::combineWaves(T forward, T backward,
         pmlFactor = std::exp(exponent);
     }
 
-    // Compute reflection coefficient using the wavevector. This is equivalent
-    // to -tan^2(theta/2), where ky = |k| cos(theta)
-    // i.e. theta is the angle of the wave vector with respect to the normal.
+    // Compute reflection coefficient at y=0 using the wavevector. This is
+    // equivalent to -tan^2(theta/2), where ky = |k| cos(theta) i.e. theta is
+    // the angle of the wave vector with respect to the normal.
     double r = 1.0 - 2 * k2 / (k2 + ky * std::sqrt(k2));
     // Reflection coefficient of the y=Ly side
     double rL;
@@ -205,6 +207,53 @@ T TrenchReflectionProblem<dim>::combineWaves(T forward, T backward,
     auto phase = std::exp(2.0i * (length_ * ky));
 
     return (forward - rL * phase * backward) / (1.0 - rL * r * phase);
+}
+
+template <std::size_t dim>
+double TrenchReflectionProblem<dim>::farSideL2FieldIntegral() const {
+    using namespace std::complex_literals;
+    // Based on an analytic computation
+    // We know a-priori that
+    // WaveIn ~ alphaIn(y) [cos(kx x), i kr sin(kx x)]
+    // WaveR  ~ alphaR(y)  [cos(kx x), -i kr sin(kx x)]
+    // with kr = kx/ky, alphaX contains phase, amplitude and PML dampening as
+    // function of y. The cos and sin terms are the result of combining two
+    // complex exponentials (waveIn1, waveIn2 or waveR1, waveR2).
+    //
+    // We are interested in
+    //   integral_x={0,width} |WaveIn + WaveR|^2,y=length
+    // Using the form of WaveIn, WaveR we can express this as:
+    //  = 2width[ |alphaIn(length) + alphaR(length)|^2
+    //      + kr^2 |alphaIn(length) - alphaR(length)|^2]
+    // So we need to compute alphaIn(length) +- alphaR(length). We abuse
+    // combineWaves for this, to prevent duplicating the code
+
+    double kx = waveIn1_.waveVector()[0];
+    double ky = waveIn1_.waveVector()[1];
+
+    // Value of the individual fields x=0, y=yL
+    Geometry::PointPhysical<dim> pPhys = {0, length_};
+    auto fieldIn1 = waveIn1_.field(pPhys);
+    auto fieldIn2 = waveIn2_.field(pPhys);
+    auto fieldR1 = waveR1_.field(pPhys);
+    auto fieldR2 = waveR2_.field(pPhys);
+
+    // Setting x=0, we eliminate the y-component and get the x-component
+    // result: 2*(alphaIn(length) + alphaR(length)
+    auto parallelComp =
+        combineWaves(fieldIn1 + fieldIn2, fieldR1 + fieldR2, length_);
+    // By flipping the sign of the second fields we switch the sin and cos
+    // terms to compute 2*kr^2(alphaIn(yL) - alphaR(yL)
+    // Alternative would be to compute at a point x= waveCount pi / (2 * width)
+    auto normalComp =
+        combineWaves(fieldIn1 - fieldIn2, fieldR1 - fieldR2, length_);
+
+    // Combine, note /2.0 because we have 2*(alphaIn +- alphaR)
+    double result =
+        width_ * (parallelComp.l2NormSquared() + normalComp.l2NormSquared()) /
+        2.0;
+
+    return std::sqrt(result);
 }
 
 template class TrenchReflectionProblem<2>;

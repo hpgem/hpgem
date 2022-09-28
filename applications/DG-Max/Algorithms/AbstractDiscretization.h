@@ -170,6 +170,17 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
         return {};
     }
 
+    /**
+     * Compute the L2 integral of the field on one side of a face
+     * @param face The face to integrate over
+     * @param side The side on which to compute the field
+     * @param vector_id The time integration vector that stores the local
+     * solution.
+     * @return The integral integral_face |E|^2 dS
+     */
+    virtual double computeFieldL2Integral(Base::Face& face, Base::Side side,
+                                          std::size_t vector_id) = 0;
+
    protected:
     virtual void computeElementIntegralsImpl(
         hpgem::Base::MeshManipulator<dim>& mesh,
