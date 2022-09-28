@@ -63,6 +63,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
           massMatrix_(indexing_, DivDGMaxDiscretizationBase::MASS_MATRIX_ID,
                       -1),
           tempVector_(indexing_, -1, -1),
+          kderivativeMat_(nullptr),
           solver_(nullptr) {
         // Separate from initializer list to allow for more flexibility
         init(mesh);
@@ -72,6 +73,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         PetscErrorCode err;
         err = EPSDestroy(&solver_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
+        MatDestroy(&kderivativeMat_);
     }
 
     void init(Base::MeshManipulator<DIM>* mesh) {
@@ -82,6 +84,10 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         massMatrix_.reinit();
         DGMaxLogger(DEBUG, "Building temporary global vector");
         tempVector_.reinit();
+
+        PetscErrorCode error = MatDuplicate(
+            stiffnessMatrix_, MAT_DO_NOT_COPY_VALUES, &kderivativeMat_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
 
         initKShifts();
         initSolver();
@@ -166,6 +172,35 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         return result;
     }
 
+    std::array<LinearAlgebra::MiddleSizeMatrix, DIM>
+        computeWaveVectorDerivatives() {
+        std::array<LinearAlgebra::MiddleSizeMatrix, DIM> result;
+        std::size_t numEigenvectors = eigenpairs_.size();
+        LinearAlgebra::SmallVector<DIM> dk;
+        for (std::size_t kdir = 0; kdir < DIM; ++kdir) {
+            result[kdir].resize(numEigenvectors, numEigenvectors);
+            // Setup derivative matrix in the i-th direction
+            // Assumes that the kderivativeMat_ is only used for these
+            // derivatives
+            dk.set(0.0);
+            dk[kdir] = 1.0;
+            MatZeroEntries(kderivativeMat_);
+            kphaseshifts_.applyDeriv(kpoint_, dk, kderivativeMat_);
+            for (std::size_t i = 0; i < numEigenvectors; ++i) {
+                MatMult(kderivativeMat_, eigenpairs_.getEigenvector(i),
+                        tempVector_);
+                for (std::size_t j = i; j < numEigenvectors; ++j) {
+                    std::complex<double> derivative;
+                    VecDot(tempVector_, eigenpairs_.getEigenvector(j),
+                           &derivative);
+                    result[kdir](i, j) = derivative;
+                    result[kdir](j, i) = std::conj(derivative);
+                }
+            }
+        }
+        return result;
+    }
+
    private:
     void initKShifts() {
         DGMaxLogger(VERBOSE, "Initializing boundary shifting");
@@ -224,6 +259,9 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
 
     LinearAlgebra::SmallVector<DIM> kpoint_;
 
+    /// Matrix used in computing the wave vector derivatives
+    Mat kderivativeMat_;
+
     /// Eigenvalue solver
     EPS solver_;
 
@@ -260,6 +298,12 @@ class DivDGMaxEigenvalue<DIM>::Result final
 
     LinearAlgebra::MiddleSizeMatrix computeFieldOverlap() const final {
         return workspace_.computeOverlapIntegrals();
+    }
+
+    bool supportsWaveVectorDerivatives() const final { return true; }
+    std::array<LinearAlgebra::MiddleSizeMatrix, DIM>
+        computeWaveVectorDerivatives() const override {
+        return workspace_.computeWaveVectorDerivatives();
     }
 
    private:
