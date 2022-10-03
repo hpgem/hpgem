@@ -52,9 +52,12 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
     PetscErrorCode ierr;
     PetscInt n, m;
     PetscViewer viewer;
+    PetscBool ishermitian;
 
     this->A = Ain;
-    MatSetOption(this->A, MAT_HERMITIAN, PETSC_TRUE);
+    MatIsHermitian(Ain, 1E-6, &ishermitian);
+    MatSetOption(this->A, MAT_HERMITIAN, ishermitian);
+    
     this->C = Cin;
 
     ierr = MatGetSize(Ain, &n, &m);
@@ -101,6 +104,38 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
     MatDestroy(&Yh);
 }
 
+
+void JacobiDavidsonMaxwellSolver::initializeVectors() {
+
+    PetscRandom rctx;
+    PetscInt y_nrows, y_ncols;
+    PetscInt y_local_nrows, y_local_ncols;
+
+    MatGetSize(this->Y, &y_nrows, &y_ncols);
+    MatGetLocalSize(this->Y, &y_local_nrows, &y_local_ncols);
+
+    // init the initial search vector
+    PetscRandomCreate(PETSC_COMM_WORLD, &rctx);
+    PetscRandomSetFromOptions(rctx);
+    VecCreate(PETSC_COMM_WORLD, &this->search_vect);
+    VecSetSizes(this->search_vect, y_local_nrows, y_nrows);
+    VecSetFromOptions(this->search_vect);
+    // VecSetRandom(this->search_vect, rctx);
+
+    // Set to 1 for now !!
+    VecSet(this->search_vect, 1.0);
+
+    // normalize the search space vector
+    normalizeVector(this->search_vect);
+
+    // project / normalize
+    projectCorrectionVector(this->search_vect);
+    normalizeVector(this->search_vect);
+
+    // init the residue
+    VecDuplicate(this->search_vect, &this->residue_vect);
+}
+
 void JacobiDavidsonMaxwellSolver::initializeSearchSpace(int nev) {
 
     PetscInt ncols, nrows;
@@ -137,36 +172,6 @@ void JacobiDavidsonMaxwellSolver::initializeSearchSpace(int nev) {
     BVSetActiveColumns(this->Q, 0, this->Q_current_size);
 }
 
-void JacobiDavidsonMaxwellSolver::initializeVectors() {
-
-    PetscRandom rctx;
-    PetscInt y_nrows, y_ncols;
-    PetscInt y_local_nrows, y_local_ncols;
-
-    MatGetSize(this->Y, &y_nrows, &y_ncols);
-    MatGetLocalSize(this->Y, &y_local_nrows, &y_local_ncols);
-
-    // init the initial search vector
-    PetscRandomCreate(PETSC_COMM_WORLD, &rctx);
-    PetscRandomSetFromOptions(rctx);
-    VecCreate(PETSC_COMM_WORLD, &this->search_vect);
-    VecSetSizes(this->search_vect, y_local_nrows, y_nrows);
-    VecSetFromOptions(this->search_vect);
-    // VecSetRandom(this->search_vect, rctx);
-
-    // Set to 1 for now !!
-    VecSet(this->search_vect, 1.0);
-
-    // normalize the search space vector
-    normalizeVector(this->search_vect);
-
-    // project / normalize
-    projectCorrectionVector(this->search_vect);
-    normalizeVector(this->search_vect);
-
-    // init the residue
-    VecDuplicate(this->search_vect, &this->residue_vect);
-}
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::computeRayleighQuotient(
     const Vec &x, PetscReal *out) {
