@@ -109,15 +109,6 @@ DivDGMaxDiscretizationBase::Stab parsePenaltyParmaters();
 template <std::size_t DIM>
 KSpacePath<DIM> parsePath();
 
-/// Write out a visualization file for the mesh, including the material
-/// parameter (epsilon)
-///
-/// \tparam DIM The dimension of the mesh
-/// \param fileName File name (without extension) for the mesh file
-/// \param mesh Pointer to the mesh.
-template <std::size_t DIM>
-void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh);
-
 int main(int argc, char** argv) {
     registerLogLevelCommandLineFlag();
     Base::parse_options(argc, argv);
@@ -373,7 +364,7 @@ void runWithDimension() {
                                      *structureDesc, numberOfElementMatrices);
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(),
            mesh->getNumberOfElements());
-    writeMesh<DIM>("mesh", mesh.get());
+    DGMax::writeMesh<DIM>("mesh", *mesh);
     // TODO: Parameterize
 
     KSpacePath<DIM> path = parsePath<DIM>();
@@ -565,19 +556,4 @@ DivDGMaxDiscretizationBase::Stab parsePenaltyParmaters() {
         stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::BREZZI);
         return stab;
     }
-}
-
-template <std::size_t DIM>
-void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
-    Output::VTKSpecificTimeWriter<DIM> writer(fileName, mesh);
-    writer.write(
-        [&](Base::Element* element, const Geometry::PointReference<DIM>&,
-            std::size_t) {
-            const ElementInfos* elementInfos =
-                dynamic_cast<ElementInfos*>(element->getUserData());
-            logger.assert_debug(elementInfos != nullptr,
-                                "Incorrect user data type");
-            return elementInfos->getPermittivity();
-        },
-        "epsilon");
 }

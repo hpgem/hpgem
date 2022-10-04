@@ -2,6 +2,8 @@
 #include "DGMaxProgramUtils.h"
 
 #include "Base/MeshManipulator.h"
+#include "Geometry/ReferenceCurvilinearElement.h"
+#include "Output/VTKSpecificTimeWriter.h"
 
 #include "DGMaxLogger.h"
 #include "Utils/PredefinedStructure.h"
@@ -455,4 +457,38 @@ template std::vector<std::shared_ptr<PMLElementInfos<2>>> applyPMLs(
 template std::vector<std::shared_ptr<PMLElementInfos<3>>> applyPMLs(
     Base::MeshManipulator<3>& mesh,
     const std::vector<PMLZoneDescription<3>>& pmls);
+
+template <std::size_t dim>
+void writeMesh(const std::string& fileName, Base::MeshManipulator<dim>& mesh) {
+    // Determine the geometric order of the mesh
+    std::int32_t meshOrder = 1;
+    for (const Base::Element* element : mesh.getElementsList()) {
+        const auto* refGeom = element->getReferenceGeometry();
+        const auto* refGeomC =
+            dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
+                refGeom);
+        if (refGeomC != nullptr) {
+            meshOrder = std::max((std::int32_t)refGeomC->getOrder(), meshOrder);
+        }
+    }
+#ifdef HPGEM_USE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &meshOrder, 1, MPI_INT32_T, MPI_MAX,
+                  MPI_COMM_WORLD);
+#endif
+
+    Output::VTKSpecificTimeWriter<dim> writer(fileName, &mesh, 0, meshOrder);
+    writer.write(
+        [&](Base::Element* element, const Geometry::PointReference<dim>&,
+            std::size_t) {
+            const ElementInfos* elementInfos =
+                dynamic_cast<ElementInfos*>(element->getUserData());
+            logger.assert_debug(elementInfos != nullptr,
+                                "Incorrect user data type");
+            return elementInfos->getPermittivity();
+        },
+        "epsilon");
+}
+template void writeMesh(const std::string&, Base::MeshManipulator<2>&);
+template void writeMesh(const std::string&, Base::MeshManipulator<3>&);
+
 }  // namespace DGMax
