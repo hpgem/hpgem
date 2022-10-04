@@ -71,12 +71,40 @@ namespace hpgem {
 
 namespace EigenSolvers {
 
+/**
+ * Solver of the Maxwell equation based on the paper
+ *   Multilevel preconditioned iterative eigensolvers
+ *   for Maxwell eigenvalue problems
+ *   P Arbenz R Geus
+ *   Applied Numerical Mathematics 54 (2005) 107-121
+ *
+ *
+ * 
+ *  Solve
+ *     A x = lambda x 
+ * 
+ * 
+ * for A = A^H and with the contraint C x = 0
+ *
+ * Implementation note:  
+ *      AmI = A - I
+ *      Y = C^H (hermitian transpose of C)
+ *      H = C * Y
+ *      V : Eigenvalue search space
+ *      Q/Qt : Converged eingevectors 
+ *      search_vect : vector in the search direction
+ *      residue_vect : residue vector
+ *      eta : shift in the correction equation 
+ *      tau : eigenvalue target
+ */
 class JacobiDavidsonMaxwellSolver final {
 
    public:
     JacobiDavidsonMaxwellSolver();
 
     void setMatrices(const Mat Ain, const Mat Cin);
+    void setLinearSystem();
+    void cleanLinearSystem();
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
@@ -94,7 +122,7 @@ class JacobiDavidsonMaxwellSolver final {
 
     PetscErrorCode computeRayleighQuotient(const Vec &x, PetscReal *out);
     PetscErrorCode normalizeVector(Vec &x);
-    PetscErrorCode VecxTAx(const Vec &x, const Mat &K, PetscScalar *val);
+    PetscErrorCode weightedVectorDot(const Vec &x, const Mat &K, PetscReal *val);
     PetscErrorCode getCorrectionOperator(Mat &op);
     PetscErrorCode solveCorrectionEquation(const Vec &res, Vec &sol);
     PetscErrorCode computeResidueVector(const Vec &q, const PetscReal rho,
@@ -127,7 +155,9 @@ class JacobiDavidsonMaxwellSolver final {
     PetscReal tolerance = 1E-3;
 
     Mat A, C;
+    Mat AmI;
     Mat Y, H;
+    KSP ksp; 
     BV Qt, Q, V;
     Vec search_vect;
     Vec residue_vect;

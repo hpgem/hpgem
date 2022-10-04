@@ -53,8 +53,8 @@ auto& jdCorrIter = Base::register_argument<std::size_t>(
     "The maximum number of iteration for the correction equation", false, 10);
 
 // Max size of the JD max search space
-auto& jdTol = Base::register_argument<std::string>(
-    '\0', "jd_tol", "Tolerance of the Jacobi Davidson solver", false, "1E-3");
+auto& jdTol = Base::register_argument<double>(
+    '\0', "jd_tol", "Tolerance of the Jacobi Davidson solver", false, 1E-3);
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
@@ -395,7 +395,7 @@ void runWithDimension() {
         config.jdmax_niter_ = jdNiter.getValue();
         config.jdmax_search_space_max_size_ = jdMaxSize.getValue();
         config.jdmax_corr_iter_ = jdCorrIter.getValue();
-        config.jdmax_tol_ = std::stod(jdTol.getValue());
+        config.jdmax_tol_ = jdTol.getValue();
 
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         solver.solve(driver);
