@@ -90,12 +90,12 @@ namespace EigenSolvers {
  *      AmI = A - I
  *      Y = C^H (hermitian transpose of C)
  *      H = C * Y
- *      V : Eigenvalue search space
- *      Q/Qt : Converged eingevectors 
+ *      V :  search space used to construct the small ev problem
+ *      Qt : projector matrix for the correction equation
  *      search_vect : vector in the search direction
  *      residue_vect : residue vector
  *      eta : shift in the correction equation 
- *      tau : eigenvalue target
+ *      tau : eigenvalue target  
  */
 class JacobiDavidsonMaxwellSolver final {
 
@@ -149,7 +149,8 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt search_space_minsize;
     PetscInt search_space_current_size = 0;
     PetscInt V_current_size = 0;
-    PetscInt Q_current_size = 0;
+
+    PetscInt eigenvectors_current_size = 0;
     PetscInt Qt_current_size = 0;
     PetscInt nconverged = 0;
     PetscReal tolerance = 1E-3;
@@ -158,7 +159,9 @@ class JacobiDavidsonMaxwellSolver final {
     Mat AmI;
     Mat Y, H;
     KSP ksp; 
-    BV Qt, Q, V;
+    BV Qt; 
+    BV eigenvectors;
+    BV V;
     Vec search_vect;
     Vec residue_vect;
 

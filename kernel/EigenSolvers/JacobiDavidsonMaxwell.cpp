@@ -27,7 +27,7 @@ void JacobiDavidsonMaxwellSolver::setTolerance(PetscReal tol) {
 }
 
 PetscInt JacobiDavidsonMaxwellSolver::getConverged() {
-    return this->Q_current_size;
+    return this->eigenvectors_current_size;
 }
 
 PetscInt JacobiDavidsonMaxwellSolver::getIterationCount() { return this->iter; }
@@ -39,9 +39,9 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index,
     PetscErrorCode ierr;
     Vec tmp_vec;
     eval = this->eigenvalues[index];
-    ierr = BVGetColumn(this->Q, index, &tmp_vec);
+    ierr = BVGetColumn(this->eigenvectors, index, &tmp_vec);
     VecCopy(tmp_vec, evec);
-    BVRestoreColumn(this->Q, index, &tmp_vec);
+    BVRestoreColumn(this->eigenvectors, index, &tmp_vec);
     VecDestroy(&tmp_vec);
     return (0);
 }
@@ -119,7 +119,7 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
 void JacobiDavidsonMaxwellSolver::initializeVectors() {
 
-    PetscRandom rctx;
+
     PetscInt y_nrows, y_ncols;
     PetscInt y_local_nrows, y_local_ncols;
 
@@ -127,14 +127,11 @@ void JacobiDavidsonMaxwellSolver::initializeVectors() {
     MatGetLocalSize(this->Y, &y_local_nrows, &y_local_ncols);
 
     // init the initial search vector
-    PetscRandomCreate(PETSC_COMM_WORLD, &rctx);
-    PetscRandomSetFromOptions(rctx);
     VecCreate(PETSC_COMM_WORLD, &this->search_vect);
     VecSetSizes(this->search_vect, y_local_nrows, y_nrows);
     VecSetFromOptions(this->search_vect);
     
     // Set to 1
-    // VecSetRandom(this->search_vect, rctx);
     VecSet(this->search_vect, 1.0);
 
     // normalize the search space vector
@@ -176,12 +173,12 @@ void JacobiDavidsonMaxwellSolver::initializeSearchSpace(int nev) {
     BVInsertVec(this->V, 0, this->search_vect);
     BVSetActiveColumns(this->V, 0, this->V_current_size);
 
-    // allocate the search space
-    this->Q_current_size = 0;
-    BVCreate(PETSC_COMM_WORLD, &this->Q);
-    BVSetSizes(this->Q, local_nrows, nrows, nev);
-    BVSetFromOptions(this->Q);
-    BVSetActiveColumns(this->Q, 0, this->Q_current_size);
+    // allocate the eigenvector space
+    this->eigenvectors_current_size = 0;
+    BVCreate(PETSC_COMM_WORLD, &this->eigenvectors);
+    BVSetSizes(this->eigenvectors, local_nrows, nrows, nev);
+    BVSetFromOptions(this->eigenvectors);
+    BVSetActiveColumns(this->eigenvectors, 0, this->eigenvectors_current_size);
 }
 
 
@@ -740,11 +737,11 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
                 this->eigenvalues.push_back(rho);
 
                 // add a new vector to the basis
-                ierr = BVInsertVec(this->Q, Q_current_size, q);
+                ierr = BVInsertVec(this->eigenvectors, this->eigenvectors_current_size, q);
                 CHKERRABORT(PETSC_COMM_WORLD, ierr);
-                this->Q_current_size++;
+                this->eigenvectors_current_size++;
 
-                if (this->Q_current_size >= nev) {
+                if (this->eigenvectors_current_size >= nev) {
                     stop = PETSC_TRUE;
                     break;
                 }
@@ -806,20 +803,18 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         if (stop) break;
 
         // Qt = [Q; q]
-        if (this->Q_current_size == 0) {
+        if (this->eigenvectors_current_size == 0) {
             ierr = BVInsertVec(this->Qt, 0, q);
             CHKERRABORT(PETSC_COMM_WORLD, ierr);
             this->Qt_current_size = 1;
             ierr = BVSetActiveColumns(this->Qt, 0, this->Qt_current_size);
             CHKERRABORT(PETSC_COMM_WORLD, ierr);
         } else {
-            ierr = BVCopy(this->Q, this->Qt);
-            CHKERRABORT(PETSC_COMM_WORLD, ierr);
-            ierr = BVInsertVec(this->Qt, Q_current_size, q);
-            CHKERRABORT(PETSC_COMM_WORLD, ierr);
-            this->Qt_current_size = this->Q_current_size + 1;
-            ierr = BVSetActiveColumns(this->Qt, 0, this->Qt_current_size);
-            CHKERRABORT(PETSC_COMM_WORLD, ierr);
+            ierr = BVCopy(this->eigenvectors, this->Qt); CHKERRABORT(PETSC_COMM_WORLD, ierr);
+            ierr = BVInsertVec(this->Qt, this->eigenvectors_current_size, q); CHKERRABORT(PETSC_COMM_WORLD, ierr);
+            this->Qt_current_size = this->eigenvectors_current_size + 1;
+            ierr = BVSetActiveColumns(this->Qt, 0, this->Qt_current_size); CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
             for (ii = this->Qt_current_size; ii < this->search_space_maxsize;
                  ii++) {
                 ierr = BVScaleColumn(this->Qt, ii, 0.0);
