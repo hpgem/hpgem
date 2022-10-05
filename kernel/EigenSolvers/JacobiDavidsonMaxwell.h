@@ -101,10 +101,10 @@ class JacobiDavidsonMaxwellSolver final {
 
    public:
     JacobiDavidsonMaxwellSolver();
+    ~JacobiDavidsonMaxwellSolver();
 
     void setMatrices(const Mat Ain, const Mat Cin);
     void setLinearSystem();
-    void cleanLinearSystem();
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);

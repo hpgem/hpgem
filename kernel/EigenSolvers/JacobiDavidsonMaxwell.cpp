@@ -13,6 +13,19 @@ void dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda, double *w,
 
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
+JacobiDavidsonMaxwellSolver::~JacobiDavidsonMaxwellSolver(){
+    MatDestroy(&this->AmI);
+    KSPDestroy(&this->ksp);
+    MatDestroy(&this->Y);
+    MatDestroy(&this->H);
+    BVDestroy(&this->Qt);
+    BVDestroy(&this->eigenvectors);
+    BVDestroy(&this->V);
+    VecDestroy(&this->search_vect);
+    VecDestroy(&this->residue_vect);
+
+}
+
 void JacobiDavidsonMaxwellSolver::setMaxIter(int niter) {
     this->maxIter = niter;
 }
@@ -78,10 +91,6 @@ void JacobiDavidsonMaxwellSolver::setLinearSystem() {
     KSPSetFromOptions(this->ksp);
 }
 
-void JacobiDavidsonMaxwellSolver::cleanLinearSystem() {
-    KSPDestroy(&this->ksp);
-    MatDestroy(&this->AmI);
-}
 
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
@@ -624,8 +633,10 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
     logger(INFO, "Sovling EigenValue problem using JacobiDavidsonSolver");
 
+
     if (this->search_space_minsize >= search_space_maxsize) {
-        PetscPrintf(PETSC_COMM_WORLD, " Too many eigenvalues required");
+        logger(ERROR, "Required % eigenvalues but the maximum size of the search space is set to %",
+               this->search_space_minsize-1, this->search_space_maxsize);
         exit(0);
     }
 
@@ -862,7 +873,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         }
     }
 
-    cleanLinearSystem();
     return (0);
 }
 

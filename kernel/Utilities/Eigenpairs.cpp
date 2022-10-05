@@ -121,6 +121,7 @@ void Eigenpairs::loadEigenpairs(
     PetscErrorCode err;
     converged = jdmax.getConverged();
 
+
     // Ensure that we have enough space
     reserve(converged, sample);
     eigenvalues_.resize(converged);

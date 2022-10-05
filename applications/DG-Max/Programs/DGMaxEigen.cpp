@@ -45,7 +45,7 @@ auto& jdNiter = Base::register_argument<std::size_t>(
 
 // Max size of the JD max search space
 auto& jdMaxSize = Base::register_argument<std::size_t>(
-    '\0', "jd_maxsize", "The maximum size of the JD search space", false, 25);
+    '\0', "jd_maxsize", "The maximum size of the JD search space", false, 0);
 
 // Max size of the JD max search space
 auto& jdCorrIter = Base::register_argument<std::size_t>(
@@ -388,6 +388,10 @@ void runWithDimension() {
         config.use_jdmax_ = useJDMax.getValue();
         config.jdmax_niter_ = jdNiter.getValue();
         config.jdmax_search_space_max_size_ = jdMaxSize.getValue();
+        if (config.jdmax_search_space_max_size_ == 0) { 
+            config.jdmax_search_space_max_size_ = 10*numEigenvalues.getValue();
+            logger(INFO, "Max size of the search space set to %", config.jdmax_search_space_max_size_);
+        }
         config.jdmax_corr_iter_ = jdCorrIter.getValue();
         config.jdmax_tol_ = jdTol.getValue();
 
