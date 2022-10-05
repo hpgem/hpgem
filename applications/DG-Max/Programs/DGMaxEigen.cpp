@@ -237,6 +237,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
     std::ofstream outFile;
 
     void writeHeader(std::ostream& stream, char separator) {
+        char idx_band[10];
         // Mostly matching MPB
         // clang-format off
         stream << "freqs:"
@@ -250,7 +251,8 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
         // Add headers for the number of expected bands. The actual number may
         // be higher.
         for (std::size_t i = 0; i < targetNumberOfEigenvalues_; ++i) {
-            stream << separator << "band " << i;
+            std:sprintf(idx_band, "band %02lu ", i); 
+            stream << separator << idx_band;
         }
         stream << std::endl;
     }
@@ -258,7 +260,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
     void writeFrequencies(std::ostream& stream, std::size_t point,
                           std::vector<double>& frequencies, char separator) {
         auto k = path_.k(point);
-
+        char freq_val[10];
         // Undo rescaling
         k *= lengthScale.getValue();
 
@@ -280,8 +282,9 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             // (or similarly predefined length). For the computation we assume
             // c=1, and assume the length scale a matches that of the mesh. Thus
             // the distance between x=0 and x=1 is assumed to be 'a'.
+            std::sprintf(freq_val, "%1.6f", frequency / (2 * M_PI) * lengthScale.getValue());
             stream << separator
-                   << frequency / (2 * M_PI) * lengthScale.getValue();
+                   << freq_val;
         }
         stream << std::endl;
     }
