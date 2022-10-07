@@ -424,6 +424,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeProjection(Vec &v,
     logger(DEBUG, "  -- computeProjection done in %d mu s \n",
            duration.count());
 
+    // delete [] tmp_row_vector;
+
     return (0);
 }
 
@@ -640,6 +642,12 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         exit(0);
     }
 
+    for (ii=0;ii<this->search_space_maxsize;ii++){
+        small_evects[ii] = PETSC_NULL;
+        tmp_v[ii] = PETSC_NULL;
+    }
+
+
     // init the solver matrices and vectors
     initializeMatrices();
     initializeVectors();
@@ -833,6 +841,9 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         // restart
         if (k == this->search_space_maxsize - 1) {
 
+
+            logger(INFO, "JacobiDavidsonSolver Restart ");
+
             // compute tmp = V Sk[:,:size_min]
             for (ii = 0; ii < this->search_space_minsize; ii++) {
 
@@ -872,6 +883,16 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             k = this->search_space_minsize;
         }
     }
+
+    for (ii=0; ii<this->search_space_maxsize; ii++){
+        VecDestroy(&small_evects[ii]);
+        VecDestroy(&tmp_v[ii]);
+    }
+    
+    VecDestroy(&residue_vect_copy);
+    VecDestroy(&correction_vect);
+    VecDestroy(&q);
+
 
     return (0);
 }
