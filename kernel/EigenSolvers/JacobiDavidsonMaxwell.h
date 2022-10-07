@@ -101,7 +101,7 @@ class JacobiDavidsonMaxwellSolver final {
 
    public:
     JacobiDavidsonMaxwellSolver();
-    ~JacobiDavidsonMaxwellSolver();
+    PetscErrorCode clean();
 
     void setMatrices(const Mat Ain, const Mat Cin);
     void setLinearSystem();
@@ -140,6 +140,8 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
     PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrPrec(Mat M, Vec x, Vec y);
+    PetscReal computeSmallResidue(const Mat &A, const Vec &x, const PetscScalar lambda);
+    PetscErrorCode orderEigenvalues();
 
     PetscReal tau = 1.2;
     PetscReal eta;
