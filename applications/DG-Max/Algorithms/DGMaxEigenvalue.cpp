@@ -262,10 +262,12 @@ class DGMaxEigenvalue<DIM>::Result final
 
     std::vector<double> getFrequencies() final {
         std::vector<double> frequencies(workspace_.getEigenpairs().size());
+        
         for (std::size_t i = 0; i < frequencies.size(); ++i) {
             frequencies[i] = std::sqrt(std::abs(
                 PetscRealPart(workspace_.getEigenpairs().getEigenvalue(i))));
         }
+        
         return frequencies;
     }
 
@@ -620,7 +622,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     } else {
         eigenpairs_.loadEigenpairs(epsSolver_, tempFieldVector_);
     }
-
+      
     // Reorder
     std::vector<std::size_t> ordering(eigenpairs_.size());
     std::iota(ordering.begin(), ordering.end(), 0);
@@ -634,7 +636,9 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
                       return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
                   }
               });
+    
     eigenpairs_.reorder(ordering);
+
 }
 
 template <std::size_t DIM>

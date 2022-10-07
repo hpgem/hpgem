@@ -120,8 +120,7 @@ void Eigenpairs::loadEigenpairs(
     PetscInt converged;
     PetscErrorCode err;
     converged = jdmax.getConverged();
-
-
+    
     // Ensure that we have enough space
     reserve(converged, sample);
     eigenvalues_.resize(converged);
@@ -132,15 +131,16 @@ void Eigenpairs::loadEigenpairs(
         err = jdmax.getEigenPair(i, eigenvalues_[i], eigenvectors_[i]);
         CHKERRABORT(PETSC_COMM_WORLD, err);
     }
-
-    // Reset the ordering
+    
+    // // Reset the ordering
     std::iota(ordering_.begin(), ordering_.end(), 0);
 
-    auto lcomp = [this](int a, int b) {
-        return PetscRealPart(this->eigenvalues_[a]) <
-               PetscRealPart(this->eigenvalues_[b]);
-    };
-    std::sort(ordering_.begin(), ordering_.end(), lcomp);
+    // auto lcomp = [this](int a, int b) {
+    //     return PetscRealPart(this->eigenvalues_[a]) <
+    //            PetscRealPart(this->eigenvalues_[b]);
+    // };
+    // std::sort(ordering_.begin(), ordering_.end(), lcomp);
+
 }
 
 void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
