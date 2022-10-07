@@ -424,7 +424,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeProjection(Vec &v,
     logger(DEBUG, "  -- computeProjection done in %d mu s \n",
            duration.count());
 
-    // delete [] tmp_row_vector;
+    delete tmp_row_vector;
 
     return (0);
 }
