@@ -145,10 +145,10 @@ class JacobiDavidsonMaxwellSolver final {
 
     PetscReal tau = 1.2;
     PetscReal eta;
-    PetscInt maxIter = 100;
-    PetscInt correction_niter = 10;
+    PetscInt maxIter;
+    PetscInt correction_niter;
     PetscInt iter = 0;
-    PetscInt search_space_maxsize = 25;
+    PetscInt search_space_maxsize;
     PetscInt search_space_minsize;
     PetscInt search_space_current_size = 0;
     PetscInt V_current_size = 0;
@@ -156,7 +156,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt eigenvectors_current_size = 0;
     PetscInt Qt_current_size = 0;
     PetscInt nconverged = 0;
-    PetscReal tolerance = 1E-3;
+    PetscReal tolerance;
 
     Mat A, C;
     Mat AmI;
