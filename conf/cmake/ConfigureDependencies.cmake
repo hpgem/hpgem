@@ -98,11 +98,11 @@ if(CLANG_FORMAT_FOUND)
                 ${CMAKE_CURRENT_SOURCE_DIR}/${sourcedir}/*.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/${sourcedir}/*.h)
         list(APPEND format_files ${format_files_dir})
-        list(LENGTH format_files nff)
-        message(STATUS "Formatting ${nff} files")
+        list(LENGTH format_files_dir nff)
+        message(STATUS "Formatting ${nff} files in ${sourcedir}")
     endforeach()
-    list(LENGTH FORMAT_SOURCES nff)
-    message(STATUS "Formatting ${nff} files")
+    list(LENGTH format_files nff)
+    message(STATUS "Formatting ${nff} files (total)")
     add_custom_target(format
         COMMAND ${CLANG_FORMAT_EXECUTABLE} -i -style=file ${format_files}
         DEPENDS ${format_files})
