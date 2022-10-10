@@ -62,12 +62,40 @@ class ReferenceGeometry;
 
 class MappingCodimensions {
    public:
+    /**
+     * Compute codimension 0 mapping index
+     *
+     * Given a fixed reference shape with N reference nodes. Each of these nodes
+     * will be associated with a physical node. Typically there are several
+     * configurations for this association. For example, an edge associated with
+     * physical nodes 0,1 can be the edge from 0 -> 1, or from 1 -> 0. If this
+     * shape is for a face (or edge) than the adjacent elements may not agree on
+     * this association. Given two such configurations for associating reference
+     * nodes with physical ones this function computes a mapping index that
+     * allows transforming the coordinates from the first configuration to that
+     * of the second configuration.
+     *
+     * Specifically, let Pi be a physical node in both configurations. Let it be
+     * associated with reference node R1 for the first configuration and R2 for
+     * the second one. Then using the mapping index in getCodimMappingPtr() will
+     * result in a mapping that maps R1 to R2.
+     *
+     * @param v1 The first (global) node configuration
+     * @param v2 The second (global) node configuration (should be a permutation
+     * on v1).
+     * @return The mapping index
+     */
     virtual std::size_t getCodim0MappingIndex(
-        const std::vector<std::size_t>&,
-        const std::vector<std::size_t>&) const = 0;
+        const std::vector<std::size_t>& v1,
+        const std::vector<std::size_t>& v2) const = 0;
 
+    /**
+     * Return a mapping from
+     * @param idx
+     * @return
+     */
     virtual const MappingReferenceToReference<0>* getCodim0MappingPtr(
-        const std::size_t) const = 0;
+        const std::size_t idx) const = 0;
 
     const MappingReferenceToReference<0>* getCodim0MappingPtr(
         const std::vector<std::size_t>& n1,
