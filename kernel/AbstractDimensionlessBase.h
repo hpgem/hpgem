@@ -102,26 +102,26 @@ class AbstractDimensionlessBase {
     // clang-tidy warnings about the implicit conversions.
 
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator TypeWithDim<0> &() { return castDimension<0>(); }
+    operator TypeWithDim<0>&() { return castDimension<0>(); }
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator TypeWithDim<1> &() { return castDimension<1>(); }
+    operator TypeWithDim<1>&() { return castDimension<1>(); }
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator TypeWithDim<2> &() { return castDimension<2>(); }
+    operator TypeWithDim<2>&() { return castDimension<2>(); }
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator TypeWithDim<3> &() { return castDimension<3>(); }
+    operator TypeWithDim<3>&() { return castDimension<3>(); }
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator TypeWithDim<4> &() { return castDimension<4>(); }
+    operator TypeWithDim<4>&() { return castDimension<4>(); }
 
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator const TypeWithDim<0> &() const { return castDimension<0>(); }
+    operator const TypeWithDim<0>&() const { return castDimension<0>(); }
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator const TypeWithDim<1> &() const { return castDimension<1>(); }
+    operator const TypeWithDim<1>&() const { return castDimension<1>(); }
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator const TypeWithDim<2> &() const { return castDimension<2>(); }
+    operator const TypeWithDim<2>&() const { return castDimension<2>(); }
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator const TypeWithDim<3> &() const { return castDimension<3>(); }
+    operator const TypeWithDim<3>&() const { return castDimension<3>(); }
     // NOLINTNEXTLINE(google-explicit-constructor)
-    operator const TypeWithDim<4> &() const { return castDimension<4>(); }
+    operator const TypeWithDim<4>&() const { return castDimension<4>(); }
 
     /// \brief Fast conversion to implementation type with dimension.
     ///
