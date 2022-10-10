@@ -90,7 +90,7 @@ if(hpGEM_USE_SLEPC)
     add_definitions(-DHPGEM_USE_SLEPC)
 endif()
 
-find_package(CLANG_FORMAT 10 EXACT)
+find_package(CLANG_FORMAT 11.1 EXACT)
 if(CLANG_FORMAT_FOUND)
     set(format_files)
     foreach(sourcedir kernel tests applications)
