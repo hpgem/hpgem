@@ -21,8 +21,9 @@
 # from http://github.com/votca/votca/blob/master/CMakeModules/FindCLANG_FORMAT.cmake
 
 find_program(CLANG_FORMAT_EXECUTABLE
-             NAMES clang-format-10
-	           clang-format
+             NAMES clang-format-11
+                   clang-format-10
+	               clang-format
                    clang-format-9
                    clang-format-8
                    clang-format-7
@@ -30,17 +31,18 @@ find_program(CLANG_FORMAT_EXECUTABLE
              DOC "clang-format executable")
 mark_as_advanced(CLANG_FORMAT_EXECUTABLE)
 
+message("Clang format executable found at ${CLANG_FORMAT_EXECUTABLE}")
 # Extract version from command "clang-format -version"
 if(CLANG_FORMAT_EXECUTABLE)
   execute_process(COMMAND ${CLANG_FORMAT_EXECUTABLE} -version
                   OUTPUT_VARIABLE clang_format_version
                   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  if(clang_format_version MATCHES "^clang-format version .*")
+  message("Found clang-format reports version ${clang_format_version}")
+  if(clang_format_version MATCHES "^.*clang-format version .*")
     # clang_format_version sample: "clang-format version 3.9.1-4ubuntu3~16.04.1
     # (tags/RELEASE_391/rc2)"
     string(REGEX
-           REPLACE "clang-format version ([.0-9]+).*"
+           REPLACE "^.*clang-format version ([.0-9]+).*"
                    "\\1"
                    CLANG_FORMAT_VERSION
                    "${clang_format_version}")
