@@ -143,7 +143,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscReal computeSmallResidue(const Mat &A, const Vec &x, const PetscScalar lambda);
     PetscErrorCode orderEigenvalues();
 
-    PetscReal tau = 1.2;
+    PetscReal tau = 0.0;
     PetscReal eta;
     PetscInt maxIter;
     PetscInt correction_niter;

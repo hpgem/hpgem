@@ -384,6 +384,9 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     logger(DEBUG, "  -- solveCorrectionEquation done in %d mu s [%d its]\n",
            duration.count(), its);
 
+    MatDestroy(&op);
+    MatDestroy(&prec);
+
     return (0);
 }
 
@@ -720,18 +723,18 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
     for (this->iter = 0; this->iter < this->maxIter; this->iter++) {
 
-        this->eta = (rho > this->tau) ? rho : this->tau;
-        logger(INFO, "JacobiDavidsonSolver iteration : %, k = %, rho = % eta = %",
-               iter, k, rho, this->eta);
+        // this->eta = (rho > this->tau) ? rho : this->tau;
+        // this->eta = rho; 
 
         // determine eta
-        // if(rank == 0){
-        //     eps = (PetscReal)(std::rand()) / (PetscReal)(RAND_MAX);
-        //     this->eta = (this->iter > 0 && eps < 0.5) ? rho : this->tau;
-        // }
-        // MPI_Bcast(&this->eta, 1, MPIU_REAL, 0, MPI_COMM_WORLD);
+        if(rank == 0){
+            eps = (PetscReal)(std::rand()) / (PetscReal)(RAND_MAX);
+            this->eta = (this->iter > 0 && eps < 0.5) ? rho : this->tau;
+        }
+        MPI_Bcast(&this->eta, 1, MPIU_REAL, 0, MPI_COMM_WORLD);
         
-        // this->eta = rho; 
+        logger(INFO, "JacobiDavidsonSolver iteration : %, k = %, rho = % eta = %",
+               iter, k, rho, this->eta);
 
         // copy res to res_new and left project
         ierr = VecCopy(this->residue_vect, residue_vect_copy);
