@@ -95,7 +95,7 @@ namespace EigenSolvers {
  *      search_vect : vector in the search direction
  *      residue_vect : residue vector
  *      eta : shift in the correction equation
- *      tau : eigenvalue target
+ *      ev_target : eigenvalue target
  */
 class JacobiDavidsonMaxwellSolver final {
 
@@ -114,6 +114,8 @@ class JacobiDavidsonMaxwellSolver final {
     void setSearchSpaceMaxSize(int n);
     void setCorrectionNiter(int n);
     void setTolerance(PetscReal tol);
+    void setTarget(PetscReal target);
+    void setSearchSpaceRestartSize(int n);
 
    private:
     void initializeMatrices();
@@ -143,13 +145,13 @@ class JacobiDavidsonMaxwellSolver final {
     PetscReal computeSmallResidue(const Mat &A, const Vec &x, const PetscScalar lambda);
     PetscErrorCode orderEigenvalues();
 
-    PetscReal tau = 0.0;
+    PetscReal ev_target;
     PetscReal eta;
     PetscInt maxIter;
     PetscInt correction_niter;
     PetscInt iter = 0;
     PetscInt search_space_maxsize;
-    PetscInt search_space_minsize;
+    PetscInt search_space_restart_size;
     PetscInt search_space_current_size = 0;
     PetscInt V_current_size = 0;
 

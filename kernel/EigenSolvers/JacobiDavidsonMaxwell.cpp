@@ -34,13 +34,20 @@ void JacobiDavidsonMaxwellSolver::setMaxIter(int niter) {
 void JacobiDavidsonMaxwellSolver::setSearchSpaceMaxSize(int n) {
     this->search_space_maxsize = n;
 }
+
+void JacobiDavidsonMaxwellSolver::setSearchSpaceRestartSize(int n) {
+    this->search_space_restart_size = n;
+}
+
 void JacobiDavidsonMaxwellSolver::setCorrectionNiter(int n) {
     this->correction_niter = n;
 }
 void JacobiDavidsonMaxwellSolver::setTolerance(PetscReal tol) {
     this->tolerance = tol;
 }
-
+void JacobiDavidsonMaxwellSolver::setTarget(PetscReal target) {
+    this->ev_target = target;
+}
 PetscInt JacobiDavidsonMaxwellSolver::getConverged() {
     return this->eigenvectors_current_size;
 }
@@ -356,7 +363,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
 
     // set up the linear system
     KSPCreate(PETSC_COMM_WORLD, &ksp);
-    KSPSetType(ksp, KSPMINRES);
+    KSPSetType(ksp, KSPGMRES);
     KSPSetOperators(ksp, op, op);
     ierr = KSPSetFromOptions(ksp);
     CHKERRQ(ierr);
@@ -664,9 +671,9 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeThreshold(Vec q, Vec r,
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
-    PetscReal rho, eps, norm;
+    PetscReal rho, eps, norm, norm_cq;
     std::vector<PetscReal> small_evals;
-
+    PetscInt n,m;
     Vec small_evects[this->search_space_maxsize];
     Vec tmp_v[this->search_space_maxsize];
     Vec residue_vect_copy, correction_vect;
@@ -677,18 +684,15 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
     PetscErrorCode ierr;
     PetscMPIInt rank;
 
-
-
-    this->search_space_minsize = nev + 1;
     this->nconverged = 0;
 
     logger(INFO, "Sovling EigenValue problem using JacobiDavidsonSolver");
 
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
-    if (this->search_space_minsize >= search_space_maxsize) {
+    if (this->search_space_restart_size >= search_space_maxsize) {
         logger(ERROR, "Required % eigenvalues but the maximum size of the search space is set to %",
-               this->search_space_minsize-1, this->search_space_maxsize);
+               this->search_space_restart_size, this->search_space_maxsize);
         exit(0);
     }
 
@@ -723,17 +727,14 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
     for (this->iter = 0; this->iter < this->maxIter; this->iter++) {
 
-        // this->eta = (rho > this->tau) ? rho : this->tau;
-        // this->eta = rho; 
-
         // determine eta
         if(rank == 0){
             eps = (PetscReal)(std::rand()) / (PetscReal)(RAND_MAX);
-            this->eta = (this->iter > 0 && eps < 0.5) ? rho : this->tau;
+            this->eta = (this->iter > 0 && eps < 0.5) ? rho : this->ev_target;
         }
         MPI_Bcast(&this->eta, 1, MPIU_REAL, 0, MPI_COMM_WORLD);
         
-        logger(INFO, "JacobiDavidsonSolver iteration : %, k = %, rho = % eta = %",
+        logger(DEBUG, "JacobiDavidsonSolver iteration : %, k = %, rho = % eta = %",
                iter, k, rho, this->eta);
 
         // copy res to res_new and left project
@@ -793,7 +794,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
             // compute residue threshold
             computeThreshold(q, this->residue_vect, &eps);
-
+       
             // compute covnergence criteria
             found = (eps < this->tolerance && k > 0) ? PETSC_TRUE : PETSC_FALSE;
             if (found) {
@@ -897,10 +898,10 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         // restart
         if (k == this->search_space_maxsize - 1) {
 
-            logger(INFO, "JacobiDavidsonSolver Restart ");
+            logger(INFO, "JacobiDavidsonSolver Restart [%]", this->search_space_restart_size);
 
             // compute tmp = V Sk[:,:size_min]
-            for (ii = 0; ii < this->search_space_minsize; ii++) {
+            for (ii = 0; ii < this->search_space_restart_size; ii++) {
 
                 ierr = VecGetArray(small_evects[ii], &vec_values);
                 CHKERRABORT(PETSC_COMM_WORLD, ierr);
@@ -916,7 +917,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             }
 
             // insert [tmp_v1 .... tmp_vk-1] in V
-            for (ii = 0; ii < search_space_minsize; ii++) {
+            for (ii = 0; ii < search_space_restart_size; ii++) {
                 ierr = BVInsertVec(this->V, ii, tmp_v[ii]);
                 CHKERRABORT(PETSC_COMM_WORLD, ierr);
                 ierr = VecDestroy(&tmp_v[ii]);
@@ -924,7 +925,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             }
 
             // set all other columns to 0
-            for (ii = search_space_minsize; ii < this->search_space_maxsize;
+            for (ii = search_space_restart_size; ii < this->search_space_maxsize;
                  ii++) {
                 ierr = BVScaleColumn(this->V, ii, 0.0);
                 CHKERRABORT(PETSC_COMM_WORLD, ierr);
@@ -933,9 +934,9 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             // number of active cols of V
             ierr = BVSetActiveColumns(this->V, 0, k - 1);
             CHKERRABORT(PETSC_COMM_WORLD, ierr);
-            this->V_current_size = search_space_minsize;
+            this->V_current_size = search_space_restart_size;
 
-            k = this->search_space_minsize;
+            k = this->search_space_restart_size;
         }
 
         // remove tmp vec

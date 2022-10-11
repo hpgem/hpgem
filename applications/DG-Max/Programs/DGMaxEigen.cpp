@@ -48,13 +48,21 @@ auto& jdMaxSize = Base::register_argument<std::size_t>(
     '\0', "jd_maxsize", "The maximum size of the JD search space", false, 0);
 
 // Max size of the JD max search space
+auto& jdRestartSize = Base::register_argument<std::size_t>(
+    '\0', "jd_restartsize", "The size of the JD search space after restart", false, 1);
+
+// Max size of the JD max search space
 auto& jdCorrIter = Base::register_argument<std::size_t>(
     '\0', "jd_corr_iter",
     "The maximum number of iteration for the correction equation", false, 10);
 
-// Max size of the JD max search space
+// tolerance threshold for the eigenvectors residue norm
 auto& jdTol = Base::register_argument<double>(
     '\0', "jd_tol", "Tolerance of the Jacobi Davidson solver", false, 1E-3);
+
+// eigenvalue target
+auto& jdTarget = Base::register_argument<double>(
+    '\0', "jd_target", "eigenvalue target ( set to middle of the spectrum)", false, 1E2);
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
@@ -388,12 +396,14 @@ void runWithDimension() {
         config.use_jdmax_ = useJDMax.getValue();
         config.jdmax_niter_ = jdNiter.getValue();
         config.jdmax_search_space_max_size_ = jdMaxSize.getValue();
+        config.jdmax_search_space_restart_size_ = jdRestartSize.getValue();
         if (config.jdmax_search_space_max_size_ == 0) { 
             config.jdmax_search_space_max_size_ = 10*numEigenvalues.getValue();
             logger(INFO, "Max size of the search space set to %", config.jdmax_search_space_max_size_);
         }
         config.jdmax_corr_iter_ = jdCorrIter.getValue();
         config.jdmax_tol_ = jdTol.getValue();
+        config.jdmax_target_ = jdTarget.getValue();
 
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         solver.solve(driver);

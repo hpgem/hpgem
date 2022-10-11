@@ -515,8 +515,10 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
         jdmaxSolver_.setMaxIter(config_.jdmax_niter_);
         jdmaxSolver_.setSearchSpaceMaxSize(
             config_.jdmax_search_space_max_size_);
+        jdmaxSolver_.setSearchSpaceRestartSize(config_.jdmax_search_space_restart_size_);
         jdmaxSolver_.setCorrectionNiter(config_.jdmax_corr_iter_);
         jdmaxSolver_.setTolerance(config_.jdmax_tol_);
+        jdmaxSolver_.setTarget(config_.jdmax_target_);
 
         // set the matrices in the solver
         jdmaxSolver_.setMatrices(stiffnessMatrix_, projector->projectorMatrix_);
@@ -628,20 +630,20 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     }
       
     // Reorder
-    // std::vector<std::size_t> ordering(eigenpairs_.size());
-    // std::iota(ordering.begin(), ordering.end(), 0);
-    // std::sort(ordering.begin(), ordering.end(),
-    //           [&](const std::size_t& i1, const std::size_t& i2) {
-    //               PetscScalar e1 = eigenpairs_.getEigenvalue(ordering[i1]);
-    //               PetscScalar e2 = eigenpairs_.getEigenvalue(ordering[i2]);
-    //               if (PetscRealPart(e1) != PetscRealPart(e2)) {
-    //                   return PetscRealPart(e1) < PetscRealPart(e2);
-    //               } else {
-    //                   return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
-    //               }
-    //           });
+    std::vector<std::size_t> ordering(eigenpairs_.size());
+    std::iota(ordering.begin(), ordering.end(), 0);
+    std::sort(ordering.begin(), ordering.end(),
+              [&](const std::size_t& i1, const std::size_t& i2) {
+                  PetscScalar e1 = eigenpairs_.getEigenvalue(ordering[i1]);
+                  PetscScalar e2 = eigenpairs_.getEigenvalue(ordering[i2]);
+                  if (PetscRealPart(e1) != PetscRealPart(e2)) {
+                      return PetscRealPart(e1) < PetscRealPart(e2);
+                  } else {
+                      return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
+                  }
+              });
     
-    // eigenpairs_.reorder(ordering);
+    eigenpairs_.reorder(ordering);
 
 }
 
