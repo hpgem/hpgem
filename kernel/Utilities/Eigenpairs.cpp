@@ -135,12 +135,6 @@ void Eigenpairs::loadEigenpairs(
     // // Reset the ordering
     std::iota(ordering_.begin(), ordering_.end(), 0);
 
-    // auto lcomp = [this](int a, int b) {
-    //     return PetscRealPart(this->eigenvalues_[a]) <
-    //            PetscRealPart(this->eigenvalues_[b]);
-    // };
-    // std::sort(ordering_.begin(), ordering_.end(), lcomp);
-
 }
 
 void Eigenpairs::reorder(std::vector<std::size_t> ordering) {

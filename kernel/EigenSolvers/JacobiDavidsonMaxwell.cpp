@@ -948,14 +948,13 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
     }
 
-    // orderEigenvalues();
+    ierr = this->orderEigenvalues();
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
     // clean mem    
     VecDestroy(&residue_vect_copy);
     VecDestroy(&correction_vect);
     
-
-
     return (0);
 }
 

@@ -127,7 +127,8 @@ class Eigenpairs final {
         logger.assert_always(i < eigenvalues_.size(),
                              "Asking for eigenvalue % with only % eigenpairs",
                              i, eigenvalues_.size());
-        return eigenvalues_[ordering_[i]];
+        // return eigenvalues_[ordering_[i]];
+        return eigenvalues_[i];
     }
 
    private:
