@@ -125,10 +125,13 @@ int main(int argc, char** argv) {
     config.useHermitian_ = true;
     config.useProjector_ = DGMaxEigenvalueBase::ALL;
     config.use_jdmax_ = true;
-    config.jdmax_niter_ = 5000;
+    config.jdmax_niter_ = 500;
     config.jdmax_search_space_max_size_ = 50;
     config.jdmax_corr_iter_ = 10;
     config.jdmax_tol_ = 1E-3;
+    config.jdmax_search_space_restart_size_ = 1;
+    config.jdmax_target_ = 0.0;
+
     DGMax::DGMaxEVConvergenceTest<2> testCase3(testPoint, meshes, 1e-8, 1,
                                                config, &expected3);
     DGMax::EVConvergenceResult result3 = testCase3.run(runAsTest);
