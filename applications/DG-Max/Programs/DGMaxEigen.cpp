@@ -1,5 +1,6 @@
 
 #include <exception>
+#include <iomanip>
 #include "Base/CommandLineOptions.h"
 #include "Base/MeshFileInformation.h"
 #include "Output/VTKSpecificTimeWriter.h"
@@ -268,7 +269,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
     void writeFrequencies(std::ostream& stream, std::size_t point,
                           std::vector<double>& frequencies, char separator) {
         auto k = path_.k(point);
-        char freq_val[10];
+        
         // Undo rescaling
         k *= lengthScale.getValue();
 
@@ -290,9 +291,10 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             // (or similarly predefined length). For the computation we assume
             // c=1, and assume the length scale a matches that of the mesh. Thus
             // the distance between x=0 and x=1 is assumed to be 'a'.
-            std::sprintf(freq_val, "%1.6f", frequency / (2 * M_PI) * lengthScale.getValue());
+
             stream << separator
-                   << freq_val;
+                   << std::setprecision(6) 
+                   << frequency / (2 * M_PI) * lengthScale.getValue();
         }
         stream << std::endl;
     }

@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
     config.jdmax_search_space_max_size_ = 50;
     config.jdmax_corr_iter_ = 10;
     config.jdmax_tol_ = 1E-3;
-    config.jdmax_search_space_restart_size_ = 1;
+    config.jdmax_search_space_restart_size_ = 10;
     config.jdmax_target_ = 0.0;
 
     DGMax::DGMaxEVConvergenceTest<2> testCase3(testPoint, meshes, 1e-8, 1,

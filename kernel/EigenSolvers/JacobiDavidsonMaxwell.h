@@ -55,17 +55,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <utility>
 #include <valarray>
 
-/**
- * Solver of the Maxwell equation based on the paper
- *   Multilevel preconditioned iterative eigensolvers
- *   for Maxwell eigenvalue problems
- *   P Arbenz R Geus
- *   Applied Numerical Mathematics 54 (2005) 107-121
- *
- *
- * Implementation note:
- *
- */
 
 namespace hpgem {
 
