@@ -80,10 +80,9 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
     this->C = Cin;
 
     // chek A hermitian
-    MatIsHermitian(Ain, 1E-1, &ishermitian);
+    // MatIsHermitian(Ain, 1E-6, &ishermitian);
     if(!ishermitian){
-        logger(ERROR, "Matrix A is not Hermitian\n");
-        exit(0);
+        logger(WARN, "Matrix A is not Hermitian\n");
     }
     // MatSetOption(this->A, MAT_HERMITIAN, PETSC_TRUE);
 
