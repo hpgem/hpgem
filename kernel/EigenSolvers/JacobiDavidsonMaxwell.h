@@ -120,10 +120,11 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode computeResidueVector(const Vec &q, const PetscReal rho,
                                         Vec &res);
 
-    PetscErrorCode computeProjection(Vec &v, const BV &Q);
+    PetscErrorCode gramSchmidt(Vec &v, const BV &Q);
+    PetscErrorCode modifiedGramSchmidt(Vec &v, const BV &Q);
 
     PetscErrorCode projectCorrectionVector(Vec &corr);
-    PetscErrorCode addVectorToSearchSpace(const Vec &v, PetscInt idx);
+
     PetscErrorCode computeSmallEigenvalues(std::vector<PetscReal> &eval,
                                            Vec *evec);
     PetscErrorCode correctionOperatorMatMult(Vec x, Vec y);

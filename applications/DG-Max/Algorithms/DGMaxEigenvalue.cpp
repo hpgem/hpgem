@@ -630,6 +630,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     }
       
     // Reorder
+    printf("EIGENPAIR SIZE %ld", eigenpairs_.size());
     std::vector<std::size_t> ordering(eigenpairs_.size());
     std::iota(ordering.begin(), ordering.end(), 0);
     std::sort(ordering.begin(), ordering.end(),

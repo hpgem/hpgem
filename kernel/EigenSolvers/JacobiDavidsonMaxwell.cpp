@@ -314,7 +314,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::correctionOperatorMatMult(Vec x,
     VecCopy(x, y);
 
     // y = y - Q Q.T y
-    computeProjection(y, this->Qt);
+    modifiedGramSchmidt(y, this->Qt);
 
     // tmp = A y
     VecDuplicate(x, &Ay);
@@ -325,7 +325,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::correctionOperatorMatMult(Vec x,
     VecAXPY(Ay, -1.0 * this->eta, y);
 
     // y = y - Q Q.T y
-    computeProjection(Ay, this->Qt);
+    modifiedGramSchmidt(Ay, this->Qt);
     VecCopy(Ay, y);
 
     VecDestroy(&Ay);
@@ -424,7 +424,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeResidueVector(
     return (0);
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::computeProjection(Vec &v,
+PetscErrorCode JacobiDavidsonMaxwellSolver::gramSchmidt(Vec &v,
                                                               const BV &Q) {
     // Compute v = v - Q Q.T v
     PetscScalar *tmp_row_vector;
@@ -448,13 +448,49 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeProjection(Vec &v,
     auto duration =
         std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
 
-    logger(DEBUG, "  -- computeProjection done in %d mu s \n",
+    logger(DEBUG, "  -- gramSchmidt done in %d mu s \n",
            duration.count());
 
     delete [] tmp_row_vector;
 
     return (0);
 }
+
+PetscErrorCode JacobiDavidsonMaxwellSolver::modifiedGramSchmidt(Vec &v,  const BV &Q) {
+
+    // compute v = v - Q Q.T v
+    // sum_i v - Qi Qi.T v 
+    PetscScalar r;
+    PetscInt local_size, ncol, nrow;
+    PetscErrorCode ierr;
+    Vec Qi;
+
+    auto tstart = std::chrono::high_resolution_clock::now();
+
+    // get sizes
+    BVGetSizes(Q, &local_size, &nrow, &ncol);
+
+    for (PetscInt ii = 0; ii<ncol; ii++) {
+
+        ierr = BVGetColumn(Q, ii, &Qi);
+
+        VecDot(v, Qi, &r);
+        VecAXPY(v, -r, Qi);
+
+        ierr = BVRestoreColumn(Q, ii, &Qi);
+        VecDestroy(&Qi);
+    }
+
+    auto tstop = std::chrono::high_resolution_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
+
+    logger(DEBUG, "  -- modifiedGramSchmidt done in %d mu s \n",
+           duration.count());
+
+    return(0);                                                    
+}
+
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::projectCorrectionVector(Vec &corr) {
 
@@ -615,7 +651,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(
             small_res = this->computeSmallResidue(Ak, evec_tmp[sort_idx[i]], eval_tmp_real[i] );
             logger(WARN, " Zero Eigenvalue detected: ev[%]=% (norm = %) (res = %) (size = %)", i,
                    eval_tmp_real[i], norm, small_res, this->V_current_size);
-            // BVView(this->V, PETSC_VIEWER_STDOUT_SELF);
         }
         
         eigenvalues.push_back(eval_tmp_real[i]);
@@ -743,13 +778,14 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         // copy res to res_new and left project
         ierr = VecCopy(this->residue_vect, residue_vect_copy);
         CHKERRABORT(PETSC_COMM_WORLD, ierr);
-        computeProjection(residue_vect_copy, this->Qt);
+        modifiedGramSchmidt(residue_vect_copy, this->Qt);  
+        
 
         // solve correction equation
         solveCorrectionEquation(residue_vect_copy, correction_vect);
 
         // ortho correction vector
-        computeProjection(correction_vect, this->Qt);
+        modifiedGramSchmidt(correction_vect, this->Qt);
 
         // project correction vector
         projectCorrectionVector(correction_vect);
@@ -757,7 +793,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         // create search vector
         ierr = VecCopy(correction_vect, search_vect);
         CHKERRABORT(PETSC_COMM_WORLD, ierr);
-        computeProjection(search_vect, this->V);
+        modifiedGramSchmidt(search_vect, this->V);
         normalizeVector(search_vect);
 
         k++;
@@ -798,7 +834,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             // compute residue threshold
             computeThreshold(q, this->residue_vect, &eps);
        
-            // compute covnergence criteria
+            // compute convergence criteria
             found = (eps < this->tolerance && k > 0) ? PETSC_TRUE : PETSC_FALSE;
             if (found) {
                 logger(INFO,
