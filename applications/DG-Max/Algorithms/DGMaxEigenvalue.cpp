@@ -622,6 +622,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
 
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
+
     std::swap(eigenpairs_, previousEigenpairs_);
     if (config_.use_jdmax_) {
         eigenpairs_.loadEigenpairs(jdmaxSolver_, tempFieldVector_);
@@ -630,13 +631,12 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     }
       
     // Reorder
-    printf("EIGENPAIR SIZE %ld", eigenpairs_.size());
     std::vector<std::size_t> ordering(eigenpairs_.size());
     std::iota(ordering.begin(), ordering.end(), 0);
     std::sort(ordering.begin(), ordering.end(),
               [&](const std::size_t& i1, const std::size_t& i2) {
-                  PetscScalar e1 = eigenpairs_.getEigenvalue(ordering[i1]);
-                  PetscScalar e2 = eigenpairs_.getEigenvalue(ordering[i2]);
+                  PetscScalar e1 = eigenpairs_.getEigenvalue(i1);
+                  PetscScalar e2 = eigenpairs_.getEigenvalue(i2);
                   if (PetscRealPart(e1) != PetscRealPart(e2)) {
                       return PetscRealPart(e1) < PetscRealPart(e2);
                   } else {

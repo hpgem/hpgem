@@ -775,7 +775,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         logger(DEBUG, "JacobiDavidsonSolver iteration : %, k = %, rho = % eta = %",
                iter, k, rho, this->eta);
 
-        // copy res to res_new and left project
+        // copy res to res_new and ortho wrt Qt
         ierr = VecCopy(this->residue_vect, residue_vect_copy);
         CHKERRABORT(PETSC_COMM_WORLD, ierr);
         modifiedGramSchmidt(residue_vect_copy, this->Qt);  
@@ -837,7 +837,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             // compute convergence criteria
             found = (eps < this->tolerance && k > 0) ? PETSC_TRUE : PETSC_FALSE;
             if (found) {
-                logger(INFO,
+                logger(DEBUG,
                        "JacobiDavidsonSolver new eigenvector found with "
                        "eigenvalue %",
                        rho);
@@ -937,7 +937,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         // restart
         if (k == this->search_space_maxsize - 1) {
 
-            logger(INFO, "JacobiDavidsonSolver Restart [%]", this->search_space_restart_size);
+            logger(DEBUG, "JacobiDavidsonSolver Restart [%]", this->search_space_restart_size);
 
             // compute tmp = V Sk[:,:size_min]
             for (ii = 0; ii < this->search_space_restart_size; ii++) {
