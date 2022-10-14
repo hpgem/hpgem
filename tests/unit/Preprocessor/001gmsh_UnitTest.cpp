@@ -69,16 +69,16 @@ TEST_CASE("ReadingFile", "[ReadingFile]") {
         }
     }
 
-    // Check periodic connections (Note: Fortran offset)
+    // Check periodic connections
     // 5 - 1
     // 6 - 4
     std::vector<std::pair<std::size_t, std::size_t>> mergedNodes = {
+        // Note difference due to Fortran offset
         {4, 0},
-        {5, 3}
-    };
+        {5, 3}};
     const auto& actualMerges = reader.getMerges();
     CHECK(actualMerges.size() == 1);
-    for(const auto& p : mergedNodes) {
+    for (const auto& p : mergedNodes) {
         const auto pf = actualMerges[0].find(p.first);
         REQUIRE(pf != actualMerges[0].end());
         REQUIRE(pf->second == p.second);
