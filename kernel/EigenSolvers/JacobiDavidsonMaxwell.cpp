@@ -84,7 +84,6 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
     if(!ishermitian){
         logger(WARN, "Matrix A is not Hermitian\n");
     }
-    // MatSetOption(this->A, MAT_HERMITIAN, PETSC_TRUE);
 
     ierr = MatGetSize(Ain, &n, &m);
     logger(INFO, "JacobiDavidsonSolver System Size : % x %", n, m);
