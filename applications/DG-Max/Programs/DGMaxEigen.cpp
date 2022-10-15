@@ -50,7 +50,8 @@ auto& jdMaxSize = Base::register_argument<std::size_t>(
 
 // Max size of the JD max search space
 auto& jdRestartSize = Base::register_argument<std::size_t>(
-    '\0', "jd_restartsize", "The size of the JD search space after restart", false, 1);
+    '\0', "jd_restartsize", "The size of the JD search space after restart",
+    false, 1);
 
 // Max size of the JD max search space
 auto& jdCorrIter = Base::register_argument<std::size_t>(
@@ -63,7 +64,8 @@ auto& jdTol = Base::register_argument<double>(
 
 // eigenvalue target
 auto& jdTarget = Base::register_argument<double>(
-    '\0', "jd_target", "eigenvalue target ( set to middle of the spectrum)", false, 1E2);
+    '\0', "jd_target", "eigenvalue target ( set to middle of the spectrum)",
+    false, 1E2);
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
@@ -260,7 +262,8 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
         // Add headers for the number of expected bands. The actual number may
         // be higher.
         for (std::size_t i = 0; i < targetNumberOfEigenvalues_; ++i) {
-            std:sprintf(idx_band, "band %02lu ", i); 
+        std:
+            sprintf(idx_band, "band %02lu ", i);
             stream << separator << idx_band;
         }
         stream << std::endl;
@@ -269,7 +272,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
     void writeFrequencies(std::ostream& stream, std::size_t point,
                           std::vector<double>& frequencies, char separator) {
         auto k = path_.k(point);
-        
+
         // Undo rescaling
         k *= lengthScale.getValue();
 
@@ -292,8 +295,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             // c=1, and assume the length scale a matches that of the mesh. Thus
             // the distance between x=0 and x=1 is assumed to be 'a'.
 
-            stream << separator
-                   << std::setprecision(6) 
+            stream << separator << std::setprecision(6)
                    << frequency / (2 * M_PI) * lengthScale.getValue();
         }
         stream << std::endl;
@@ -399,9 +401,11 @@ void runWithDimension() {
         config.jdmax_niter_ = jdNiter.getValue();
         config.jdmax_search_space_max_size_ = jdMaxSize.getValue();
         config.jdmax_search_space_restart_size_ = jdRestartSize.getValue();
-        if (config.jdmax_search_space_max_size_ == 0) { 
-            config.jdmax_search_space_max_size_ = 10*numEigenvalues.getValue();
-            logger(INFO, "Max size of the search space set to %", config.jdmax_search_space_max_size_);
+        if (config.jdmax_search_space_max_size_ == 0) {
+            config.jdmax_search_space_max_size_ =
+                10 * numEigenvalues.getValue();
+            logger(INFO, "Max size of the search space set to %",
+                   config.jdmax_search_space_max_size_);
         }
         config.jdmax_corr_iter_ = jdCorrIter.getValue();
         config.jdmax_tol_ = jdTol.getValue();
