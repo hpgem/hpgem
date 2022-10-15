@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
     // // Test the Jacobi-Davidson Algorithm,
     config.shiftFactor_ = 0;
     config.stab_ = 100;
-    config.useHermitian_ = true;    
+    config.useHermitian_ = true;
     config.useProjector_ = DGMaxEigenvalueBase::ALL;
     config.use_jdmax_ = true;
     config.jdmax_niter_ = 5000;
