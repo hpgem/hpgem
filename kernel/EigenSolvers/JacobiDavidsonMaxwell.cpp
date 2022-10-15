@@ -15,7 +15,7 @@ void dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda, double *w,
 
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::clean(){
+PetscErrorCode JacobiDavidsonMaxwellSolver::clean() {
     MatDestroy(&this->AmI);
     KSPDestroy(&this->ksp);
     MatDestroy(&this->Y);
@@ -25,7 +25,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::clean(){
     BVDestroy(&this->V);
     VecDestroy(&this->search_vect);
     VecDestroy(&this->residue_vect);
-    return(0);
+    return (0);
 }
 
 void JacobiDavidsonMaxwellSolver::setMaxIter(int niter) {
@@ -81,7 +81,7 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
 
     // chek A hermitian
     // MatIsHermitian(Ain, 1E-6, &ishermitian);
-    if(!ishermitian){
+    if (!ishermitian) {
         logger(WARN, "Matrix A is not Hermitian\n");
     }
 
@@ -90,7 +90,6 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
 
     ierr = MatGetSize(Cin, &n, &m);
     logger(INFO, "JacobiDavidsonSolver Contraint Size : % x %", n, m);
-
 }
 
 void JacobiDavidsonMaxwellSolver::setLinearSystem() {
@@ -105,7 +104,6 @@ void JacobiDavidsonMaxwellSolver::setLinearSystem() {
     KSPSetTolerances(this->ksp, 1e-6, 1.e-12, PETSC_DEFAULT, 10);
     KSPSetFromOptions(this->ksp);
 }
-
 
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
@@ -241,8 +239,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::normalizeVector(Vec &x) {
     }
 
     VecNorm(x, NORM_2, &norm);
-    if (norm==0.0)
-    {
+    if (norm == 0.0) {
         PetscPrintf(PETSC_COMM_WORLD, " Norm zero after normalization\n");
         exit(0);
     }
@@ -423,8 +420,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeResidueVector(
     return (0);
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::gramSchmidt(Vec &v,
-                                                              const BV &Q) {
+PetscErrorCode JacobiDavidsonMaxwellSolver::gramSchmidt(Vec &v, const BV &Q) {
     // Compute v = v - Q Q.T v
     PetscScalar *tmp_row_vector;
     PetscInt local_size, ncol, nrow;
@@ -447,18 +443,18 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::gramSchmidt(Vec &v,
     auto duration =
         std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
 
-    logger(DEBUG, "  -- gramSchmidt done in %d mu s \n",
-           duration.count());
+    logger(DEBUG, "  -- gramSchmidt done in %d mu s \n", duration.count());
 
-    delete [] tmp_row_vector;
+    delete[] tmp_row_vector;
 
     return (0);
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::modifiedGramSchmidt(Vec &v,  const BV &Q) {
+PetscErrorCode JacobiDavidsonMaxwellSolver::modifiedGramSchmidt(Vec &v,
+                                                                const BV &Q) {
 
     // compute v = v - Q Q.T v
-    // sum_i v - Qi Qi.T v 
+    // sum_i v - Qi Qi.T v
     PetscScalar r;
     PetscInt local_size, ncol, nrow;
     PetscErrorCode ierr;
@@ -469,7 +465,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::modifiedGramSchmidt(Vec &v,  const B
     // get sizes
     BVGetSizes(Q, &local_size, &nrow, &ncol);
 
-    for (PetscInt ii = 0; ii<ncol; ii++) {
+    for (PetscInt ii = 0; ii < ncol; ii++) {
 
         ierr = BVGetColumn(Q, ii, &Qi);
 
@@ -487,9 +483,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::modifiedGramSchmidt(Vec &v,  const B
     logger(DEBUG, "  -- modifiedGramSchmidt done in %d mu s \n",
            duration.count());
 
-    return(0);                                                    
+    return (0);
 }
-
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::projectCorrectionVector(Vec &corr) {
 
@@ -546,10 +541,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::projectCorrectionVector(Vec &corr) {
     return (0);
 }
 
-
 PetscReal JacobiDavidsonMaxwellSolver::computeSmallResidue(
-    const Mat &A, const Vec &x, const PetscScalar lambda)
-{
+    const Mat &A, const Vec &x, const PetscScalar lambda) {
     PetscReal resVal;
     Vec resVec;
     Vec tmp;
@@ -564,7 +557,7 @@ PetscReal JacobiDavidsonMaxwellSolver::computeSmallResidue(
     VecDestroy(&resVec);
     VecDestroy(&tmp);
 
-    return(resVal);
+    return (resVal);
 }
 PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(
     std::vector<PetscReal> &eigenvalues, Vec *eigenvectors) {
@@ -626,7 +619,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(
         eval_tmp[i] = eigr;
         sort_idx[i] = i;
         // ierr = MatCreateVecs(Ak, NULL, &evec_tmp[i]);
-        ierr = VecCreateSeq(PETSC_COMM_SELF, this->V_current_size, &evec_tmp[i]);
+        ierr =
+            VecCreateSeq(PETSC_COMM_SELF, this->V_current_size, &evec_tmp[i]);
         CHKERRQ(ierr);
         ierr = VecCopy(Vr, evec_tmp[i]);
         CHKERRQ(ierr);
@@ -647,17 +641,20 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(
         if (eval_tmp_real[i] < 1E-6) {
 
             VecNorm(evec_tmp[sort_idx[i]], NORM_2, &norm);
-            small_res = this->computeSmallResidue(Ak, evec_tmp[sort_idx[i]], eval_tmp_real[i] );
-            logger(WARN, " Zero Eigenvalue detected: ev[%]=% (norm = %) (res = %) (size = %)", i,
-                   eval_tmp_real[i], norm, small_res, this->V_current_size);
+            small_res = this->computeSmallResidue(Ak, evec_tmp[sort_idx[i]],
+                                                  eval_tmp_real[i]);
+            logger(WARN,
+                   " Zero Eigenvalue detected: ev[%]=% (norm = %) (res = %) "
+                   "(size = %)",
+                   i, eval_tmp_real[i], norm, small_res, this->V_current_size);
         }
-        
+
         eigenvalues.push_back(eval_tmp_real[i]);
-        ierr = VecCreateSeq(PETSC_COMM_SELF, this->V_current_size, &eigenvectors[i]);
+        ierr = VecCreateSeq(PETSC_COMM_SELF, this->V_current_size,
+                            &eigenvectors[i]);
         CHKERRQ(ierr);
         ierr = VecCopy(evec_tmp[sort_idx[i]], eigenvectors[i]);
         CHKERRQ(ierr);
-        
     }
 
     // clean up
@@ -710,7 +707,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
     PetscReal rho, eps, norm, norm_cq;
     std::vector<PetscReal> small_evals;
-    PetscInt n,m;
+    PetscInt n, m;
     Vec small_evects[this->search_space_maxsize];
     Vec tmp_v[this->search_space_maxsize];
     Vec residue_vect_copy, correction_vect;
@@ -728,16 +725,17 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
     if (this->search_space_restart_size >= search_space_maxsize) {
-        logger(ERROR, "Required % eigenvalues but the maximum size of the search space is set to %",
+        logger(ERROR,
+               "Required % eigenvalues but the maximum size of the search "
+               "space is set to %",
                this->search_space_restart_size, this->search_space_maxsize);
         exit(0);
     }
 
-    for (ii=0;ii<this->search_space_maxsize;ii++){
+    for (ii = 0; ii < this->search_space_maxsize; ii++) {
         small_evects[ii] = PETSC_NULL;
         tmp_v[ii] = PETSC_NULL;
     }
-
 
     // init the solver matrices and vectors
     initializeMatrices();
@@ -765,20 +763,20 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
     for (this->iter = 0; this->iter < this->maxIter; this->iter++) {
 
         // determine eta
-        if(rank == 0){
+        if (rank == 0) {
             eps = (PetscReal)(std::rand()) / (PetscReal)(RAND_MAX);
             this->eta = (this->iter > 0 && eps < 0.5) ? rho : this->ev_target;
         }
         MPI_Bcast(&this->eta, 1, MPIU_REAL, 0, MPI_COMM_WORLD);
-        
-        logger(DEBUG, "JacobiDavidsonSolver iteration : %, k = %, rho = % eta = %",
+
+        logger(DEBUG,
+               "JacobiDavidsonSolver iteration : %, k = %, rho = % eta = %",
                iter, k, rho, this->eta);
 
         // copy res to res_new and ortho wrt Qt
         ierr = VecCopy(this->residue_vect, residue_vect_copy);
         CHKERRABORT(PETSC_COMM_WORLD, ierr);
-        modifiedGramSchmidt(residue_vect_copy, this->Qt);  
-        
+        modifiedGramSchmidt(residue_vect_copy, this->Qt);
 
         // solve correction equation
         solveCorrectionEquation(residue_vect_copy, correction_vect);
@@ -832,7 +830,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
             // compute residue threshold
             computeThreshold(q, this->residue_vect, &eps);
-       
+
             // compute convergence criteria
             found = (eps < this->tolerance && k > 0) ? PETSC_TRUE : PETSC_FALSE;
             if (found) {
@@ -936,7 +934,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         // restart
         if (k == this->search_space_maxsize - 1) {
 
-            logger(DEBUG, "JacobiDavidsonSolver Restart [%]", this->search_space_restart_size);
+            logger(DEBUG, "JacobiDavidsonSolver Restart [%]",
+                   this->search_space_restart_size);
 
             // compute tmp = V Sk[:,:size_min]
             for (ii = 0; ii < this->search_space_restart_size; ii++) {
@@ -963,8 +962,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             }
 
             // set all other columns to 0
-            for (ii = search_space_restart_size; ii < this->search_space_maxsize;
-                 ii++) {
+            for (ii = search_space_restart_size;
+                 ii < this->search_space_maxsize; ii++) {
                 ierr = BVScaleColumn(this->V, ii, 0.0);
                 CHKERRABORT(PETSC_COMM_WORLD, ierr);
             }
@@ -978,28 +977,27 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         }
 
         // remove tmp vec
-        for (ii=0; ii<this->search_space_maxsize; ii++){
+        for (ii = 0; ii < this->search_space_maxsize; ii++) {
             VecDestroy(&small_evects[ii]);
             VecDestroy(&tmp_v[ii]);
         }
         VecDestroy(&q);
-
     }
 
     ierr = this->orderEigenvalues();
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
-    // clean mem    
+    // clean mem
     VecDestroy(&residue_vect_copy);
     VecDestroy(&correction_vect);
-    
+
     return (0);
 }
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::orderEigenvalues() {
 
     PetscInt converged;
-    std::vector<PetscScalar> tmp_vec; 
+    std::vector<PetscScalar> tmp_vec;
     converged = this->getConverged();
     tmp_vec = this->eigenvalues;
     std::vector<std::size_t> ordering(converged);
@@ -1013,12 +1011,11 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::orderEigenvalues() {
     };
     std::sort(ordering.begin(), ordering.end(), lcomp);
 
-    for(int ii=0; ii<converged;ii++){
+    for (int ii = 0; ii < converged; ii++) {
         this->eigenvalues[ii] = tmp_vec[ordering[ii]];
     }
 
-    return(0);
-
+    return (0);
 }
 
 }  // namespace EigenSolvers

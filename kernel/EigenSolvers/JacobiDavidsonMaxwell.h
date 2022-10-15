@@ -55,7 +55,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <utility>
 #include <valarray>
 
-
 namespace hpgem {
 
 namespace EigenSolvers {
@@ -132,7 +131,8 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
     PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrPrec(Mat M, Vec x, Vec y);
-    PetscReal computeSmallResidue(const Mat &A, const Vec &x, const PetscScalar lambda);
+    PetscReal computeSmallResidue(const Mat &A, const Vec &x,
+                                  const PetscScalar lambda);
     PetscErrorCode orderEigenvalues();
 
     PetscReal ev_target;
