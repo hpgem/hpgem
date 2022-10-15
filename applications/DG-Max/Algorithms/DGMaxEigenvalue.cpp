@@ -262,12 +262,12 @@ class DGMaxEigenvalue<DIM>::Result final
 
     std::vector<double> getFrequencies() final {
         std::vector<double> frequencies(workspace_.getEigenpairs().size());
-        
+
         for (std::size_t i = 0; i < frequencies.size(); ++i) {
             frequencies[i] = std::sqrt(std::abs(
                 PetscRealPart(workspace_.getEigenpairs().getEigenvalue(i))));
         }
-        
+
         return frequencies;
     }
 
@@ -399,8 +399,7 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::~SolverWorkspace() {
     if (!config_.use_jdmax_) {
         error = EPSDestroy(&epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
-    }
-    else{
+    } else {
         error = jdmaxSolver_.clean();
         CHKERRABORT(PETSC_COMM_WORLD, error);
     }
@@ -515,7 +514,8 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
         jdmaxSolver_.setMaxIter(config_.jdmax_niter_);
         jdmaxSolver_.setSearchSpaceMaxSize(
             config_.jdmax_search_space_max_size_);
-        jdmaxSolver_.setSearchSpaceRestartSize(config_.jdmax_search_space_restart_size_);
+        jdmaxSolver_.setSearchSpaceRestartSize(
+            config_.jdmax_search_space_restart_size_);
         jdmaxSolver_.setCorrectionNiter(config_.jdmax_corr_iter_);
         jdmaxSolver_.setTolerance(config_.jdmax_tol_);
         jdmaxSolver_.setTarget(config_.jdmax_target_);
@@ -629,7 +629,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     } else {
         eigenpairs_.loadEigenpairs(epsSolver_, tempFieldVector_);
     }
-      
+
     // Reorder
     std::vector<std::size_t> ordering(eigenpairs_.size());
     std::iota(ordering.begin(), ordering.end(), 0);
@@ -643,9 +643,8 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
                       return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
                   }
               });
-    
-    eigenpairs_.reorder(ordering);
 
+    eigenpairs_.reorder(ordering);
 }
 
 template <std::size_t DIM>
