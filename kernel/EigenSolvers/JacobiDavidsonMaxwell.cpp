@@ -10,7 +10,7 @@ namespace EigenSolvers {
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::clean() {
-    MatDestroy(&this->AmI);
+    MatDestroy(&this->K);
     KSPDestroy(&this->ksp);
     MatDestroy(&this->Y);
     MatDestroy(&this->H);
@@ -41,6 +41,9 @@ void JacobiDavidsonMaxwellSolver::setTolerance(PetscReal tol) {
 }
 void JacobiDavidsonMaxwellSolver::setTarget(PetscReal target) {
     this->ev_target = target;
+}
+void JacobiDavidsonMaxwellSolver::setPreconditionerShift(PetscReal sigma) {
+    this->ev_tshift_preconditionerarget = sigma;
 }
 PetscInt JacobiDavidsonMaxwellSolver::getConverged() {
     return this->eigenvectors_current_size;
@@ -83,19 +86,6 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
 
     ierr = MatGetSize(Cin, &n, &m);
     logger(INFO, "JacobiDavidsonSolver Contraint Size : % x %", n, m);
-}
-
-void JacobiDavidsonMaxwellSolver::setLinearSystem() {
-
-    // compute A - I
-    MatDuplicate(this->A, MAT_COPY_VALUES, &this->AmI);
-    MatShift(this->AmI, -1.0);
-
-    KSPCreate(PETSC_COMM_WORLD, &this->ksp);
-    KSPSetType(this->ksp, KSPGMRES);
-    KSPSetOperators(this->ksp, this->AmI, this->AmI);
-    KSPSetTolerances(this->ksp, 1e-6, 1.e-12, PETSC_DEFAULT, 10);
-    KSPSetFromOptions(this->ksp);
 }
 
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
@@ -275,8 +265,29 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::staticMatMultCorrPrec(Mat M, Vec x,
 PetscErrorCode JacobiDavidsonMaxwellSolver::correctionPreconditionerMatMult(
     Vec x, Vec y) {
 
-    // solve the linear system
-    KSPSolve(this->ksp, x, y);
+    // compute (I - M Q Q.T) (A - sigma M) (I - Q Q.T M) y
+    // here M is always the identity matrix
+    Vec Ay;
+
+    // copy x in y
+    VecCopy(x, y);
+
+    // y = y - Q Q.T y
+    modifiedGramSchmidt(y, this->Qt);
+
+    // tmp = A y
+    VecDuplicate(x, &Ay);
+    MatMult(this->A, y, Ay);
+
+    // Compute (A - eta M) y
+    // here equal A y  - sigma y
+    VecAXPY(Ay, -1.0 * this->shift_preconditioner, y);
+
+    // y = y - Q Q.T y
+    modifiedGramSchmidt(Ay, this->Qt);
+    VecCopy(Ay, y);
+
+    VecDestroy(&Ay);
 
     return (0);
 }
