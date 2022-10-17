@@ -93,6 +93,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode clean();
 
     void setMatrices(const Mat Ain, const Mat Cin);
+    // void setPreconditioner();
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
@@ -130,11 +131,8 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode correctionOperatorMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrOp(Mat M, Vec x, Vec y);
     PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
-
     PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
-    static PetscErrorCode staticMatMultCorrPrec(PC pc, Vec x, Vec y);
-    PetscErrorCode JDShellPCCreate(JacobiDavidsonMaxwellSolver **shell);
-    
+    static PetscErrorCode staticMatMultCorrPrec(Mat M, Vec x, Vec y);
     PetscReal computeSmallResidue(const Mat &A, const Vec &x,
                                   const PetscScalar lambda);
     PetscErrorCode orderEigenvalues();
