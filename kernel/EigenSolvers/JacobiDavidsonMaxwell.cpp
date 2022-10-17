@@ -10,7 +10,6 @@ namespace EigenSolvers {
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::clean() {
-    MatDestroy(&this->K);
     KSPDestroy(&this->ksp);
     MatDestroy(&this->Y);
     MatDestroy(&this->H);
@@ -43,7 +42,7 @@ void JacobiDavidsonMaxwellSolver::setTarget(PetscReal target) {
     this->ev_target = target;
 }
 void JacobiDavidsonMaxwellSolver::setPreconditionerShift(PetscReal sigma) {
-    this->ev_tshift_preconditionerarget = sigma;
+    this->shift_preconditioner = sigma;
 }
 PetscInt JacobiDavidsonMaxwellSolver::getConverged() {
     return this->eigenvectors_current_size;
@@ -251,12 +250,12 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::weightedVectorDot(const Vec &x,
     return (0);
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::staticMatMultCorrPrec(Mat M, Vec x,
+PetscErrorCode JacobiDavidsonMaxwellSolver::staticMatMultCorrPrec(PC pc, Vec x,
                                                                   Vec y) {
     PetscErrorCode error;
 
     JacobiDavidsonMaxwellSolver *workspace;
-    error = MatShellGetContext(M, &workspace);
+    error = PCShellGetContext(pc, (void**)&workspace);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     workspace->correctionPreconditionerMatMult(x, y);
     return 0;
@@ -333,6 +332,13 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::correctionOperatorMatMult(Vec x,
     return (0);
 }
 
+PetscErrorCode JacobiDavidsonMaxwellSolver::JDShellPCCreate(JacobiDavidsonMaxwellSolver **shell){
+    JacobiDavidsonMaxwellSolver *newctx;
+    PetscNew(&newctx);
+    *shell = newctx;
+    return 0;
+}
+
 PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     const Vec &res, Vec &sol) {
     // solve the correction equation given by
@@ -348,21 +354,19 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     PetscInt local_ncols, local_nrows;
     PetscErrorCode ierr;
     PetscInt its;
+    // JacobiDavidsonMaxwellSolver *shell;
+
     bool print_time_local;
 
     auto tstart = std::chrono::high_resolution_clock::now();
 
-    // get the linear operator
+    // get the shell of the linear operator
     MatGetSize(this->A, &nrows, &ncols);
     MatGetLocalSize(this->A, &local_nrows, &local_ncols);
     MatCreateShell(PETSC_COMM_WORLD, local_nrows, local_ncols, nrows, ncols,
                    this, &op);
     MatShellSetOperation(op, MATOP_MULT, (void (*)(void))staticMatMultCorrOp);
 
-    MatCreateShell(PETSC_COMM_WORLD, local_nrows, local_ncols, nrows, ncols,
-                   this, &prec);
-    MatShellSetOperation(prec, MATOP_MULT,
-                         (void (*)(void))staticMatMultCorrPrec);
 
     // set up the linear system
     KSPCreate(PETSC_COMM_WORLD, &ksp);
@@ -372,9 +376,12 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     CHKERRQ(ierr);
     KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, this->correction_niter);
 
-    // // preconditionner
+    // preconditionner
     // KSPGetPC(ksp, &pc);
-    // PCSetType(pc, PCGAMG);
+    // PCSetType(pc, PCSHELL);
+    // JDShellPCCreate(&shell);
+    // PCShellSetApply(pc, staticMatMultCorrPrec);
+    // PCShellSetContext(pc, shell);
 
     // solve the linear system
     KSPSolve(ksp, res, sol);
@@ -742,9 +749,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
     initializeMatrices();
     initializeVectors();
     initializeSearchSpace(nev);
-
-    // init the linear solver
-    setLinearSystem();
 
     // rayleigh quotient
     computeRayleighQuotient(this->search_vect, &rho);
