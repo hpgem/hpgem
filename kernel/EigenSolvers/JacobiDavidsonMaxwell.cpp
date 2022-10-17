@@ -594,8 +594,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(
     MatScale(Ak, 0.5);
 
     // create evects
-    // MatCreateVecs(Ak, NULL, &Vr);
-    // MatCreateVecs(Ak, NULL, &Vi);
     VecCreateSeq(PETSC_COMM_SELF, this->V_current_size, &Vr);
     VecCreateSeq(PETSC_COMM_SELF, this->V_current_size, &Vi);
 
@@ -618,7 +616,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(
         CHKERRQ(ierr);
         eval_tmp[i] = eigr;
         sort_idx[i] = i;
-        // ierr = MatCreateVecs(Ak, NULL, &evec_tmp[i]);
         ierr =
             VecCreateSeq(PETSC_COMM_SELF, this->V_current_size, &evec_tmp[i]);
         CHKERRQ(ierr);
