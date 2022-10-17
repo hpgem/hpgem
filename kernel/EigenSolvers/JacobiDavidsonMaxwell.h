@@ -84,7 +84,6 @@ namespace EigenSolvers {
  *      residue_vect : residue vector
  *      eta : shift in the correction equation
  *      ev_target : eigenvalue target
- *      shift_preconditioner : signa to compute (I- Q Q.T) (A - sigma I )(I - Q Q.T)
  */
 class JacobiDavidsonMaxwellSolver final {
 
@@ -93,7 +92,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode clean();
 
     void setMatrices(const Mat Ain, const Mat Cin);
-    // void setPreconditioner();
+    void setLinearSystem();
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
@@ -105,7 +104,6 @@ class JacobiDavidsonMaxwellSolver final {
     void setTolerance(PetscReal tol);
     void setTarget(PetscReal target);
     void setSearchSpaceRestartSize(int n);
-    void setPreconditionerShift(PetscReal sigma);
 
    private:
     void initializeMatrices();
@@ -139,7 +137,6 @@ class JacobiDavidsonMaxwellSolver final {
 
     PetscReal ev_target;
     PetscReal eta;
-    PetscReal shift_preconditioner;
     PetscInt maxIter;
     PetscInt correction_niter;
     PetscInt iter = 0;
@@ -154,7 +151,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscReal tolerance;
 
     Mat A, C;
-    Mat K;
+    Mat AmI;
     Mat Y, H;
     KSP ksp;
     BV Qt;
