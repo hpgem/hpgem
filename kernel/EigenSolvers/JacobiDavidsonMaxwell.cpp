@@ -7,12 +7,6 @@ namespace hpgem {
 
 namespace EigenSolvers {
 
-extern "C" {
-// lapack diag
-void dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda, double *w,
-            double *work, int *lwork, int *info);
-}
-
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::clean() {
@@ -80,7 +74,6 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
     this->C = Cin;
 
     // chek A hermitian
-    // MatIsHermitian(Ain, 1E-6, &ishermitian);
     if (!ishermitian) {
         logger(WARN, "Matrix A is not Hermitian\n");
     }
