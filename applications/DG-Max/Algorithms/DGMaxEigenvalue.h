@@ -86,6 +86,7 @@ class DGMaxEigenvalueBase {
         int jdmax_corr_iter_;
         PetscReal jdmax_tol_;
         PetscReal jdmax_target_;
+        PetscReal jdmax_prec_shift_;
 
         /// Whether the config uses shifts
         bool usesShifts() const {

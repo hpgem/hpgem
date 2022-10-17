@@ -131,6 +131,7 @@ int main(int argc, char** argv) {
     config.jdmax_tol_ = 1E-3;
     config.jdmax_search_space_restart_size_ = 10;
     config.jdmax_target_ = 0.0;
+    config.jdmax_prec_shift_ = 1.0;
 
     DGMax::DGMaxEVConvergenceTest<2> testCase3(testPoint, meshes, 1e-8, 1,
                                                config, &expected3);

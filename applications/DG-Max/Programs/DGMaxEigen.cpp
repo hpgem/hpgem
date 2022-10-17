@@ -67,6 +67,11 @@ auto& jdTarget = Base::register_argument<double>(
     '\0', "jd_target", "eigenvalue target ( set to middle of the spectrum)",
     false, 1E2);
 
+// preconditioner shift
+auto& jdPrecShift = Base::register_argument<double>(
+    '\0', "jd_prec_shift", "shift for the preconditioner",
+    false, 1.0);
+
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
 // Which corresponds to the point pi, 0.5pi, 0 in k-space and a path from 0,0
@@ -410,6 +415,7 @@ void runWithDimension() {
         config.jdmax_corr_iter_ = jdCorrIter.getValue();
         config.jdmax_tol_ = jdTol.getValue();
         config.jdmax_target_ = jdTarget.getValue();
+        config.jdmax_prec_shift_ = jdPrecShift.getValue();
 
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         solver.solve(driver);

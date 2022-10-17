@@ -10,7 +10,6 @@ namespace EigenSolvers {
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::clean() {
-    MatDestroy(&this->AmI);
     KSPDestroy(&this->ksp);
     MatDestroy(&this->Y);
     MatDestroy(&this->H);
@@ -41,6 +40,9 @@ void JacobiDavidsonMaxwellSolver::setTolerance(PetscReal tol) {
 }
 void JacobiDavidsonMaxwellSolver::setTarget(PetscReal target) {
     this->ev_target = target;
+}
+void JacobiDavidsonMaxwellSolver::setPrecShift(PetscReal sigma) {
+    this->prec_shift = sigma;
 }
 PetscInt JacobiDavidsonMaxwellSolver::getConverged() {
     return this->eigenvectors_current_size;
@@ -85,18 +87,6 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
     logger(INFO, "JacobiDavidsonSolver Contraint Size : % x %", n, m);
 }
 
-void JacobiDavidsonMaxwellSolver::setLinearSystem() {
-
-    // compute A - I
-    MatDuplicate(this->A, MAT_COPY_VALUES, &this->AmI);
-    MatShift(this->AmI, -1.0);
-
-    KSPCreate(PETSC_COMM_WORLD, &this->ksp);
-    KSPSetType(this->ksp, KSPGMRES);
-    KSPSetOperators(this->ksp, this->AmI, this->AmI);
-    KSPSetTolerances(this->ksp, 1e-6, 1.e-12, PETSC_DEFAULT, 10);
-    KSPSetFromOptions(this->ksp);
-}
 
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
@@ -261,22 +251,42 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::weightedVectorDot(const Vec &x,
     return (0);
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::staticMatMultCorrPrec(Mat M, Vec x,
+PetscErrorCode JacobiDavidsonMaxwellSolver::staticMatMultCorrPrec(PC pc, Vec x,
                                                                   Vec y) {
     PetscErrorCode error;
 
     JacobiDavidsonMaxwellSolver *workspace;
-    error = MatShellGetContext(M, &workspace);
+    error = PCShellGetContext(pc, (void **)&workspace);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     workspace->correctionPreconditionerMatMult(x, y);
     return 0;
+
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::correctionPreconditionerMatMult(
-    Vec x, Vec y) {
+PetscErrorCode JacobiDavidsonMaxwellSolver::correctionPreconditionerMatMult(Vec x, Vec y) {
+    // compute (I - M Q Q.T) (A - eta M) (I - Q Q.T M) y
+    // here M is always the identity matrix
+    Vec Ay;
 
-    // solve the linear system
-    KSPSolve(this->ksp, x, y);
+    // copy x in y
+    VecCopy(x, y);
+     
+    // y = y - Q Q.T y
+    modifiedGramSchmidt(y, Qt);
+
+    // tmp = A y
+    VecDuplicate(x, &Ay);
+    MatMult(A, y, Ay);
+
+    // Compute (A - sigma M) y
+    // here equal A y  - sigma y
+    VecAXPY(Ay, -1.0 * prec_shift, y);
+
+    // y = y - Q Q.T y
+    modifiedGramSchmidt(Ay, Qt);
+    VecCopy(Ay, y);
+
+    VecDestroy(&Ay);
 
     return (0);
 }
@@ -338,6 +348,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     PetscErrorCode ierr;
     PetscInt its;
     bool print_time_local;
+    JacobiDavidsonMaxwellSolver *pc_shell;
 
     auto tstart = std::chrono::high_resolution_clock::now();
 
@@ -348,11 +359,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
                    this, &op);
     MatShellSetOperation(op, MATOP_MULT, (void (*)(void))staticMatMultCorrOp);
 
-    MatCreateShell(PETSC_COMM_WORLD, local_nrows, local_ncols, nrows, ncols,
-                   this, &prec);
-    MatShellSetOperation(prec, MATOP_MULT,
-                         (void (*)(void))staticMatMultCorrPrec);
-
     // set up the linear system
     KSPCreate(PETSC_COMM_WORLD, &ksp);
     KSPSetType(ksp, KSPGMRES);
@@ -361,9 +367,22 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     CHKERRQ(ierr);
     KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, this->correction_niter);
 
-    // // preconditionner
-    // KSPGetPC(ksp, &pc);
-    // PCSetType(pc, PCGAMG);
+    // preconditionner
+    ierr = KSPGetPC(ksp, &pc); CHKERRQ(ierr);
+
+    // user defined PC ... 
+    // ierr = PCSetType(pc, PCSHELL); CHKERRQ(ierr);
+    // ierr = PCShellSetApply(pc, staticMatMultCorrPrec); CHKERRQ(ierr);
+    // ierr = PCShellSetContext(pc, pc_shell); CHKERRQ(ierr);
+
+    // AMG PC
+    // ierr = PCSetType(pc, PCHMG);
+    // ierr = PCHMGSetInnerPCType(pc, PCGAMG);
+    // ierr = PCHMGSetReuseInterpolation(pc, PETSC_TRUE);
+    // ierr = PCHMGSetUseSubspaceCoarsening(pc, PETSC_TRUE);
+    // ierr = PCHMGUseMatMAIJ(pc, PETSC_FALSE);
+    // ierr = PCHMGSetCoarseningComponent(pc, 0);
+
 
     // solve the linear system
     KSPSolve(ksp, res, sol);
@@ -384,7 +403,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
            duration.count(), its);
 
     MatDestroy(&op);
-    MatDestroy(&prec);
 
     return (0);
 }
@@ -707,6 +725,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
     PetscScalar *vec_values;
     PetscErrorCode ierr;
     PetscMPIInt rank;
+    
 
     this->nconverged = 0;
 
@@ -731,9 +750,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
     initializeMatrices();
     initializeVectors();
     initializeSearchSpace(nev);
-
-    // init the linear solver
-    setLinearSystem();
 
     // rayleigh quotient
     computeRayleighQuotient(this->search_vect, &rho);

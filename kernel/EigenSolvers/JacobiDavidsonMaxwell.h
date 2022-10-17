@@ -103,9 +103,11 @@ class JacobiDavidsonMaxwellSolver final {
     void setCorrectionNiter(int n);
     void setTolerance(PetscReal tol);
     void setTarget(PetscReal target);
+    void setPrecShift(PetscReal sigma);
     void setSearchSpaceRestartSize(int n);
 
    private:
+
     void initializeMatrices();
     void initializeVectors();
     void initializeSearchSpace(int nev);
@@ -127,16 +129,19 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode computeSmallEigenvalues(std::vector<PetscReal> &eval,
                                            Vec *evec);
     PetscErrorCode correctionOperatorMatMult(Vec x, Vec y);
+
     static PetscErrorCode staticMatMultCorrOp(Mat M, Vec x, Vec y);
     PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
     PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
-    static PetscErrorCode staticMatMultCorrPrec(Mat M, Vec x, Vec y);
+    static PetscErrorCode staticMatMultCorrPrec(PC pc, Vec x, Vec y);
+
     PetscReal computeSmallResidue(const Mat &A, const Vec &x,
                                   const PetscScalar lambda);
     PetscErrorCode orderEigenvalues();
 
     PetscReal ev_target;
     PetscReal eta;
+    PetscReal prec_shift;
     PetscInt maxIter;
     PetscInt correction_niter;
     PetscInt iter = 0;
@@ -150,8 +155,8 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt nconverged = 0;
     PetscReal tolerance;
 
+
     Mat A, C;
-    Mat AmI;
     Mat Y, H;
     KSP ksp;
     BV Qt;
@@ -163,6 +168,7 @@ class JacobiDavidsonMaxwellSolver final {
     std::vector<PetscScalar> eigenvalues;
 
     bool print_small_evs = false;
+
 };
 
 }  // namespace EigenSolvers
