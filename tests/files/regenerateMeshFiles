@@ -53,6 +53,7 @@ do
   "$PREPROCESSOR" -n 2 --inFile "$meshSource" --outFile "$parallel_mesh_dir/${filename}"
 done
 # Centaur meshes
+# Not processing these meshes in parallel because they generate errors
 for meshSource in sources/*.hyb
 do
   echo "Meshing ${meshSource}"
@@ -61,6 +62,6 @@ do
   filename="${filename%hyb}hpgem"
   # Serial mesh
   "$PREPROCESSOR" --inFile "$meshSource" --outFile "$filename"
-  # Parallel mesh n=2
-  "$PREPROCESSOR" -n 2 --inFile "$meshSource" --outFile "$parallel_mesh_dir/${filename}"
+  # # Parallel mesh n=2
+  # "$PREPROCESSOR" -n 2 --inFile "$meshSource" --outFile "$parallel_mesh_dir/${filename}"
 done
