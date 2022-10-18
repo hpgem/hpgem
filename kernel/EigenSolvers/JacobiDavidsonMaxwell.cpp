@@ -908,6 +908,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             }
         }
 
+        if (stop) break;
+
         // Qt = [Q; q]
         if (this->eigenvectors_current_size == 0) {
             ierr = BVInsertVec(this->Qt, 0, q);
@@ -982,7 +984,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         }
         VecDestroy(&q);
 
-        if (stop) break;
+        
     }
 
     ierr = this->orderEigenvalues();

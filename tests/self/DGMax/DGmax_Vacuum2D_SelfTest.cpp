@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
 
     // Just a random point in vacuum
     DGMax::EVTestPoint<2> testPoint(LinearAlgebra::SmallVector<2>({0.8, 0.9}),
-                                    DGMax::PredefinedStructure::VACUUM, 10);
+                                    DGMax::PredefinedStructure::VACUUM, 11);
 
     DGMaxEigenvalueBase::SolverConfig config;
     config.stab_ = 100;
@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     config.useHermitian_ = true;
     config.useProjector_ = DGMaxEigenvalueBase::ALL;
     config.use_jdmax_ = true;
-    config.jdmax_niter_ = 5000;
+    config.jdmax_niter_ = 1000;
     config.jdmax_search_space_max_size_ = 50;
     config.jdmax_corr_iter_ = 10;
     config.jdmax_tol_ = 1E-3;

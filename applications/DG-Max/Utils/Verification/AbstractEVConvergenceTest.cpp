@@ -120,7 +120,7 @@ bool AbstractEVConvergenceTest<DIM>::compareWithExpected(
            expectedIter != expectedLevel.end()) {
         double diff = std::abs(*resultIter - *expectedIter);
         if (std::abs(diff) >= getTolerance()) {
-            logger(WARN, "Different eigenvalue detected: Expexted %, result %",
+            logger(ERROR, "Different eigenvalue detected: Expexted %, result %",
                    *expectedIter, *resultIter);
             same = false;
             break;
@@ -131,13 +131,13 @@ bool AbstractEVConvergenceTest<DIM>::compareWithExpected(
     // Print complete output
     if (!same) {
         std::stringstream expectedString;
-        expectedString << "Expected:";
+        expectedString << "--Expected:";
         for (auto& expectedFreq : expectedLevel) {
             expectedString << " " << expectedFreq;
         }
 
         std::stringstream actualString;
-        actualString << "Computed:";
+        actualString << "--Computed:";
         for (auto& resultFreq : resultLevel) {
             actualString << " " << resultFreq;
         }
