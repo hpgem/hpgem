@@ -11,10 +11,21 @@ file(GLOB SELFTESTS "*SelfTest.cpp")
 file(GLOB UNITTESTS "*UnitTest.cpp")
 file(GLOB NEGATIVETESTS "*NegativeTest.cpp")
 #for each demo add a test with the same name
-foreach (TEST ${SELFTESTS} ${UNITTESTS})
+foreach (TEST ${UNITTESTS})
         get_filename_component(EXECNAME ${TEST} NAME_WE)
         add_test(${EXECNAME} ${EXECNAME})
 endforeach()
+
+foreach (TEST ${SELFTESTS})
+        get_filename_component(EXECNAME ${TEST} NAME_WE)
+        add_test(${EXECNAME} ${EXECNAME})
+
+				# For DivDGMax self tests, add parallel version of test
+				if ((${TEST} MATCHES "DivDGMax") AND hpGEM_USE_MPI AND  hpGEM_USE_METIS)
+								add_test(NAME "${EXECNAME}_parallel" COMMAND mpiexec -n 2 ${EXECNAME})
+				endif()
+endforeach()
+
 foreach (TEST ${NEGATIVETESTS})
         get_filename_component(EXECNAME ${TEST} NAME_WE)
         add_test(${EXECNAME} ${EXECNAME})
