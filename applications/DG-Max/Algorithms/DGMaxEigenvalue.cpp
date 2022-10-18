@@ -632,8 +632,6 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
         eigenpairs_.loadEigenpairs(epsSolver_, tempFieldVector_);
     }
 
-    DGMaxLogger(INFO, "Eigenvalues Loaded");
-
     // Reorder
     std::vector<std::size_t> ordering(eigenpairs_.size());
     std::iota(ordering.begin(), ordering.end(), 0);
@@ -641,15 +639,12 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
               [&](const std::size_t& i1, const std::size_t& i2) {
                   PetscScalar e1 = eigenpairs_.getEigenvalue(i1);
                   PetscScalar e2 = eigenpairs_.getEigenvalue(i2);
-                  return PetscRealPart(e1) < PetscRealPart(e2);
-                //   if (PetscRealPart(e1) != PetscRealPart(e2)) {
-                //       return PetscRealPart(e1) < PetscRealPart(e2);
-                //   } else {
-                //       return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
-                //   }
+                  if (PetscRealPart(e1) != PetscRealPart(e2)) {
+                      return PetscRealPart(e1) < PetscRealPart(e2);
+                  } else {
+                      return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
+                  }
               });
-
-    DGMaxLogger(INFO, "Starting Ordering Eigenvalues");
 
     eigenpairs_.reorder(ordering);
 }

@@ -156,7 +156,6 @@ class JacobiDavidsonMaxwellSolver final {
 
     Mat A, C;
     Mat Y, H;
-    KSP ksp;
     BV Qt;
     BV eigenvectors;
     BV V;

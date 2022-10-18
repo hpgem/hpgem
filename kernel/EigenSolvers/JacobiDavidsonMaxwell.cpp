@@ -10,7 +10,6 @@ namespace EigenSolvers {
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::clean() {
-    KSPDestroy(&this->ksp);
     MatDestroy(&this->Y);
     MatDestroy(&this->H);
     BVDestroy(&this->Qt);
@@ -908,8 +907,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
                 idx_evect++;
             }
         }
-
-        
 
         // Qt = [Q; q]
         if (this->eigenvectors_current_size == 0) {
