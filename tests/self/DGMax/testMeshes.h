@@ -43,19 +43,75 @@
 #include "hpgem-cmake.h"
 
 namespace DGMaxTest {
+    bool isParallelRun(){
+        // Check if code is running in parallel or serially
+        bool isParallelRun = false;
+#ifdef HPGEM_USE_MPI
+        int numberOfProcessors = 1;
+        int maxNumberOfProcessors = 2;  // the test is designed to run only for one (serial) or two (parallel) processors
+        MPI_Comm_size(MPI_COMM_WORLD, &numberOfProcessors);
+        logger.assert_always((numberOfProcessors > 0) && (numberOfProcessors <= maxNumberOfProcessors),
+                              "Parallel run only up to two processors");
+        std::cout << "\nNumber of processors: " << numberOfProcessors;
+        switch (numberOfProcessors){
+            case 1:
+                // Only one processor so we are running in serial mode
+                std::cout << "\nSerial mode!\n";
+                isParallelRun = false;
+                break;
+            case 2:
+                // Two Processors so we are running in parallel mode (we can only run with 1 or 2 processors)
+                std::cout << "\nParallel mode!\n";
+                isParallelRun = true;
+                break;
+        }
+#endif // HPGEM_USE_MPI
 
-std::vector<std::string> singleProcessorRefinementMeshes2D() {
+        return isParallelRun;
+    }
 
-    using namespace std::string_literals;
+    std::vector<std::string> singleProcessorRefinementMeshes2D() {
 
-    std::string prefix = hpgem::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s;
+        using namespace std::string_literals;
 
-    return std::vector<std::string>(
-        {prefix + "unitPeriodicSimplexD2N8P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N16P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N32P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N64P1.hpgem"});
-}
+        std::string prefix = hpgem::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s;
+
+        return std::vector<std::string>(
+            {prefix + "unitPeriodicSimplexD2N8P1.hpgem",
+            prefix + "unitPeriodicSimplexD2N16P1.hpgem",
+            prefix + "unitPeriodicSimplexD2N32P1.hpgem",
+            prefix + "unitPeriodicSimplexD2N64P1.hpgem"});
+    }
+
+    std::vector<std::string> dualProcessorRefinementMeshes2D() {
+
+        using namespace std::string_literals;
+
+        std::string prefix = hpgem::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/parallel_meshes/"s;
+
+        return std::vector<std::string>(
+            {prefix + "unitPeriodicSimplexD2N8P1.hpgem",
+            prefix + "unitPeriodicSimplexD2N16P1.hpgem",
+            prefix + "unitPeriodicSimplexD2N32P1.hpgem",
+            prefix + "unitPeriodicSimplexD2N64P1.hpgem"});
+    }
+
+    std::vector<std::string> refinementMeshes2D() {
+        std::vector<std::string> meshFilenames;
+
+        if (DGMaxTest::isParallelRun()){
+          std::cout << "\nGenerating parallel meshes!\n";
+          meshFilenames = dualProcessorRefinementMeshes2D();
+          std::cout << "\n" << meshFilenames[0] << "\n";
+        }
+        else {
+          std::cout << "\nGenerating serial meshes!\n";
+          meshFilenames = singleProcessorRefinementMeshes2D();
+          std::cout << "\n" << meshFilenames[0] << "\n";
+        }
+
+        return meshFilenames;
+    }
 }  // namespace DGMaxTest
 
 #endif  // HPGEM_TESTMESHES_H

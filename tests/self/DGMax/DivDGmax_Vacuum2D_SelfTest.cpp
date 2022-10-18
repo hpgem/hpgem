@@ -47,6 +47,7 @@
 
 #include "testMeshes.h"
 
+#include <iostream>
 // Convergence test for DivDGMaxEigenvalue, based on computing the spectrum for
 // Vacuum at a single k-point. The resulting frequencies are cached in the
 // expected results below. If these are no longer correct the convergence test
@@ -100,7 +101,7 @@ int main(int argc, char** argv) {
     bool runAsTest = runAsTestArg.getValue();
 
     std::vector<std::string> meshes =
-        DGMaxTest::singleProcessorRefinementMeshes2D();
+        DGMaxTest::refinementMeshes2D();
 
     // Just a random point in vacuum
     DGMax::EVTestPoint<2> testPoint(LinearAlgebra::SmallVector<2>({0.8, 0.9}),
