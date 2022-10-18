@@ -510,6 +510,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
     EPSType etype;
 
     if (config_.use_jdmax_) {
+
         // set the parameters of the solver based on the config_
         jdmaxSolver_.setMaxIter(config_.jdmax_niter_);
         jdmaxSolver_.setSearchSpaceMaxSize(
@@ -519,6 +520,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
         jdmaxSolver_.setCorrectionNiter(config_.jdmax_corr_iter_);
         jdmaxSolver_.setTolerance(config_.jdmax_tol_);
         jdmaxSolver_.setTarget(config_.jdmax_target_);
+        jdmaxSolver_.setPrecShift(config_.jdmax_prec_shift_);
 
         // set the matrices in the solver
         jdmaxSolver_.setMatrices(stiffnessMatrix_, projector->projectorMatrix_);

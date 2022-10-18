@@ -69,8 +69,7 @@ auto& jdTarget = Base::register_argument<double>(
 
 // preconditioner shift
 auto& jdPrecShift = Base::register_argument<double>(
-    '\0', "jd_prec_shift", "shift for the preconditioner",
-    false, 1.0);
+    '\0', "jd_prec_shift", "shift for the preconditioner", false, 1.0);
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1

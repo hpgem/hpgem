@@ -107,7 +107,6 @@ class JacobiDavidsonMaxwellSolver final {
     void setSearchSpaceRestartSize(int n);
 
    private:
-
     void initializeMatrices();
     void initializeVectors();
     void initializeSearchSpace(int nev);
@@ -155,7 +154,6 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt nconverged = 0;
     PetscReal tolerance;
 
-
     Mat A, C;
     Mat Y, H;
     KSP ksp;
@@ -168,7 +166,6 @@ class JacobiDavidsonMaxwellSolver final {
     std::vector<PetscScalar> eigenvalues;
 
     bool print_small_evs = false;
-
 };
 
 }  // namespace EigenSolvers

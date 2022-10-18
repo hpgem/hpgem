@@ -87,7 +87,6 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
     logger(INFO, "JacobiDavidsonSolver Contraint Size : % x %", n, m);
 }
 
-
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
     // initialize the Y and H matrix needed for the JD algorithm
@@ -260,17 +259,17 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::staticMatMultCorrPrec(PC pc, Vec x,
     CHKERRABORT(PETSC_COMM_WORLD, error);
     workspace->correctionPreconditionerMatMult(x, y);
     return 0;
-
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::correctionPreconditionerMatMult(Vec x, Vec y) {
+PetscErrorCode JacobiDavidsonMaxwellSolver::correctionPreconditionerMatMult(
+    Vec x, Vec y) {
     // compute (I - M Q Q.T) (A - eta M) (I - Q Q.T M) y
     // here M is always the identity matrix
     Vec Ay;
 
     // copy x in y
     VecCopy(x, y);
-     
+
     // y = y - Q Q.T y
     modifiedGramSchmidt(y, Qt);
 
@@ -370,7 +369,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     // preconditionner
     // ierr = KSPGetPC(ksp, &pc); CHKERRQ(ierr);
 
-    // user defined PC ... 
+    // user defined PC ...
     // ierr = PCSetType(pc, PCSHELL); CHKERRQ(ierr);
     // ierr = PCShellSetApply(pc, staticMatMultCorrPrec); CHKERRQ(ierr);
     // ierr = PCShellSetContext(pc, pc_shell); CHKERRQ(ierr);
@@ -382,7 +381,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     // ierr = PCHMGSetUseSubspaceCoarsening(pc, PETSC_TRUE);
     // ierr = PCHMGUseMatMAIJ(pc, PETSC_FALSE);
     // ierr = PCHMGSetCoarseningComponent(pc, 0);
-
 
     // solve the linear system
     KSPSolve(ksp, res, sol);
@@ -725,7 +723,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
     PetscScalar *vec_values;
     PetscErrorCode ierr;
     PetscMPIInt rank;
-    
 
     this->nconverged = 0;
 
