@@ -982,7 +982,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         // remove tmp vec
         for (ii = 0; ii < this->search_space_maxsize; ii++) {
             VecDestroy(&small_evects[ii]);
-            VecDestroy(&tmp_v[ii]);
         }
         VecDestroy(&q);
 
