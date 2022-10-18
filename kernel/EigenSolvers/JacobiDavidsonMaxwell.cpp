@@ -368,7 +368,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(
     KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, this->correction_niter);
 
     // preconditionner
-    ierr = KSPGetPC(ksp, &pc); CHKERRQ(ierr);
+    // ierr = KSPGetPC(ksp, &pc); CHKERRQ(ierr);
 
     // user defined PC ... 
     // ierr = PCSetType(pc, PCSHELL); CHKERRQ(ierr);
