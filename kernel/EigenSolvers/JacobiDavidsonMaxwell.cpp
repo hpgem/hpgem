@@ -909,7 +909,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             }
         }
 
-        if (stop) break;
+        
 
         // Qt = [Q; q]
         if (this->eigenvectors_current_size == 0) {
@@ -985,6 +985,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             VecDestroy(&tmp_v[ii]);
         }
         VecDestroy(&q);
+
+        if (stop) break;
     }
 
     ierr = this->orderEigenvalues();
