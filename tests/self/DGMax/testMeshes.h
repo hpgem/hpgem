@@ -100,14 +100,10 @@ namespace DGMaxTest {
         std::vector<std::string> meshFilenames;
 
         if (DGMaxTest::isParallelRun()){
-          std::cout << "\nGenerating parallel meshes!\n";
           meshFilenames = dualProcessorRefinementMeshes2D();
-          std::cout << "\n" << meshFilenames[0] << "\n";
         }
         else {
-          std::cout << "\nGenerating serial meshes!\n";
           meshFilenames = singleProcessorRefinementMeshes2D();
-          std::cout << "\n" << meshFilenames[0] << "\n";
         }
 
         return meshFilenames;
