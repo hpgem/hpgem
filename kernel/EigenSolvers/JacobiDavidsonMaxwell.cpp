@@ -983,8 +983,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             VecDestroy(&small_evects[ii]);
         }
         VecDestroy(&q);
-
-        
     }
 
     ierr = this->orderEigenvalues();
