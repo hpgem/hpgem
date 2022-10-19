@@ -45,6 +45,7 @@
 
 #include "Geometry/ReferenceLine.h"
 #include "Geometry/ReferencePoint.h"
+#include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ElementGeometry.h"
@@ -61,7 +62,7 @@ TEST_CASE("230FaceGeometry_UnitTest", "[230FaceGeometry_UnitTest]") {
     // dim0
 
     std::vector<std::size_t> pointIndexes, leftIndices, rightIndices;
-    std::vector<Geometry::PointPhysical<1> > nodes1D;
+    std::vector<Geometry::PointPhysical<1>> nodes1D;
 
     Geometry::PointReference<1> point1D, compare1D;
     Geometry::PointPhysical<1> point1Dphys, compare1Dphys;
@@ -145,7 +146,7 @@ TEST_CASE("230FaceGeometry_UnitTest", "[230FaceGeometry_UnitTest]") {
 
     // dim 1
 
-    std::vector<Geometry::PointPhysical<2> > nodes2D;
+    std::vector<Geometry::PointPhysical<2>> nodes2D;
 
     Geometry::PointReference<2> point2D, compare2D;
     Geometry::PointPhysical<2> point2Dphys, compare2Dphys;
@@ -303,4 +304,88 @@ TEST_CASE("230FaceGeometry_UnitTest", "[230FaceGeometry_UnitTest]") {
     CHECK((typeid(refGeo3) == typeid(Geometry::ReferenceLine)));
     INFO("No right element");
     CHECK((test->getPtrElementGRight() == nullptr));
+}
+
+TEST_CASE("Mapping left-right", "[230FaceGeometry_UnitTest]") {
+    // Test case to check the mapping between the left and right face/element
+    // coordinates. This checks that the two ways to map a face coordinate to a
+    // physical coordinate commute, that is, that for any reference coordinate
+    // the following two mappings give the same physical coordinate:
+    //  - ref. face -> ref. left element -> physical left element
+    //  - ref. face -> right ref. face -> ref. right element
+    //         -> physical right element
+    // (Note: This is only the case for non-periodic faces)
+    //
+    // Note that the face coordinate with respect to the right element may not
+    // be the same as that for the left element (which is used as coordinate
+    // system for the face.). This is due to the reference face having fixed
+    // face ordering, which may not agree with that of the mesh.
+    //
+    // Testing occurs by iterating over the 6 node configurations for the face
+    // of the right element. For each configuration we check for several face
+    // reference coordinates that the mappings commute.
+
+    using namespace Geometry;
+    const auto& refTet = ReferenceTetrahedron::Instance();
+    std::vector<PointPhysical<3>> coords({
+        // Three face nodes
+        {-.5, -0.25, 0},
+        {1, 0, 0},
+        {0, 1, 0},
+        {0, 0, -1.0},  // Non face node for left tetrahedron
+        {1, 1, 1}      // Non face node for the right tetrahedron
+    });
+
+    // The indices in coords for the nodes that form the left/right element
+    // Note: The order matters, as the i-th entry is for the i-the reference
+    // node.
+    // Note: Technically the indices are for the nodes, but those are identical
+    // to the coords here, as there are no (hypothetical) nodes with multiple
+    // coordinates.
+    std::vector<std::size_t> leftNodes, rightNodes;
+    leftNodes = {0, 1, 2, 3};
+    rightNodes = {0, 1, 2, 4};
+
+    // The first three entries in left/rightNodes are shared. These correspond
+    // to face 2.
+    const std::size_t FACE_NUMBER = 2;
+
+    ElementGeometry left(leftNodes, coords);
+
+    // Storage for the coordinate indices on the face of the left/right element.
+    // That is, the i-th entry is the coordinate index of the i-th node on the
+    // FACE_NUMBER-face of the left/right element. For the left face this is
+    // stable, for the right face this changes as we permute the order of the
+    // reference nodes.
+    std::vector<std::size_t> leftFaceNodes(3), rightFaceNodes(3);
+    // Ordering of the nodes on FACE_NUMBER
+    const auto rightFaceOrdering =
+        refTet.getCodim1EntityLocalIndices(FACE_NUMBER);
+    // Permute over the configurations for the right nodes
+    do {
+        // Lookup the node indices
+        for (std::size_t i = 0; i < rightFaceOrdering.size(); ++i) {
+            rightFaceNodes[i] = rightNodes[rightFaceOrdering[i]];
+            leftFaceNodes[i] = leftNodes[rightFaceOrdering[i]];
+        }
+        // Construct right, face geometry from scratch every step to prevent
+        // contamination from the previous test.
+        ElementGeometry right(rightNodes, coords);
+        FaceGeometry face(&left, FACE_NUMBER, &right, FACE_NUMBER);
+        face.initialiseFaceToFaceMapIndex(leftFaceNodes, rightFaceNodes);
+        const auto& faceGeom = *refTet.getCodim1ReferenceGeometry(FACE_NUMBER);
+        // Check the mapping for each of the corners of the face.
+        for (std::size_t i = 0; i < faceGeom.getNumberOfNodes(); ++i) {
+            const auto& faceCoord =
+                faceGeom.getReferenceNodeCoordinate(i).castDimension<2>();
+            auto leftCoord =
+                left.referenceToPhysical(face.mapRefFaceToRefElemL(faceCoord));
+            auto rightCoord =
+                right.referenceToPhysical(face.mapRefFaceToRefElemR(faceCoord));
+            CHECK((leftCoord - rightCoord).l2NormSquared() < 1e-8);
+        }
+        // Next permutation of the face nodes. Note: --, to exclude the last
+        // rightNode from the permutation as this is the node that is not on the
+        // face.
+    } while (std::next_permutation(rightNodes.begin(), --rightNodes.end()));
 }

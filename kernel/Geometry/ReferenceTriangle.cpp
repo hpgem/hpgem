@@ -104,13 +104,13 @@ std::size_t ReferenceTriangle::getCodim0MappingIndex(
             return 1;  // 0.2.1.
         } else {
             if (list1[0] == list2[1]) {
-                if (list1[1] == list2[2]) return 5;  // 1.2.0.
+                if (list1[1] == list2[2]) return 2;  // 1.2.0.
 
                 return 3;  // 1.0.2.
             } else {
                 if (list1[1] == list2[1]) return 4;  // 2.1.0.
 
-                return 2;  // 2.0.1.
+                return 5;  // 2.0.1.
             }
         }
     } else {

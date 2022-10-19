@@ -41,6 +41,7 @@
 #include "Geometry/ReferenceGeometry.h"
 #include "../catch.hpp"
 #include <memory>
+#include <utility>
 
 namespace hpgem {
 
@@ -131,6 +132,48 @@ void testMeasure(const Geometry::ReferenceGeometry& geom) {
     // errors.
     double eps = 2.0 * dim * bbMeasure / testPointsPerDimension;
     REQUIRE(geom.measure() == Approx(expectedMeasure).epsilon(eps));
+}
+
+/**
+ * Test the correctness of the codimMappingIndex + codim0MappingPtr pair
+ * by trying out each possible node permutation and testing whether the corner
+ * nodes of the reference shape are correctly mapped.
+ *
+ * @tparam dim The dimension of the shape
+ * @param geom The reference shape to test
+ * @param nextPermutation Function that computes the next valid permutation of
+ * the nodes. For a geometry with N nodes this takes a valid permutation of the
+ * indices [0..N-1] and should update the vector in place with the next valid
+ * permutation. It should return true if this was a new permutation, and false
+ * if the input was the last permutation.
+ */
+template <std::size_t dim>
+void testCodim0Mapping(
+    const Geometry::ReferenceGeometry& geom,
+    const std::function<bool(std::vector<std::size_t>&)>& nextPermutation) {
+
+    // Reference node order
+    std::vector<std::size_t> reference;
+    std::vector<std::size_t> permutation;
+    std::vector<Geometry::PointReference<dim>> points;
+    for (std::size_t i = 0; i < geom.getNumberOfNodes(); ++i) {
+        reference.push_back(i);
+        permutation.push_back(i);
+        points.push_back(geom.getReferenceNodeCoordinate(i));
+    }
+    do {
+        std::size_t index = geom.getCodim0MappingIndex(reference, permutation);
+        const auto* mapping = geom.getCodim0MappingPtr(index);
+        INFO("Checking mapping " << index);
+        CHECK(mapping != nullptr);
+        for (std::size_t i = 0; i < geom.getNumberOfNodes(); ++i) {
+            // Note the ordering here
+            Geometry::PointReference<dim> mpoint =
+                mapping->transform(points[permutation[i]]);
+            auto diff = mpoint - points[i];
+            REQUIRE(diff.l2NormSquared() < 1e-24);
+        }
+    } while (nextPermutation(permutation));
 }
 
 }  // namespace hpgem
