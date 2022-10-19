@@ -330,3 +330,39 @@ TEST_CASE("060ReferenceSquare_UnitTest", "[060ReferenceSquare_UnitTest]") {
     ///\todo testing that the refinement maps behave exactly like the forwarded
     /// calls of this class
 }
+
+TEST_CASE("Reference square mappings", "[060ReferenceSquare_UnitTest]") {
+    // i-th index is the node position of the neighbour in x or y direction.
+    // i.e. the 0 and 2 nodes are neighbours in y direction.
+    std::array<std::size_t, 4> xneighbour = {1, 0, 3, 2},
+                               yneighbour = {2, 3, 0, 1};
+    auto next = [xneighbour, yneighbour](std::vector<std::size_t>& v) {
+        // Approach:
+        // The 0th node can be at 4 positions, this changes slowly
+        // For each position of the 0th node there are two options for assigning
+        // 1 and 2. First configuration is with 1 as x neighbour (2 as y), then
+        // the reverse (1y, 2x).
+
+        // Find the location of the zero index
+        std::size_t n0 = 0;
+        for (; v[n0] != 0; ++n0) {
+        }
+        if (v[xneighbour[n0]] == 1) {
+            // Flip x and y neighbours
+            std::swap(v[xneighbour[n0]], v[yneighbour[n0]]);
+            return true;
+        } else {
+            // Move the 0 node to the next position
+            std::size_t nn0 = (n0 + 1) % 4;
+            v[nn0] = 0;
+            v[xneighbour[nn0]] = 1;
+            v[yneighbour[nn0]] = 2;
+            v[xneighbour[yneighbour[nn0]]] = 3;
+            // Last permutation
+            return n0 == 3;
+        }
+
+        return false;
+    };
+    testCodim0Mapping<2>(ReferenceSquare::Instance(), next);
+}
