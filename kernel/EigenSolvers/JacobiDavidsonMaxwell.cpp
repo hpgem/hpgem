@@ -908,7 +908,15 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             }
         }
 
-        if (stop) break;
+        // stop the solver
+        if (stop) {
+            // remove tmp vec
+            for (ii = 0; ii < this->search_space_maxsize; ii++) {
+                VecDestroy(&small_evects[ii]);
+            }
+            VecDestroy(&q);
+            break;
+        }
 
         // Qt = [Q; q]
         if (this->eigenvectors_current_size == 0) {
