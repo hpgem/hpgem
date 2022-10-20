@@ -141,13 +141,18 @@ void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
                          "Ordering is of incorrect size");
     // New ordering is with respect to the current ordering. So compute the
     // actual indices of the new ordering.
-    std::vector<std::size_t> updatedOrdering{size()};
+    std::vector<std::size_t> updatedOrdering(size());
 
     for (std::size_t i = 0; i < size(); ++i) {
         logger.assert_always(ordering[i] <= size(), "Too large index %",
                              ordering[i]);
         logger.assert_always(ordering[i] >= 0, "Negative Index %", ordering[i]);
-        ordering[i] = updatedOrdering[ordering[i]];
+
+        logger.assert_always(ordering_[ordering[i]] <= size(), "Too large index %",
+                             ordering_[ordering[i]]);
+        logger.assert_always(ordering_[ordering[i]] >= 0, "Negative Index %", ordering_[ordering[i]]);
+
+        updatedOrdering[i] = ordering_[ordering[i]];
     }
     // Set the ordering
     ordering_ = updatedOrdering;

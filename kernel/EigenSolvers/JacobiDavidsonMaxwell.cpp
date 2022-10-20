@@ -725,7 +725,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
 
     this->nconverged = 0;
 
-    logger(INFO, "Sovling EigenValue problem using JacobiDavidsonSolver");
+    logger(INFO, "Solving EigenValue problem using JacobiDavidsonSolver");
 
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
