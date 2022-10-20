@@ -647,7 +647,6 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
               });
 
     eigenpairs_.reorder(ordering);
-
 }
 
 template <std::size_t DIM>

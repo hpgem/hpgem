@@ -148,9 +148,10 @@ void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
                              ordering[i]);
         logger.assert_always(ordering[i] >= 0, "Negative Index %", ordering[i]);
 
-        logger.assert_always(ordering_[ordering[i]] <= size(), "Too large index %",
+        logger.assert_always(ordering_[ordering[i]] <= size(),
+                             "Too large index %", ordering_[ordering[i]]);
+        logger.assert_always(ordering_[ordering[i]] >= 0, "Negative Index %",
                              ordering_[ordering[i]]);
-        logger.assert_always(ordering_[ordering[i]] >= 0, "Negative Index %", ordering_[ordering[i]]);
 
         updatedOrdering[i] = ordering_[ordering[i]];
     }
