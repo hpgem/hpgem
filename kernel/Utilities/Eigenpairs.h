@@ -80,7 +80,7 @@ class Eigenpairs final {
      * @param eps The solver to load the eigenpairs from
      * @param sample A sample vector to duplicate for storing eigenvectors
      */
-    void loadEigenpairs(EPS& eps, Vec sample);
+    void loadEigenpairs(EPS eps, Vec sample);
     void loadEigenpairs(EigenSolvers::JacobiDavidsonMaxwellSolver& eps,
                         Vec sample);
 
@@ -127,8 +127,7 @@ class Eigenpairs final {
         logger.assert_always(i < eigenvalues_.size(),
                              "Asking for eigenvalue % with only % eigenpairs",
                              i, eigenvalues_.size());
-        // return eigenvalues_[ordering_[i]];
-        return eigenvalues_[i];
+        return eigenvalues_[ordering_[i]];
     }
 
    private:

@@ -94,7 +94,7 @@ void Eigenpairs::reserve(std::size_t newSize, Vec sample) {
  * @param eps The solver to load the eigenpairs from
  * @param sample A sample vector to duplicate for storing eigenvectors
  */
-void Eigenpairs::loadEigenpairs(EPS &eps, Vec sample) {
+void Eigenpairs::loadEigenpairs(EPS eps, Vec sample) {
     PetscInt converged;
     PetscErrorCode err;
     err = EPSGetConverged(eps, &converged);
@@ -141,16 +141,16 @@ void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
                          "Ordering is of incorrect size");
     // New ordering is with respect to the current ordering. So compute the
     // actual indices of the new ordering.
-    // std::vector<std::size_t> updatedOrdering{size()};
+    std::vector<std::size_t> updatedOrdering{size()};
 
     for (std::size_t i = 0; i < size(); ++i) {
         logger.assert_always(ordering[i] <= size(), "Too large index %",
                              ordering[i]);
         logger.assert_always(ordering[i] >= 0, "Negative Index %", ordering[i]);
-        ordering[i] = ordering_[ordering[i]];
+        ordering[i] = updatedOrdering[ordering[i]];
     }
     // Set the ordering
-    ordering_ = ordering;
+    ordering_ = updatedOrdering;
 }
 
 }  // namespace Utilities

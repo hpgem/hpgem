@@ -266,9 +266,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
         // Add headers for the number of expected bands. The actual number may
         // be higher.
         for (std::size_t i = 0; i < targetNumberOfEigenvalues_; ++i) {
-        std:
-            sprintf(idx_band, "band %02lu ", i);
-            stream << separator << idx_band;
+            stream << separator << "band " << i;
         }
         stream << std::endl;
     }
