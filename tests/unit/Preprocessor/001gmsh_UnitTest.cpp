@@ -53,8 +53,8 @@ TEST_CASE("ReadingFile", "[ReadingFile]") {
     ref_Coords.push_back({1, {1.0, 0.0}});
     ref_Coords.push_back({2, {1.0, 1.0}});
     ref_Coords.push_back({3, {0.0, 1.0}});
-    ref_Coords.push_back({0, {2.0, 0.0}});
-    ref_Coords.push_back({3, {2.0, 1.0}});
+    ref_Coords.push_back({4, {2.0, 0.0}});
+    ref_Coords.push_back({5, {2.0, 1.0}});
 
     const auto& coords = reader.getCoordinates();
     INFO("Nodes");
@@ -67,6 +67,21 @@ TEST_CASE("ReadingFile", "[ReadingFile]") {
             REQUIRE(coords[i].coordinate[dim] ==
                     Approx(ref_Coords[i].coordinate[dim]));
         }
+    }
+
+    // Check periodic connections
+    // 5 - 1
+    // 6 - 4
+    std::vector<std::pair<std::size_t, std::size_t>> mergedNodes = {
+        // Note difference due to Fortran offset
+        {4, 0},
+        {5, 3}};
+    const auto& actualMerges = reader.getMerges();
+    CHECK(actualMerges.size() == 1);
+    for (const auto& p : mergedNodes) {
+        const auto pf = actualMerges[0].find(p.first);
+        REQUIRE(pf != actualMerges[0].end());
+        REQUIRE(pf->second == p.second);
     }
 
     std::vector<Preprocessor::MeshSource2::Element> ref_Elements;
@@ -120,6 +135,8 @@ TEST_CASE("ReadingFile_NOPBC", "[ReadingFile]") {
                     Approx(ref_Coords[i].coordinate[dim]));
         }
     }
+
+    REQUIRE(reader.getMerges().empty());
 
     std::vector<Preprocessor::MeshSource2::Element> ref_Elements;
     ref_Elements.reserve(2);

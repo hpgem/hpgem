@@ -80,8 +80,8 @@ int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
     initDGMaxLogging();
 
-    // Flag to switch between testing with known results (true) and checking the
-    // results when they change (false).
+    // Flag to switch between testing with known results (fal;se) and checking
+    // the results when they change (true).
     bool runAsTest = runAsTestArg.getValue();
 
     std::vector<std::string> meshes =

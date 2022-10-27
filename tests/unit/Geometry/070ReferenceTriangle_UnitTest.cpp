@@ -164,10 +164,10 @@ TEST_CASE("070ReferenceTriangle_UnitTest", "[070ReferenceTriangle_UnitTest]") {
     INFO("getCodim0MappingIndex&Ptr");
     CHECK((test.getCodim0MappingPtr(
                test.getCodim0MappingIndex(base, transformed)) ==
-           &Geometry::MappingToRefTriangleToTriangle2::Instance()));
+           &Geometry::MappingToRefTriangleToTriangle5::Instance()));
     INFO("getCodim0MappingIndex&Ptr");
     CHECK((test.getCodim0MappingPtr(base, transformed) ==
-           &Geometry::MappingToRefTriangleToTriangle2::Instance()));
+           &Geometry::MappingToRefTriangleToTriangle5::Instance()));
     transformed[0] = 1;
     transformed[1] = 0;
     transformed[2] = 2;
@@ -194,10 +194,10 @@ TEST_CASE("070ReferenceTriangle_UnitTest", "[070ReferenceTriangle_UnitTest]") {
     INFO("getCodim0MappingIndex&Ptr");
     CHECK((test.getCodim0MappingPtr(
                test.getCodim0MappingIndex(base, transformed)) ==
-           &Geometry::MappingToRefTriangleToTriangle5::Instance()));
+           &Geometry::MappingToRefTriangleToTriangle2::Instance()));
     INFO("getCodim0MappingIndex&Ptr");
     CHECK((test.getCodim0MappingPtr(base, transformed) ==
-           &Geometry::MappingToRefTriangleToTriangle5::Instance()));
+           &Geometry::MappingToRefTriangleToTriangle2::Instance()));
     INFO("higher codimensional entities");
     CHECK(test.getNumberOfCodim1Entities() == 3);
     CHECK(test.getNumberOfCodim2Entities() == 3);
@@ -289,4 +289,11 @@ TEST_CASE("070ReferenceTriangle_UnitTest", "[070ReferenceTriangle_UnitTest]") {
           1e-12);
     ///\todo testing that the refinement maps behave exactly like the forwarded
     /// calls of this class
+}
+
+TEST_CASE("Matching mapping", "[080MappingToRefTriangleToTriangle_UnitTest") {
+    auto next = [](std::vector<std::size_t>& v) {
+        return std::next_permutation(v.begin(), v.end());
+    };
+    testCodim0Mapping<2>(ReferenceTriangle::Instance(), next);
 }
