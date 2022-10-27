@@ -209,11 +209,13 @@ CentaurReader::CentaurReader(std::string filename)
 
     if (is3D()) {
         // Internal information
-        for (std::size_t i = 0; i < 10; ++i) {
-            std::uint32_t size = centaurFile.peekRecordSize();
-            centaurFile.skipRecord(size);
-            logger(VERBOSE, "Ignoring centaur internal information of size %",
-                   size);
+        if ((version > 6.49 && version < 6.99) || version > 7.49) {
+            for (std::size_t i = 0; i < 10; ++i) {
+                std::uint32_t size = centaurFile.peekRecordSize();
+                centaurFile.skipRecord(size);
+                logger(VERBOSE,
+                       "Ignoring centaur internal information of size %", size);
+            }
         }
         if (version > 6.99) {
             // Read higher order
