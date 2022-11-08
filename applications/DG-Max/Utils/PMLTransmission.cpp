@@ -106,7 +106,16 @@ std::vector<double> PMLTransmission<dim>::pmlTransmission(
             totalField +=
                 result.computeFieldL2Integral(*face, Base::Side::LEFT);
         }
-        transmission[i] = std::sqrt(totalField / surfaceArea_[i]);
+        transmission[i] = totalField / surfaceArea_[i];
+    }
+#ifdef HPGEM_USE_MPI
+    // Sum transmission over all processes
+    MPI_Allreduce(MPI_IN_PLACE, transmission.data(),
+                  transmission.size(), MPI_DOUBLE, MPI_SUM,
+                  MPI_COMM_WORLD);
+#endif
+    for(double& t : transmission) {
+        t = std::sqrt(t);
     }
     return transmission;
 }
