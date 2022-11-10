@@ -60,6 +60,8 @@ auto& runAsTestArg = Base::register_argument<bool>(
 
 // clang-format off
 // Leave the results as an easily readable table
+// Note: Only 10 eigenmodes are requested, the 11th mode is therefore not always
+//       present and excluded from the table.
 DGMax::EVConvergenceResult expected ({
     {1.2044351353,5.4116291469,5.5262052437,7.0674801624,7.1468756651,7.7213397212,8.9374986496,9.0778132093,10.1643930579,11.3111802309}, // 11.4252815469},
     {1.2042284160,5.4346771252,5.5490171908,7.1221660674,7.2076240689,7.6940823890,8.9083377743,9.0486671389,10.1102877500,11.6012384097}, //11.7101182626},

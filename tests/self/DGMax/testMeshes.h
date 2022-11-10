@@ -54,17 +54,17 @@ bool isParallelRun() {
     logger.assert_always((numberOfProcessors > 0) &&
                              (numberOfProcessors <= maxNumberOfProcessors),
                          "Parallel run only up to two processors");
-    std::cout << "\nNumber of processors: " << numberOfProcessors;
+    logger(INFO, "Number of processors: %", numberOfProcessors);
     switch (numberOfProcessors) {
         case 1:
             // Only one processor so we are running in serial mode
-            std::cout << "\nSerial mode!\n";
+            logger(INFO, "Serial mode");
             isParallelRun = false;
             break;
         case 2:
             // Two Processors so we are running in parallel mode (we can only
             // run with 1 or 2 processors)
-            std::cout << "\nParallel mode!\n";
+            logger(INFO, "Parallel mode");
             isParallelRun = true;
             break;
     }
