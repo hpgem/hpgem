@@ -73,7 +73,7 @@ bool isParallelRun() {
 #endif  // HPGEM_USE_MPI
 
     return isParallelRun;
-
+}
 }  // namespace
 }  // namespace hpgem
 
