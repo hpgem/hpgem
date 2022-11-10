@@ -41,37 +41,38 @@
 #include <string>
 #include <vector>
 #include "hpgem-cmake.h"
+#include "../ParallelRunTest.h"
 
 namespace DGMaxTest {
-bool isParallelRun() {
-    // Check if code is running in parallel or serially
-    bool isParallelRun = false;
-#ifdef HPGEM_USE_MPI
-    int numberOfProcessors = 1;
-    int maxNumberOfProcessors = 2;  // the test is designed to run only for one
-                                    // (serial) or two (parallel) processors
-    MPI_Comm_size(MPI_COMM_WORLD, &numberOfProcessors);
-    logger.assert_always((numberOfProcessors > 0) &&
-                             (numberOfProcessors <= maxNumberOfProcessors),
-                         "Parallel run only up to two processors");
-    logger(INFO, "Number of processors: %", numberOfProcessors);
-    switch (numberOfProcessors) {
-        case 1:
-            // Only one processor so we are running in serial mode
-            logger(INFO, "Serial mode");
-            isParallelRun = false;
-            break;
-        case 2:
-            // Two Processors so we are running in parallel mode (we can only
-            // run with 1 or 2 processors)
-            logger(INFO, "Parallel mode");
-            isParallelRun = true;
-            break;
-    }
-#endif  // HPGEM_USE_MPI
-
-    return isParallelRun;
-}
+// bool isParallelRun() {
+//     // Check if code is running in parallel or serially
+//     bool isParallelRun = false;
+// #ifdef HPGEM_USE_MPI
+//     int numberOfProcessors = 1;
+//     int maxNumberOfProcessors = 2;  // the test is designed to run only for one
+//                                     // (serial) or two (parallel) processors
+//     MPI_Comm_size(MPI_COMM_WORLD, &numberOfProcessors);
+//     logger.assert_always((numberOfProcessors > 0) &&
+//                              (numberOfProcessors <= maxNumberOfProcessors),
+//                          "Parallel run only up to two processors");
+//     logger(INFO, "Number of processors: %", numberOfProcessors);
+//     switch (numberOfProcessors) {
+//         case 1:
+//             // Only one processor so we are running in serial mode
+//             logger(INFO, "Serial mode");
+//             isParallelRun = false;
+//             break;
+//         case 2:
+//             // Two Processors so we are running in parallel mode (we can only
+//             // run with 1 or 2 processors)
+//             logger(INFO, "Parallel mode");
+//             isParallelRun = true;
+//             break;
+//     }
+// #endif  // HPGEM_USE_MPI
+//
+//     return isParallelRun;
+// }
 
 std::vector<std::string> singleProcessorRefinementMeshes2D() {
 
@@ -103,7 +104,7 @@ std::vector<std::string> dualProcessorRefinementMeshes2D() {
 std::vector<std::string> refinementMeshes2D() {
     std::vector<std::string> meshFilenames;
 
-    if (DGMaxTest::isParallelRun()) {
+    if (hpgem::isParallelRun()) {
         meshFilenames = DGMaxTest::dualProcessorRefinementMeshes2D();
     } else {
         meshFilenames = DGMaxTest::singleProcessorRefinementMeshes2D();
