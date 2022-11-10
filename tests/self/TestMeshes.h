@@ -42,6 +42,7 @@
 #include "vector"
 #include "hpgem-cmake.h"
 #include "Logger.h"
+#include "ParallelRunTest.h"
 #include <limits>
 
 namespace hpgem {
@@ -112,7 +113,43 @@ std::vector<std::string> getUnitSegmentPeriodicMeshes(
  */
 std::vector<std::string> getUnitSquareTriangleMeshes(
     std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
+    std::vector<std::string> meshFilenames;
+
+    if (hpgem::isParallelRun()) {
+        meshFilenames = hpgem::getDualProcessorUnitSquareTriangleMeshes();
+    } else {
+        meshFilenames = hpgem::getSingleProcessorUnitSquareTriangleMeshes();
+    }
+
+    return meshFilenames;
+}
+
+/**
+ * Meshes for the unit square using triangles. The meshes are subsequent
+ * refinements of a mesh with a pair of triangles.
+ * @return The file names to the meshes
+ */
+std::vector<std::string> getSingleProcessorUnitSquareTriangleMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
+    return limit({prefix + "unitSquareTrianglesN1.hpgem",
+                  prefix + "unitSquareTrianglesN2.hpgem",
+                  prefix + "unitSquareTrianglesN4.hpgem",
+                  prefix + "unitSquareTrianglesN8.hpgem",
+                  prefix + "unitSquareTrianglesN16.hpgem",
+                  prefix + "unitSquareTrianglesN32.hpgem",
+                  prefix + "unitSquareTrianglesN64.hpgem"},
+                 minLevel, maxLevel);
+}
+
+/**
+ * Meshes for the unit square using triangles. The meshes are subsequent
+ * refinements of a mesh with a pair of triangles.
+ * @return The file names to the meshes
+ */
+std::vector<std::string> getDualProcessorUnitSquareTriangleMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
+    std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/parallel_meshes/";
     return limit({prefix + "unitSquareTrianglesN1.hpgem",
                   prefix + "unitSquareTrianglesN2.hpgem",
                   prefix + "unitSquareTrianglesN4.hpgem",
