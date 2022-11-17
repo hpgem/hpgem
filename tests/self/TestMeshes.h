@@ -106,23 +106,6 @@ std::vector<std::string> getUnitSegmentPeriodicMeshes(
         minLevel, maxLevel);
 }
 
-/**
- * Meshes for the unit square using triangles. The meshes are subsequent
- * refinements of a mesh with a pair of triangles.
- * @return The file names to the meshes
- */
-std::vector<std::string> getUnitSquareTriangleMeshes(
-    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
-    std::vector<std::string> meshFilenames;
-
-    if (hpgem::isParallelRun()) {
-        meshFilenames = hpgem::getDualProcessorUnitSquareTriangleMeshes();
-    } else {
-        meshFilenames = hpgem::getSingleProcessorUnitSquareTriangleMeshes();
-    }
-
-    return meshFilenames;
-}
 
 /**
  * Meshes for the unit square using triangles. The meshes are subsequent
@@ -160,6 +143,25 @@ std::vector<std::string> getDualProcessorUnitSquareTriangleMeshes(
                  minLevel, maxLevel);
 }
 
+/**
+ * Meshes for the unit square using triangles. The meshes are subsequent
+ * refinements of a mesh with a pair of triangles.
+ * @return The file names to the meshes
+ */
+std::vector<std::string> getUnitSquareTriangleMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
+    std::vector<std::string> meshFilenames;
+
+    if (hpgem::isParallelRun()) {
+        meshFilenames = getDualProcessorUnitSquareTriangleMeshes();
+    } else {
+        meshFilenames = getSingleProcessorUnitSquareTriangleMeshes();
+    }
+
+    return meshFilenames;
+}
+
+    
 /**
  * Same as getUnitSquareTriangleMeshes, but with periodic boundaries. As result
  * the smallest mesh starts with 4x4 squares divided into triangles.

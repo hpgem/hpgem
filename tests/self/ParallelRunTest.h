@@ -38,8 +38,12 @@
 #ifndef HPGEM_PARALLELRUNTEST_H
 #define HPGEM_PARALLELRUNTEST_H
 
-#include "DGMaxLogger.h"
+#include "Logger.h"
 #include "hpgem-cmake.h"
+
+#ifdef HPGEM_USE_MPI
+#include <mpi.h>
+#endif
 
 namespace hpgem {
 

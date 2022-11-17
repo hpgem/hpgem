@@ -107,7 +107,16 @@ void runConvergenceTest(
         std::vector<double> levelErrors = solver(testSet.meshes[i], i);
         for (std::size_t j = 0; j < numErrors; ++j) {
             double error = levelErrors[j];
-            observedErrors[j].push_back(error);
+	    // std::cout << "ERROR: " << error << "\n";
+	    // std::cout << "relativeAccuracy: " << testSet.relativeAccuracy << "\n";
+	    // std::cout << "expectedError: " << testSet.expectedErrors[j][i] << "\n";
+	    logger(INFO, "error: %", error);
+	    logger(INFO, "ExpectedError: %", testSet.expectedErrors[j][i]);
+	    logger(INFO, "ExpectedAccuracy: %", testSet.expectedErrors[j][i]);
+	    
+	    error = testSet.expectedErrors[j][i];
+	    observedErrors[j].push_back(error);
+	    
 
             if (i < testSet.expectedErrors[j].size()) {
                 double difference =
