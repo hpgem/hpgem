@@ -120,7 +120,7 @@ class Driver : public AbstractHarmonicSolverDriver<2> {
         double expectedOutFlux = 0.0;
 
         for (Base::Face* face : result.getMesh().getFacesList()) {
-            if (face->isInternal()) {
+            if (face->isInternal() || !face->isOwnedByCurrentProcessor()) {
                 continue;
             }
             double flux = result.computeEnergyFlux(*face, Base::Side::LEFT,
@@ -152,6 +152,10 @@ class Driver : public AbstractHarmonicSolverDriver<2> {
         }
         errors_[1] = actualOutFlux - expectedOutFlux;
         errors_[2] = actualInFlux - expectedInFlux;
+#ifdef HPGEM_USE_MPI
+        MPI_Allreduce(MPI_IN_PLACE, &errors_[1], 2, MPI_DOUBLE, MPI_SUM,
+                      MPI_COMM_WORLD);
+#endif
     }
 
     bool hasChanged(HarmonicProblemChanges change) const override {

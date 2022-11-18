@@ -805,12 +805,20 @@ std::map<typename DGMaxDiscretizationBase::NormType, double>
         for (typename Base::MeshManipulator<DIM>::FaceIterator it =
                  mesh.faceColBegin();
              it != end; ++it) {
+            if (!(*it)->isOwnedByCurrentProcessor()) {
+                continue;
+            }
             dgNorm += faceIntegrator_.integrate(
                 *it, [&](Base::PhysicalFace<DIM>& face) {
                     return faceErrorIntegrand(face, timeVector, electricField);
                 });
         }
     }
+#ifdef HPGEM_USE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &l2Norm, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, &hCurlNorm, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, &dgNorm, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#endif
 
     std::map<NormType, double> result;
     if (l2Wanted) result[L2] = sqrt(l2Norm);

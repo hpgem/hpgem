@@ -1278,6 +1278,9 @@ double DivDGMaxDiscretization<DIM>::computeL2Error(
                                              electricField);
             });
     }
+#ifdef HPGEM_USE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &error, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#endif
     return std::sqrt(error);
 }
 

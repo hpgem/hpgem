@@ -111,12 +111,11 @@ void runConvergenceTest(
 	    // std::cout << "relativeAccuracy: " << testSet.relativeAccuracy << "\n";
 	    // std::cout << "expectedError: " << testSet.expectedErrors[j][i] << "\n";
 	    logger(INFO, "error: %", error);
-	    logger(INFO, "ExpectedError: %", testSet.expectedErrors[j][i]);
-	    logger(INFO, "ExpectedAccuracy: %", testSet.expectedErrors[j][i]);
-	    
-	    error = testSet.expectedErrors[j][i];
+            if (i < testSet.expectedErrors[j].size()) {
+                logger(INFO, "ExpectedError: %", testSet.expectedErrors[j][i]);
+            }
+	    logger(INFO, "ExpectedAccuracy: %", testSet.relativeAccuracy);
 	    observedErrors[j].push_back(error);
-	    
 
             if (i < testSet.expectedErrors[j].size()) {
                 double difference =
