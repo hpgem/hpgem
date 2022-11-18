@@ -212,7 +212,7 @@ HarmonicSolver<DIM>::Workspace::Workspace(
     // Initialize the basis functions and indices after creating the matrices,
     // so that the matrices are not yet assembled.
     discretization_->initializeBasisFunctions(*mesh_);
-    indexing_.reset(mesh_, Utilities::GlobalIndexing::BLOCKED_GLOBAL);
+    indexing_.reset(mesh_, Utilities::GlobalIndexing::BLOCKED_PROCESSOR);
     resultVector_.reinit();
 
     PetscErrorCode err;
