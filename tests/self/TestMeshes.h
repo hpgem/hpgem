@@ -158,7 +158,7 @@ std::vector<std::string> getUnitSquareTriangleMeshes(
         meshFilenames = getSingleProcessorUnitSquareTriangleMeshes();
     }
 
-    return meshFilenames;
+    return limit(meshFilenames, minLevel, maxLevel);
 }
 
     
