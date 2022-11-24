@@ -10,7 +10,7 @@ jobs:
   # Workflow name included as the job-id is sometimes listed without workflow name.
   run-tests-basic:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         mpi: [ ON, OFF ] 

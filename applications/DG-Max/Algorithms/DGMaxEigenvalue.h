@@ -65,7 +65,8 @@ class DGMaxEigenvalueBase {
             : useHermitian_(true),
               shiftFactor_(0),
               stab_(100),
-              useProjector_(NONE){};
+              useProjector_(NONE),
+              use_jdmax_(false){};
 
         /// Whether to solve M^{-1}S x = omega^2 (non Hermitian) or
         /// L^{-1} S L^{-T}y = omega^2 y (Hermitian)
@@ -76,6 +77,16 @@ class DGMaxEigenvalueBase {
         double stab_;
         /// Use a projector to remove the kernel of the stiffness matrix
         ProjectorUse useProjector_;
+        // use jacobi davidson solver
+        bool use_jdmax_;
+        // options of the jd solver
+        int jdmax_niter_;
+        int jdmax_search_space_max_size_;
+        int jdmax_search_space_restart_size_;
+        int jdmax_corr_iter_;
+        PetscReal jdmax_tol_;
+        PetscReal jdmax_target_;
+        PetscReal jdmax_prec_shift_;
 
         /// Whether the config uses shifts
         bool usesShifts() const {

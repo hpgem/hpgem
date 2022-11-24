@@ -42,6 +42,7 @@
 
 namespace hpgem {
 namespace Utilities {
+
 Eigenpairs::Eigenpairs()
     : numberOfEigenvectors_(0),
       eigenvectors_(nullptr),
@@ -113,16 +114,49 @@ void Eigenpairs::loadEigenpairs(EPS eps, Vec sample) {
     std::iota(ordering_.begin(), ordering_.end(), 0);
 }
 
+void Eigenpairs::loadEigenpairs(
+    EigenSolvers::JacobiDavidsonMaxwellSolver &jdmax, Vec sample) {
+
+    PetscInt converged;
+    PetscErrorCode err;
+    converged = jdmax.getConverged();
+
+    // Ensure that we have enough space
+    reserve(converged, sample);
+    eigenvalues_.resize(converged);
+    ordering_.resize(converged);
+
+    // Load the eigenpairs
+    for (PetscInt i = 0; i < converged; ++i) {
+        err = jdmax.getEigenPair(i, eigenvalues_[i], eigenvectors_[i]);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+    }
+
+    // // Reset the ordering
+    std::iota(ordering_.begin(), ordering_.end(), 0);
+}
+
 void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
     logger.assert_always(ordering.size() == size(),
                          "Ordering is of incorrect size");
     // New ordering is with respect to the current ordering. So compute the
     // actual indices of the new ordering.
+    std::vector<std::size_t> updatedOrdering(size());
+
     for (std::size_t i = 0; i < size(); ++i) {
-        ordering[i] = ordering_[ordering[i]];
+        logger.assert_always(ordering[i] <= size(), "Too large index %",
+                             ordering[i]);
+        logger.assert_always(ordering[i] >= 0, "Negative Index %", ordering[i]);
+
+        logger.assert_always(ordering_[ordering[i]] <= size(),
+                             "Too large index %", ordering_[ordering[i]]);
+        logger.assert_always(ordering_[ordering[i]] >= 0, "Negative Index %",
+                             ordering_[ordering[i]]);
+
+        updatedOrdering[i] = ordering_[ordering[i]];
     }
     // Set the ordering
-    ordering_ = ordering;
+    ordering_ = updatedOrdering;
 }
 
 }  // namespace Utilities

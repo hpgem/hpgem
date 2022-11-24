@@ -73,6 +73,13 @@ DGMax::EVConvergenceResult expected2({
     {1.2041622361,5.4418221838,5.5560580595,7.1390027626,7.2263959872,7.6847615808,8.8975507256,9.0377472103,10.0897957246,11.6884390538}
 });
 
+DGMax::EVConvergenceResult expected3({
+    {1.2043368891,5.4110861511,5.5242942569,7.0664810486,7.1494436437,7.7278002899,8.9463017271,9.0890054436,10.1789455152,11.3362127914,11.4352596910},
+    {1.2042038880,5.4345612104,5.5485595891,7.1219632000,7.2083141835,7.6957944040,8.9107366441,9.0516696919,10.1143353023,11.6076760680,11.7128457455},
+    {1.2041705699,5.4403727357,5.5545614554,7.1356054603,7.2227907973,7.6870050696,8.9002601508,9.0406100487,10.0948497388,11.6724130103},
+    {1.2041622361,5.4418221838,5.5560580595,7.1390027626,7.2263959872,7.6847615808,8.8975507256,9.0377472103,10.0897957246,11.6884390538}
+});
+
 // clang-format on
 
 int main(int argc, char** argv) {
@@ -89,7 +96,7 @@ int main(int argc, char** argv) {
 
     // Just a random point in vacuum
     DGMax::EVTestPoint<2> testPoint(LinearAlgebra::SmallVector<2>({0.8, 0.9}),
-                                    DGMax::PredefinedStructure::VACUUM, 10);
+                                    DGMax::PredefinedStructure::VACUUM, 11);
 
     DGMaxEigenvalueBase::SolverConfig config;
     config.stab_ = 100;
@@ -111,6 +118,24 @@ int main(int argc, char** argv) {
     DGMax::DGMaxEVConvergenceTest<2> testCase2(testPoint, meshes, 1e-8, 1,
                                                config, &expected2);
     DGMax::EVConvergenceResult result2 = testCase2.run(runAsTest);
+
+    // // Test the Jacobi-Davidson Algorithm,
+    config.shiftFactor_ = 0;
+    config.stab_ = 100;
+    config.useHermitian_ = true;
+    config.useProjector_ = DGMaxEigenvalueBase::ALL;
+    config.use_jdmax_ = true;
+    config.jdmax_niter_ = 1000;
+    config.jdmax_search_space_max_size_ = 50;
+    config.jdmax_corr_iter_ = 10;
+    config.jdmax_tol_ = 1E-3;
+    config.jdmax_search_space_restart_size_ = 10;
+    config.jdmax_target_ = 0.0;
+    config.jdmax_prec_shift_ = 1.0;
+
+    DGMax::DGMaxEVConvergenceTest<2> testCase3(testPoint, meshes, 1e-8, 1,
+                                               config, &expected3);
+    DGMax::EVConvergenceResult result3 = testCase3.run(runAsTest);
 
     // Code to check the results if they change
     // Expected convergence speed = 2^2p = 4
@@ -147,5 +172,15 @@ int main(int argc, char** argv) {
             0.01, true);  // Small eigenvalues are to be expected from DGMax
         result2.printFrequencyTable(linear);
         result2.printErrorTable(linear);
+
+        // Some spacing between the results for the two seperate tests
+        std::cout << "\n\n";
+
+        std::cout << "Raw frequency table 3" << std::endl;
+        result3.printFrequencyTable(linear);
+
+        result3.printResultCode(10);
+        result3.printFrequencyTable(linear);
+        result3.printErrorTable(linear);
     }
 }

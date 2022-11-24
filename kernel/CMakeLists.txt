@@ -33,6 +33,7 @@ target_include_directories(Logger PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 ##################
 
 add_subdirectory(LinearAlgebra)
+add_subdirectory(EigenSolvers)
 add_subdirectory(Geometry)
 add_subdirectory(FE)
 add_subdirectory(Integration)
@@ -62,5 +63,10 @@ target_link_libraries(HPGEM
         Reference_geometries
         TimeIntegration
 )
+
+if(hpGEM_USE_SLEPC AND hpGEM_USE_MPI)
+        target_link_libraries(HPGEM
+                EigenSolvers)
+endif()
 
 add_library(HPGEM::HPGEM ALIAS HPGEM)

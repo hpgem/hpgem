@@ -10,7 +10,7 @@ jobs:
   # Workflow name included as the job-id is sometimes listed without workflow name.
   run-tests-complex-petsc:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         mpi: [ ON ] 
@@ -21,7 +21,7 @@ jobs:
     - name: dependencies
       run: |
         sudo apt update
-        sudo apt install libblas-dev liblapack-dev libopenmpi-dev libpetsc-complex-dev libslepc-complex3.12-dev
+        sudo apt install libblas-dev liblapack-dev libopenmpi-dev libpetsc-complex3.15-dev libslepc-complex3.15-dev
     - name: configure
       env:
         CC: ${{ matrix.compiler }}

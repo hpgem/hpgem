@@ -10870,6 +10870,7 @@ namespace Catch {
         const char* name;
     };
 
+
     static SignalDefs signalDefs[] = {
         { SIGINT,  "SIGINT - Terminal interrupt signal" },
         { SIGILL,  "SIGILL - Illegal instruction signal" },

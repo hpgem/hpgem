@@ -1,5 +1,6 @@
 
 #include <exception>
+#include <iomanip>
 #include "Base/CommandLineOptions.h"
 #include "Base/MeshFileInformation.h"
 #include "Output/VTKSpecificTimeWriter.h"
@@ -17,18 +18,58 @@ using namespace hpgem;
 // File name of the mesh file, e.g. -m mesh.hpgem
 auto& meshFile = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
+
 // Polynomial order of the basis functions, e.g. -p 2
 auto& order = Base::register_argument<std::size_t>(
     'p', "order", "Polynomial order of the solution", true);
+
 // Number of eigenvalues to compute, e.g. -e 40
 auto& numEigenvalues = Base::register_argument<std::size_t>(
     'e', "eigenvalues", "The number of eigenvalues to compute", false, 24);
 
+// method used to solve the problem
 auto& method = Base::register_argument<std::string>(
     '\0', "method",
     "The method to be used, either 'DGMAX', 'DGMAX_PROJECT' or 'DIVDGMAX' "
     "(default)",
     false, "DIVDGMAX");
+
+// use Jacobi Davidson solver or Krylov-Schur
+auto& useJDMax = Base::register_argument<bool>(
+    '\0', "use_jdmax", "boolean to use Jacobi-Davidson eigensolver (default)",
+    false, false);
+
+// Max number of Jacobi Davidson iterations, e.g. -jd_iter 140
+auto& jdNiter = Base::register_argument<std::size_t>(
+    '\0', "jd_niter", "The maximum number of Jacobi Davidson iterations", false,
+    100);
+
+// Max size of the JD max search space
+auto& jdMaxSize = Base::register_argument<std::size_t>(
+    '\0', "jd_maxsize", "The maximum size of the JD search space", false, 0);
+
+// Max size of the JD max search space
+auto& jdRestartSize = Base::register_argument<std::size_t>(
+    '\0', "jd_restartsize", "The size of the JD search space after restart",
+    false, 1);
+
+// Max size of the JD max search space
+auto& jdCorrIter = Base::register_argument<std::size_t>(
+    '\0', "jd_corr_iter",
+    "The maximum number of iteration for the correction equation", false, 10);
+
+// tolerance threshold for the eigenvectors residue norm
+auto& jdTol = Base::register_argument<double>(
+    '\0', "jd_tol", "Tolerance of the Jacobi Davidson solver", false, 1E-3);
+
+// eigenvalue target
+auto& jdTarget = Base::register_argument<double>(
+    '\0', "jd_target", "eigenvalue target ( set to middle of the spectrum)",
+    false, 1E2);
+
+// preconditioner shift
+auto& jdPrecShift = Base::register_argument<double>(
+    '\0', "jd_prec_shift", "shift for the preconditioner", false, 1.0);
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
@@ -211,6 +252,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
     std::ofstream outFile;
 
     void writeHeader(std::ostream& stream, char separator) {
+        char idx_band[10];
         // Mostly matching MPB
         // clang-format off
         stream << "freqs:"
@@ -254,7 +296,8 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             // (or similarly predefined length). For the computation we assume
             // c=1, and assume the length scale a matches that of the mesh. Thus
             // the distance between x=0 and x=1 is assumed to be 'a'.
-            stream << separator
+
+            stream << separator << std::setprecision(6)
                    << frequency / (2 * M_PI) * lengthScale.getValue();
         }
         stream << std::endl;
@@ -356,6 +399,21 @@ void runWithDimension() {
         config.useHermitian_ = true;
         config.shiftFactor_ = 0;
         config.useProjector_ = useProjector;
+        config.use_jdmax_ = useJDMax.getValue();
+        config.jdmax_niter_ = jdNiter.getValue();
+        config.jdmax_search_space_max_size_ = jdMaxSize.getValue();
+        config.jdmax_search_space_restart_size_ = jdRestartSize.getValue();
+        if (config.jdmax_search_space_max_size_ == 0) {
+            config.jdmax_search_space_max_size_ =
+                10 * numEigenvalues.getValue();
+            logger(INFO, "Max size of the search space set to %",
+                   config.jdmax_search_space_max_size_);
+        }
+        config.jdmax_corr_iter_ = jdCorrIter.getValue();
+        config.jdmax_tol_ = jdTol.getValue();
+        config.jdmax_target_ = jdTarget.getValue();
+        config.jdmax_prec_shift_ = jdPrecShift.getValue();
+
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         solver.solve(driver);
     }

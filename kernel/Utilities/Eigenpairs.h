@@ -44,6 +44,7 @@
 #include <vector>
 #include <slepc.h>
 #include "Logger.h"
+#include "../EigenSolvers/JacobiDavidsonMaxwell.h"
 
 namespace hpgem {
 namespace Utilities {
@@ -80,6 +81,8 @@ class Eigenpairs final {
      * @param sample A sample vector to duplicate for storing eigenvectors
      */
     void loadEigenpairs(EPS eps, Vec sample);
+    void loadEigenpairs(EigenSolvers::JacobiDavidsonMaxwellSolver& eps,
+                        Vec sample);
 
     /**
      * Reorder the currently stored eigenpairs

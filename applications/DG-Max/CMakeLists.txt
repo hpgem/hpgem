@@ -17,6 +17,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Algorithms/HarmonicSolver.cpp
 		Algorithms/DivDGMaxDiscretization.cpp
 		Algorithms/DivDGMaxEigenvalue.cpp
+		
 
 		ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
 		ProblemTypes/Harmonic/ExactFieldHarmonicProblem.cpp
