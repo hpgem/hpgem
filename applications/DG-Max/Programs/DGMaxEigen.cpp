@@ -1,5 +1,6 @@
 
 #include <exception>
+#include <iomanip>
 #include "Base/CommandLineOptions.h"
 #include "Base/MeshFileInformation.h"
 #include "Output/VTKSpecificTimeWriter.h"
@@ -245,6 +246,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
                << separator << k[0] / (2*M_PI)
                << separator << k[1] / (2*M_PI)
                << separator << (DIM == 3 ?  k[2] / (2*M_PI) : 0)
+               << std::setprecision(16)
                << separator << k.l2Norm() / (2*M_PI);
         // clang-format on
 
@@ -255,6 +257,8 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             // c=1, and assume the length scale a matches that of the mesh. Thus
             // the distance between x=0 and x=1 is assumed to be 'a'.
             stream << separator
+                   // Full precision to allow convergence analysis
+                   << std::setprecision(16)
                    << frequency / (2 * M_PI) * lengthScale.getValue();
         }
         stream << std::endl;
