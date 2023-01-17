@@ -95,8 +95,8 @@ int main(int argc, char** argv) {
         }
     }
 
-    // Flag to switch between testing with known results (true) and checking the
-    // results when they change (false).
+    // Flag to switch between testing with known results (false) and checking
+    // the results when they change (true).
     bool runAsTest = runAsTestArg.getValue();
 
     std::vector<std::string> meshes =
@@ -114,11 +114,11 @@ int main(int argc, char** argv) {
 
     DGMax::DivDGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1,
                                                  stab, &expected);
-    DGMax::EVConvergenceResult result = testCase.run(runAsTest);
+    DGMax::EVConvergenceResult result = testCase.run(!runAsTest);
 
     // Code to check the results if they change
     // Expected convergence speed = 2^2p = 4
-    if (!runAsTest) {
+    if (runAsTest) {
         std::array<LinearAlgebra::SmallVector<2>, 2> reciprocal;
         // Standard cubic lattice.
         reciprocal[0] = LinearAlgebra::SmallVector<2>({2 * M_PI, 0});

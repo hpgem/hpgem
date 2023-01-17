@@ -62,11 +62,15 @@ class GmshReader final : public MeshSource2 {
    public:
     GmshReader(std::string filename);
 
-    const std::vector<Coord>& getCoordinates() { return nodes_; }
+    const std::vector<Coord>& getCoordinates() final { return nodes_; }
 
-    const std::vector<Element>& getElements() { return elements_; }
+    const std::vector<Element>& getElements() final { return elements_; }
 
-    std::size_t getDimension() const { return dimension_; }
+    const std::vector<std::map<std::size_t, std::size_t>>& getMerges() final {
+        return coordinateMerges_;
+    };
+
+    std::size_t getDimension() const final { return dimension_; }
 
    private:
     // Element as used by gmsh
@@ -135,6 +139,10 @@ class GmshReader final : public MeshSource2 {
     std::ifstream Filehandle_;
     std::map<size_t, size_t> nodesPerElementtype_;
     std::map<size_t, size_t> dimensionOfElementtype_;
+    /**
+     * A series of coordinate identifications from periodic boundary conditions.
+     */
+    std::vector<std::map<std::size_t, std::size_t>> coordinateMerges_;
 };
 
 }  // namespace Preprocessor
