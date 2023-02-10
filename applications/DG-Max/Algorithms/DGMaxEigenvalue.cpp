@@ -610,6 +610,9 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::updateKPoint(
 
     // TODO: Check with NON HERMITIAN
     stiffnessMatrixShifts_.apply(newK, getActualStiffnessMatrix());
+    const std::string matName = "stiffnessMatrix";
+    Utilities::GlobalPetscMatrix::writeMatlab(getActualStiffnessMatrix(),
+                                              "StiffnessMat.m", &matName);
 
     if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
         projector->updateKPoint(newK);
@@ -957,6 +960,8 @@ void DGMaxEigenvalue<DIM>::ProjectorWorkspace::updateKPoint(
     const LinearAlgebra::SmallVector<DIM>& k) {
     // Update the matrix
     phaseShifts_.apply(k, projectorMatrix_);
+    const std::string matName = "projectorMatrix";
+    projectorMatrix_.writeMatlab("ProjectorMat.m", &matName);
 
     // Update the KSP & the inner projectionMatrix.
     PetscErrorCode error;
