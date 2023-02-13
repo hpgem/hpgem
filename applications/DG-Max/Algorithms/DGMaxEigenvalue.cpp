@@ -584,12 +584,14 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     std::iota(ordering.begin(), ordering.end(), 0);
     std::sort(ordering.begin(), ordering.end(),
               [&](const std::size_t& i1, const std::size_t& i2) {
-                  PetscScalar e1 = eigenpairs_.getEigenvalue(ordering[i1]);
-                  PetscScalar e2 = eigenpairs_.getEigenvalue(ordering[i2]);
+                  PetscScalar e1 = eigenpairs_.getEigenvalue(i1);
+                  PetscScalar e2 = eigenpairs_.getEigenvalue(i2);
                   if (PetscRealPart(e1) != PetscRealPart(e2)) {
                       return PetscRealPart(e1) < PetscRealPart(e2);
-                  } else {
+                  } else if (PetscImaginaryPart(e1) != PetscImaginaryPart(e2)) {
                       return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
+                  } else {
+                      return i1 < i2;
                   }
               });
     eigenpairs_.reorder(ordering);
