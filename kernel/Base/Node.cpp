@@ -134,6 +134,14 @@ const std::vector<Base::Face *> Base::Node::getFaces() const {
     return ptrFacesAtNode;
 }
 
+long long Base::Node::getTopologicalNodeNumber(std::size_t i) const {
+    logger.assert_debug(i < getNumberOfElements(),
+                        "Asked for element %, but there are only % elements", i,
+                        getNumberOfElements());
+    return elements_[i]->getReferenceGeometry()->getTopologicalLocalIndex(
+        localNodeNumbers_[i]);
+}
+
 bool Base::Node::isOwnedByCurrentProcessor() const {
     return elements_.size() > 0 && elements_[0]->isOwnedByCurrentProcessor();
 }

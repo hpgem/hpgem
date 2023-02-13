@@ -165,6 +165,13 @@ class ReferenceGeometry : public MappingCodimensions {
     virtual const PointReferenceBase& getReferenceNodeCoordinate(
         const std::size_t& localIndex) const = 0;
 
+    /// For a given local index of a reference point, get the index of the
+    /// corresponding node in the BaseGeometry, or -1 if it is purely a node
+    /// in a curvilinear element.
+    virtual long long getTopologicalLocalIndex(std::size_t localIndex) const {
+        return localIndex;
+    }
+
     std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(
         std::size_t face, std::size_t node) const {
         logger.assert_debug(face < getNumberOfCodim1Entities(),
