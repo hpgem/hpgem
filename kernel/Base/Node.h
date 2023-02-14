@@ -136,6 +136,10 @@ class Node {
         return localNodeNumbers_[i];
     }
 
+    /// Get the local node number for this node if it is a topological node or
+    /// -1 if it is a node purely for the curvilinear geometry.
+    long long getTopologicalNodeNumber(std::size_t i) const;
+
     void setLocalNumberOfBasisFunctions(std::size_t number) {
         for (std::size_t unknown = 0;
              unknown < numberOfConformingDOFOnTheNode_.size(); ++unknown) {
