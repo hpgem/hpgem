@@ -55,6 +55,7 @@ class ReferenceCurvilinearElementBase : public ReferenceGeometry {
     /// The linear version of this curvilinear element
     /// \return
     virtual ReferenceGeometry* getBaseGeometry() const = 0;
+
     /// The polynomial order of this curvilinear element
     std::size_t getOrder() const { return order_; }
 
@@ -128,6 +129,15 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
     }
 
     std::size_t getNumberOfNodes() const final { return points_.size(); }
+
+    long long getTopologicalLocalIndex(std::size_t localIndex) const override {
+        for (long long i = 0; i < baseGeometryIndicices_.size(); ++i) {
+            if (baseGeometryIndicices_[i] == localIndex) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     const PointReference<dim>& getReferenceNodeCoordinate(
         const std::size_t& localIndex) const final {

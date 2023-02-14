@@ -678,15 +678,21 @@ void MeshManipulator<DIM>::useDefaultConformingBasisFunctions(
         }
         for (Node *node : getNodesList(IteratorType::GLOBAL)) {
             if (DIM > 1) {
+                if (node->getTopologicalNodeNumber(0) < 0) {
+                    // Geometric node for curvilinear elements;
+                    continue;
+                }
                 for (std::size_t i = 0; i < node->getNumberOfElements(); ++i) {
                     Element *element = node->getElement(i);
-                    std::size_t nodeNumber = node->getNodeNumber(i);
+                    auto nodeNumber = node->getTopologicalNodeNumber(i);
+                    logger.assert_debug(nodeNumber >= 0,
+                                        "Inconsistent use of a geometric node");
                     auto type =
                         element->getReferenceGeometry()->getGeometryType();
                     element->setVertexBasisFunctionSet(
                         shapeToElementIndex[type] + numberOfFaceSets[type] +
                             numberOfEdgeSets[type] + 1 + nodeNumber,
-                        nodeNumber);
+                        node->getNodeNumber(i));
                     node->setLocalNumberOfBasisFunctions(
                         collBasisFSet_[shapeToElementIndex[type] +
                                        numberOfFaceSets[type] +
@@ -985,14 +991,20 @@ void MeshManipulator<DIM>::useDefaultConformingBasisFunctions(
     }
     for (Node *node : getNodesList(IteratorType::GLOBAL)) {
         if (DIM > 1) {
+            if (node->getTopologicalNodeNumber(0) < 0) {
+                // Geometric node for curvilinear elements;
+                continue;
+            }
             for (std::size_t i = 0; i < node->getNumberOfElements(); ++i) {
                 Element *element = node->getElement(i);
-                std::size_t nodeNumber = node->getNodeNumber(i);
+                auto nodeNumber = node->getTopologicalNodeNumber(i);
+                logger.assert_debug(nodeNumber >= 0,
+                                    "Inconsistent use of a geometric node");
                 auto type = element->getReferenceGeometry()->getGeometryType();
                 element->setVertexBasisFunctionSet(
                     shapeToElementIndex[type] + numberOfFaceSets[type] +
                         numberOfEdgeSets[type] + 1 + nodeNumber,
-                    nodeNumber, unknown);
+                    node->getNodeNumber(i), unknown);
                 const_cast<ConfigurationData *>(configData_)
                     ->numberOfBasisFunctions_ +=
                     collBasisFSet_[shapeToElementIndex[type] +
@@ -1043,9 +1055,16 @@ void MeshManipulator<DIM>::addVertexBasisFunctionSet(
         collBasisFSet_.emplace_back(set);
     }
     for (Node *node : getNodesList()) {
+        if (node->getTopologicalNodeNumber(0) < 0) {
+            // Geometric node for curvilinear elements;
+            continue;
+        }
         for (std::size_t i = 0; i < node->getNumberOfElements(); ++i) {
+            auto nodeNumber = node->getTopologicalNodeNumber(i);
+            logger.assert_debug(nodeNumber >= 0,
+                                "Inconsistent use of a geometric node");
             node->getElement(i)->setVertexBasisFunctionSet(
-                firstNewEntry + node->getNodeNumber(i), node->getNodeNumber(i));
+                firstNewEntry + nodeNumber, node->getNodeNumber(i));
         }
         node->setLocalNumberOfBasisFunctions(bFsets[0]->size());
     }
