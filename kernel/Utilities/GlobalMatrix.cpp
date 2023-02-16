@@ -377,13 +377,23 @@ void GlobalPetscMatrix::printMatInfo(MatInfoType type, std::ostream& stream) {
            << std::endl;
 }
 
-void GlobalPetscMatrix::writeMatlab(const std::string& fileName) {
-    writeMatlab(A_, fileName);
+void GlobalPetscMatrix::writeMatlab(const std::string& fileName,
+                                    const std::string* objectName) {
+    writeMatlab(A_, fileName, objectName);
 }
 
-void GlobalPetscMatrix::writeMatlab(Mat mat, const std::string& fileName) {
+void GlobalPetscMatrix::writeMatlab(Mat mat, const std::string& fileName,
+                                    const std::string* objectName) {
     PetscViewer viewer;
     PetscErrorCode err;
+    const char* oldObjectName;
+
+    if (objectName != nullptr) {
+        PetscObjectGetName((PetscObject)mat, &oldObjectName);
+        PetscObjectSetName((PetscObject)mat, objectName->c_str());
+    }
+    logger(INFO, "Exporting matrix %",
+           objectName != nullptr ? objectName->c_str() : oldObjectName);
 
     err = PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName.c_str(), &viewer);
     CHKERRABORT(PETSC_COMM_WORLD, err);
@@ -393,6 +403,12 @@ void GlobalPetscMatrix::writeMatlab(Mat mat, const std::string& fileName) {
     CHKERRABORT(PETSC_COMM_WORLD, err);
     err = PetscViewerDestroy(&viewer);
     CHKERRABORT(PETSC_COMM_WORLD, err);
+
+    if (objectName != nullptr) {
+        PetscObjectSetName((PetscObject)mat, oldObjectName);
+    }
+    logger(INFO, "Finished exporting matrix %",
+           objectName != nullptr ? objectName->c_str() : oldObjectName);
 }
 #endif
 }  // namespace Utilities

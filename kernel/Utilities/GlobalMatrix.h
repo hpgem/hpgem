@@ -143,8 +143,8 @@ class GlobalPetscMatrix : public GlobalMatrix {
     void reinit(bool reinitFaceCoupling);
 
     void printMatInfo(MatInfoType type, std::ostream& stream);
-    void writeMatlab(const std::string& fileName);
-    static void writeMatlab(Mat mat, const std::string& fileName);
+    void writeMatlab(const std::string& fileName, const std::string* objectName = nullptr);
+    static void writeMatlab(Mat mat, const std::string& fileName, const std::string* objectName = nullptr);
     /// \brief Optional override for the use of face coupling.
     ///
     /// Optionally override the face-coupling between DoFs for the sparsity
