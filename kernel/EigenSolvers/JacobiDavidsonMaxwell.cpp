@@ -771,9 +771,9 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         }
         MPI_Bcast(&this->eta, 1, MPIU_REAL, 0, MPI_COMM_WORLD);
 
-        logger(DEBUG,
-               "JacobiDavidsonSolver iteration : %, k = %, rho = % eta = %",
-               iter, k, rho, this->eta);
+        logger(VERBOSE,
+               "JacobiDavidsonSolver iteration : %, k = %, nconv = % rayleigh quot. = % shift = %, residual=%",
+               iter, k, this->eigenvectors_current_size, rho, this->eta, eps);
 
         // copy res to res_new and ortho wrt Qt
         ierr = VecCopy(this->residue_vect, residue_vect_copy);
@@ -836,7 +836,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
             // compute convergence criteria
             found = (eps < this->tolerance && k > 0) ? PETSC_TRUE : PETSC_FALSE;
             if (found) {
-                logger(DEBUG,
+                logger(VERBOSE,
                        "JacobiDavidsonSolver new eigenvector found with "
                        "eigenvalue %",
                        rho);
@@ -944,7 +944,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev) {
         // restart
         if (k == this->search_space_maxsize - 1) {
 
-            logger(DEBUG, "JacobiDavidsonSolver Restart [%]",
+            logger(VERBOSE, "JacobiDavidsonSolver Restart [%]",
                    this->search_space_restart_size);
 
             // compute tmp = V Sk[:,:size_min]

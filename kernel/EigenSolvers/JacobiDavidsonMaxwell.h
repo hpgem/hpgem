@@ -7,7 +7,7 @@ This code is distributed using BSD 3-Clause License. A copy of which can found
 below.
 
 
-Copyright (c) 2018, Univesity of Twenete
+Copyright (c) 2018, University of Twente
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
