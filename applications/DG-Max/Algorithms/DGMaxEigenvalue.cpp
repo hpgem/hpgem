@@ -641,8 +641,10 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
                   PetscScalar e2 = eigenpairs_.getEigenvalue(i2);
                   if (PetscRealPart(e1) != PetscRealPart(e2)) {
                       return PetscRealPart(e1) < PetscRealPart(e2);
-                  } else {
+                  } else if (PetscImaginaryPart(e1) != PetscImaginaryPart(e2)) {
                       return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
+                  } else {
+                      return i1 < i2;
                   }
               });
 
