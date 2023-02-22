@@ -7,4 +7,8 @@ if (hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 	add_subdirectory(DGMax)
 endif(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 
+if (hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
+	add_subdirectory(EigenSolvers)
+endif(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
+
 add_subdirectory(Output)
