@@ -41,6 +41,7 @@ using namespace hpgem;
 ///    direction. To keep this simple we use a cube as unit cell. This results
 ///    in some band folding.
 ///
+template<std::size_t DIM>
 class BraggStackBandstructure : public BandStructure<3> {
    public:
     BraggStackBandstructure(double eps1, double eps2, double fraction = 0.5);

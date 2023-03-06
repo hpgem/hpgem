@@ -88,7 +88,7 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
     LinearAlgebra::SmallVector<DIM> kpoint, double maxFrequency) const {
     std::vector<double> linearSpectrum =
         computeLinearSpectrum(kpoint, maxFrequency);
-    return group(linearSpectrum, 1e-5);
+    return group(linearSpectrum, 1e-12);
 }
 
 template <std::size_t DIM>
@@ -134,7 +134,7 @@ std::unique_ptr<typename BandStructure<DIM>::LineSet>
         LinearAlgebra::SmallVector<2> newMode({x, y});
         bool added = false;
         for (auto& mode : modes) {
-            if ((mode.first - newMode).l2NormSquared() < 1e-10) {
+            if ((mode.first - newMode).l2NormSquared() < 1e-12) {
                 mode.second++;
                 added = true;
             }
