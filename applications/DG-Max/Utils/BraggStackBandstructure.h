@@ -42,23 +42,23 @@ using namespace hpgem;
 ///    in some band folding.
 ///
 template<std::size_t DIM>
-class BraggStackBandstructure : public BandStructure<3> {
+class BraggStackBandstructure : public BandStructure<DIM> {
    public:
     BraggStackBandstructure(double eps1, double eps2, double fraction = 0.5);
 
     std::vector<double> computeLinearSpectrum(
-        LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const final;
+        LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const final;
 
     /// Compute the spectrum at a specific k-point in the first Brillouin zone.
     /// \param kpoint The point to compute the spectrum at
     /// \param omegaMax The maximum angular frequency to compute
     /// \return A map from frequency to to degeneracy of that frequency.
     std::map<double, std::size_t> computeSpectrum(
-        LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const final;
+        LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const final;
 
     /// \brief Set of Lines in the banstructure while traversing a line in
     /// k-space.
-    class LineSet : public BandStructure<3>::LineSet {
+    class LineSet : public BandStructure<DIM>::LineSet {
        private:
         struct MultiMode;
 
@@ -162,9 +162,9 @@ class BraggStackBandstructure : public BandStructure<3> {
         };
     };
 
-    std::unique_ptr<typename BandStructure<3>::LineSet> computeLines(
-        LinearAlgebra::SmallVector<3> point1,
-        LinearAlgebra::SmallVector<3> point2, double maxFrequency) const final;
+    std::unique_ptr<typename BandStructure<DIM>::LineSet> computeLines(
+        LinearAlgebra::SmallVector<DIM> point1,
+        LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const final;
 
    private:
     const double eps1_;

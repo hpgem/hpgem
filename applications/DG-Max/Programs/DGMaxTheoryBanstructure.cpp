@@ -95,7 +95,7 @@ void runWithDimension() {
         for (std::size_t i = 0; i < DIM; ++i) {
             std::cout << "," << kpoint[i] / (2 * M_PI);
         }
-        std::cout << kpoint.l2Norm() / (2 * M_PI);
+        std::cout << "," << kpoint.l2Norm() / (2 * M_PI);
         for (auto& freq : freqs) {
             for (std::size_t i = 0; i < freq.second; ++i) {
                 std::cout << "," << std::setprecision(8)
@@ -152,7 +152,8 @@ std::unique_ptr<BandStructure<2>> getStructure() {
             return std::make_unique<HomogeneousBandStructure<2>>(
                 reciprocals, backgroundEpsArg.getValue());
         case 1:
-            logger(ERROR, "Braggstack not supported in 2D");
+            return std::make_unique<BraggStackBandstructure<2>>(
+                backgroundEpsArg.getValue(), foregroundEpsArg.getValue());
         default:
             logger.fail("Unknown structure %", structureArg.getValue());
     }

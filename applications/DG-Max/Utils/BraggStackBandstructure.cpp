@@ -15,33 +15,36 @@ BraggStackBandstructure<DIM>::BraggStackBandstructure(double eps1, double eps2,
 
 template <std::size_t DIM>
 std::vector<double> BraggStackBandstructure<DIM>::computeLinearSpectrum(
-    LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const {
-    for (std::size_t i = 0; i < 3; ++i)
+    LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const {
+    for (std::size_t i = 0; i < DIM; ++i)
         logger.assert_always(std::abs(kpoint[i]) <= (M_PI + 1e-8),
                              "Only implemented for k in first Brillouin zone.");
     // Start with only for this specific kpoint.
     std::vector<double> freqs;
-    std::set<LatticePoint<2>> considered;
-    std::queue<LatticePoint<2>> toProcess;
+    std::set<LatticePoint<DIM - 1>> considered;
+    std::queue<LatticePoint<DIM - 1>> toProcess;
 
-    LatticePoint<2> origin({0, 0});
+    LatticePoint<DIM - 1> origin{};
     considered.emplace(origin);
     toProcess.emplace(origin);
 
+    double kp = kpoint[0];
+    LinearAlgebra::SmallVector<DIM - 1> ktransverse;
+    for (std::size_t i = 1; i < DIM; ++i) {
+        ktransverse[i - 1] = kpoint[i];
+    }
+
     while (!toProcess.empty()) {
-        LatticePoint<2> offset = toProcess.front();
+        LatticePoint<DIM - 1> offset = toProcess.front();
         toProcess.pop();
-        LinearAlgebra::SmallVector<3> kpoint1(kpoint);
-        for (std::size_t i = 0; i < 2; ++i) {
-            kpoint1[i + 1] += 2 * M_PI * offset[i];
+        LinearAlgebra::SmallVector<DIM - 1> ktransverseRel = ktransverse;
+        for (std::size_t i = 0; i < DIM - 1; ++i) {
+            ktransverseRel[i] += 2 * M_PI * offset[i];
         }
+        double ktransverseRelMag = ktransverseRel.l2Norm();
         std::size_t size = freqs.size();
-        findRoots(kpoint1[0],
-                  std::sqrt(kpoint1[1] * kpoint1[1] + kpoint1[2] * kpoint1[2]),
-                  omegaMax, false, freqs);
-        findRoots(kpoint1[0],
-                  std::sqrt(kpoint1[1] * kpoint1[1] + kpoint1[2] * kpoint1[2]),
-                  omegaMax, true, freqs);
+        findRoots(kp, ktransverseRelMag, omegaMax, false, freqs);
+        findRoots(kp, ktransverseRelMag, omegaMax, true, freqs);
         if (freqs.size() != size) {
             // This offset contributed, add its non considered neighbours.
             for (auto neighbour : offset.getNeighbours()) {
@@ -58,7 +61,7 @@ std::vector<double> BraggStackBandstructure<DIM>::computeLinearSpectrum(
 
 template <std::size_t DIM>
 std::map<double, std::size_t> BraggStackBandstructure<DIM>::computeSpectrum(
-    LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const {
+    LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const {
     std::vector<double> frequencies = computeLinearSpectrum(kpoint, omegaMax);
     return group(frequencies, 1e-12);
 }
@@ -225,10 +228,10 @@ void BraggStackBandstructure<DIM>::findRootsInterval(
 }
 
 template <std::size_t DIM>
-std::unique_ptr<typename BandStructure<3>::LineSet>
+std::unique_ptr<typename BandStructure<DIM>::LineSet>
     BraggStackBandstructure<DIM>::computeLines(
-        LinearAlgebra::SmallVector<3> point1,
-        LinearAlgebra::SmallVector<3> point2, double maxFrequency) const {
+        LinearAlgebra::SmallVector<DIM> point1,
+        LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const {
     // Compute the lines in similar way to the Homogeneous case, but here we
     // only have a fictitious lattice in 2 directions. Moreover we have to
     // consider that on a transverse wavevector a whole set of valid modes is
@@ -241,14 +244,14 @@ std::unique_ptr<typename BandStructure<3>::LineSet>
                              "Only implemented for k in first Brillouin zone.");
     }
 
-    LinearAlgebra::SmallVector<2> tpoint1, tpoint2, kdir;
+    LinearAlgebra::SmallVector<DIM - 1> tpoint1, tpoint2, kdir;
     // Extract the transverse components of point1, point2
-    tpoint1[0] = point1[1];
-    tpoint1[1] = point1[2];
-    tpoint2[0] = point2[1];
-    tpoint2[1] = point2[2];
+    for (std::size_t i = 1; i < DIM; ++i) {
+        tpoint1[i - 1] = point1[i];
+        tpoint2[i - 1] = point2[i];
+    }
     // Note that unlike the vacumm case, the line Gamma-X has no change in the
-    // transverse direction. Hence l2 and kdir are both zero.
+    // transverse direction. Hence, l2 and kdir are both zero.
     kdir = tpoint2 - tpoint1;
     const double l2 = kdir.l2Norm();
     if (std::abs(l2) > 1e-12) {
@@ -257,26 +260,29 @@ std::unique_ptr<typename BandStructure<3>::LineSet>
 
     // Set of points that are considered (either in the queue or were in the
     // queue at some previous point).
-    std::set<LatticePoint<2>> considered;
+    std::set<LatticePoint<DIM - 1>> considered;
     // Queue of points that still have to be processed.
-    std::queue<LatticePoint<2>> queue;
+    std::queue<LatticePoint<DIM - 1>> queue;
     // Identify the resulting lines/modes by the two coordinates, x,y
     // and associate with it the multiplicity.
     std::map<LinearAlgebra::SmallVector<2>, std::size_t> modes;
     std::map<LinearAlgebra::SmallVector<2>, std::pair<std::size_t, std::size_t>>
         modes2;
 
-    LatticePoint<2> start({0, 0});
+    LatticePoint<DIM - 1> start;
     considered.emplace(start);
     queue.emplace(start);
 
     while (!queue.empty()) {
-        LatticePoint<2> p = queue.front();
+        LatticePoint<DIM - 1> p = queue.front();
         queue.pop();
         // Reciprocal wavevector in the transverse direction.
-        LinearAlgebra::SmallVector<2> kp({2 * M_PI * p[0], 2 * M_PI * p[1]});
-        LinearAlgebra::SmallVector<2> dk1 = tpoint1 - kp;
-        LinearAlgebra::SmallVector<2> dk2 = tpoint2 - kp;
+        LinearAlgebra::SmallVector<DIM - 1> dk1 = tpoint1;
+        LinearAlgebra::SmallVector<DIM - 1> dk2 = tpoint2;
+        for (std::size_t i = 0; i < DIM - 1; ++i) {
+            dk1[i] -= 2 * M_PI * p[i];
+            dk2[i] -= 2 * M_PI * p[i];
+        }
         // Distance along the line
         double x = dk1 * kdir;
         // Distance to the line
@@ -344,7 +350,7 @@ std::unique_ptr<typename BandStructure<3>::LineSet>
         }
 
         // Enqueue those neighbours that have not already been visited.
-        for (LatticePoint<2> n : p.getNeighbours()) {
+        for (LatticePoint<DIM - 1> n : p.getNeighbours()) {
             if (considered.find(n) != considered.end()) {
                 continue;
             }
@@ -520,4 +526,5 @@ std::pair<const typename BraggStackBandstructure<DIM>::LineSet::MultiMode*,
     return std::make_pair(nullptr, -1);
 }
 
+template class BraggStackBandstructure<2>;
 template class BraggStackBandstructure<3>;
