@@ -8,12 +8,12 @@
 
 using namespace hpgem;
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 BraggStackBandstructure<DIM>::BraggStackBandstructure(double eps1, double eps2,
-                                                 double fraction)
+                                                      double fraction)
     : eps1_(eps1), eps2_(eps2), fraction_(fraction) {}
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 std::vector<double> BraggStackBandstructure<DIM>::computeLinearSpectrum(
     LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const {
     for (std::size_t i = 0; i < 3; ++i)
@@ -36,8 +36,12 @@ std::vector<double> BraggStackBandstructure<DIM>::computeLinearSpectrum(
             kpoint1[i + 1] += 2 * M_PI * offset[i];
         }
         std::size_t size = freqs.size();
-        findRoots(kpoint1, omegaMax, false, freqs);
-        findRoots(kpoint1, omegaMax, true, freqs);
+        findRoots(kpoint1[0],
+                  std::sqrt(kpoint1[1] * kpoint1[1] + kpoint1[2] * kpoint1[2]),
+                  omegaMax, false, freqs);
+        findRoots(kpoint1[0],
+                  std::sqrt(kpoint1[1] * kpoint1[1] + kpoint1[2] * kpoint1[2]),
+                  omegaMax, true, freqs);
         if (freqs.size() != size) {
             // This offset contributed, add its non considered neighbours.
             for (auto neighbour : offset.getNeighbours()) {
@@ -52,7 +56,7 @@ std::vector<double> BraggStackBandstructure<DIM>::computeLinearSpectrum(
     return freqs;
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 std::map<double, std::size_t> BraggStackBandstructure<DIM>::computeSpectrum(
     LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const {
     std::vector<double> frequencies = computeLinearSpectrum(kpoint, omegaMax);
@@ -89,40 +93,43 @@ double bisect(std::function<double(double)> function, double left, double right,
     return (left + right) / 2;
 }
 
-template<std::size_t DIM>
-void BraggStackBandstructure<DIM>::findRoots(LinearAlgebra::SmallVector<3> k,
-                                        double omegamax, bool tm,
-                                        std::vector<double>& out) const {
+template <std::size_t DIM>
+void BraggStackBandstructure<DIM>::findRoots(double kp, double kt,
+                                             double omegamax, bool tm,
+                                             std::vector<double>& out) const {
     const std::size_t POINTS = 201;
     const double domega = omegamax / (POINTS - 1);
     for (std::size_t i = 0; i < POINTS - 1; ++i) {
         double o1 = i * domega;
         double o2 = o1 + domega;
-        findRootsInterval(k, o1, o2, tm, out);
+        findRootsInterval(kp, kt, o1, o2, tm, out);
     }
     // Return via parameter
 }
 
-template<std::size_t DIM>
-double BraggStackBandstructure<DIM>::findRoot(LinearAlgebra::SmallVector<3> k,
-                                         std::size_t n, bool tm) const {
+template <std::size_t DIM>
+double BraggStackBandstructure<DIM>::findRoot(double kp, double kt,
+                                              std::size_t n, bool tm) const {
     const double STEP_SIZE = 0.025;
     std::vector<double> roots;
     double omin = 0;
     while (roots.size() <= n) {
         double omax = omin + STEP_SIZE;
-        findRootsInterval(k, omin, omax, tm, roots);
+        findRootsInterval(kp, kt, omin, omax, tm, roots);
         omin = omax;
     }
     return roots[n];
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 void BraggStackBandstructure<DIM>::findRootsInterval(
-    LinearAlgebra::SmallVector<3> k, double omin, double omax, bool tm,
+    double kp, double kt, double omin, double omax, bool tm,
     std::vector<double>& out) const {
-    double fval1 = tm ? valuetm(omin, k) : valuete(omin, k);
-    double fval2 = tm ? valuetm(omax, k) : valuete(omax, k);
+    auto value = [=](double o) {
+        return tm ? valuetm(o, kp, kt) : valuete(o, kp, kt);
+    };
+    double fval1 = value(omin);
+    double fval2 = value(omax);
     if (std::abs(fval1) < 1e-12) {
         // Left endpoint is small enough to expect there to be a root very
         // nearby either due to finite precision in computing f, or in the point
@@ -132,10 +139,7 @@ void BraggStackBandstructure<DIM>::findRootsInterval(
     } else if (std::abs(fval2) > 1e-8 && fval1 * fval2 < 0) {
         // We have different signs of fval1 and fval2 thus there must be a zero
         // crossing inbetween omin and omax.
-        std::function<double(double)> func = [=](double o) {
-            return tm ? valuetm(o, k) : valuete(o, k);
-        };
-        out.emplace_back(bisect(func, omin, omax));
+        out.emplace_back(bisect(value, omin, omax));
     } else if (std::abs(fval2) < 0.5 && std::abs(fval1) < 0.5) {
         // Two small values of f, it might be only touching or barely crossing
         // zero. We use golden section search to find the minimum of f on the
@@ -147,7 +151,7 @@ void BraggStackBandstructure<DIM>::findRootsInterval(
         // looking for a minimum.
         double sign = fval1 > 0 ? 1 : -1;
         std::function<double(double)> func = [=](double o) {
-            return sign * (tm ? valuetm(o, k) : valuete(o, k));
+            return sign * value(o);
         };
 
         // End points of the interval
@@ -220,11 +224,11 @@ void BraggStackBandstructure<DIM>::findRootsInterval(
     }
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 std::unique_ptr<typename BandStructure<3>::LineSet>
-    BraggStackBandstructure<DIM>::computeLines(LinearAlgebra::SmallVector<3> point1,
-                                          LinearAlgebra::SmallVector<3> point2,
-                                          double maxFrequency) const {
+    BraggStackBandstructure<DIM>::computeLines(
+        LinearAlgebra::SmallVector<3> point1,
+        LinearAlgebra::SmallVector<3> point2, double maxFrequency) const {
     // Compute the lines in similar way to the Homogeneous case, but here we
     // only have a fictitious lattice in 2 directions. Moreover we have to
     // consider that on a transverse wavevector a whole set of valid modes is
@@ -314,18 +318,22 @@ std::unique_ptr<typename BandStructure<3>::LineSet>
             // Maybe kr = kp - point1?
             LinearAlgebra::SmallVector<3> kr(
                 {point1[0], kp[0] - point1[1], kp[1] - point1[2]});
-            findRoots(kr, maxFrequency, false, roots);
+            findRoots(kr[0], std::sqrt(kr[1] * kr[1] + kr[2] * kr[2]),
+                      maxFrequency, false, roots);
             std::size_t teRoots = roots.size();
             roots.clear();
-            findRoots(kr, maxFrequency, true, roots);
+            findRoots(kr[0], std::sqrt(kr[1] * kr[1] + kr[2] * kr[2]),
+                      maxFrequency, true, roots);
             std::size_t tmRoots = roots.size();
             roots.clear();
             kr = LinearAlgebra::SmallVector<3>(
                 {point2[0], kp[0] - point2[1], kp[1] - point2[2]});
-            findRoots(kr, maxFrequency, false, roots);
+            findRoots(kr[0], std::sqrt(kr[1] * kr[1] + kr[2] * kr[2]),
+                      maxFrequency, false, roots);
             teRoots = std::max(teRoots, roots.size());
             roots.clear();
-            findRoots(kr, maxFrequency, true, roots);
+            findRoots(kr[0], std::sqrt(kr[1] * kr[1] + kr[2] * kr[2]),
+                      maxFrequency, true, roots);
             tmRoots = std::max(tmRoots, roots.size());
             // If ky = kz = 0 then the TE and TM modes will overlap.
             // We test if ky and kz of the line don't change by checking l2
@@ -359,21 +367,18 @@ std::unique_ptr<typename BandStructure<3>::LineSet>
     return result;
 }
 
-template<std::size_t DIM>
-double BraggStackBandstructure<DIM>::valuete(double omega,
-                                        LinearAlgebra::SmallVector<3> k) const {
+template <std::size_t DIM>
+double BraggStackBandstructure<DIM>::valuete(double omega, double kp,
+                                             double kt) const {
     // See Yarev & Yeh 6.2-24 for the original formula
-    // With the difference that we have the repetition in X instead of Z
-    // direction
-    double kx2 = k[1] * k[1];
-    double ky2 = k[2] * k[2];
+    double kt2 = kt * kt;
     std::complex<double> k1z =
-        std::sqrt(std::complex<double>(eps1_ * omega * omega - kx2 - ky2));
+        std::sqrt(std::complex<double>(eps1_ * omega * omega - kt2));
     std::complex<double> k2z =
-        std::sqrt(std::complex<double>(eps2_ * omega * omega - kx2 - ky2));
+        std::sqrt(std::complex<double>(eps2_ * omega * omega - kt2));
     std::complex<double> kk = k1z / k2z + k2z / k1z;
 
-    if (omega < 1e-6 && kx2 + ky2 < 1e-6)  // TODO: Better bounds
+    if (omega < 1e-6 && kt2 < 1e-6)  // TODO: Better bounds
     {
         kk = std::sqrt(eps1_ / eps2_) + std::sqrt(eps2_ / eps1_);
     }
@@ -383,25 +388,21 @@ double BraggStackBandstructure<DIM>::valuete(double omega,
     double ad2 = (std::cos(k1z * fraction_) * std::cos(k2z * b) -
                   0.5 * kk * std::sin(k1z * fraction_) * std::sin(k2z * b))
                      .real();
-    return std::cos(k[0]) - ad2;
+    return std::cos(kp) - ad2;
 }
 
-template<std::size_t DIM>
-double BraggStackBandstructure<DIM>::valuetm(double omega,
-                                        LinearAlgebra::SmallVector<3> k) const {
-
+template <std::size_t DIM>
+double BraggStackBandstructure<DIM>::valuetm(double omega, double kp,
+                                             double kt) const {
     // See Yarev & Yeh 6.2-24 for the original formula
-    // With the difference that we have the repetition in X instead of Z
-    // direction
-    double kx2 = k[1] * k[1];
-    double ky2 = k[2] * k[2];
+    double kt2 = kt * kt;
     std::complex<double> k1z =
-        std::sqrt(std::complex<double>(eps1_ * omega * omega - kx2 - ky2));
+        std::sqrt(std::complex<double>(eps1_ * omega * omega - kt2));
     std::complex<double> k2z =
-        std::sqrt(std::complex<double>(eps2_ * omega * omega - kx2 - ky2));
+        std::sqrt(std::complex<double>(eps2_ * omega * omega - kt2));
     std::complex<double> kk =
         (eps2_ * k1z) / (eps1_ * k2z) + (eps1_ * k2z) / (eps2_ * k1z);
-    if (omega < 1e-6 && kx2 + ky2 < 1e-6)  // TODO: Better bounds
+    if (omega < 1e-6 && kt2 < 1e-6)  // TODO: Better bounds
     {
         kk = std::sqrt(eps1_ / eps2_) + std::sqrt(eps2_ / eps1_);
     }
@@ -411,18 +412,19 @@ double BraggStackBandstructure<DIM>::valuetm(double omega,
                   0.5 * kk * std::sin(k1z * fraction_) * std::sin(k2z * b))
                      .real();
     // (A + D)/2
-    return std::cos(k[0]) - ad2;
+    return std::cos(kp) - ad2;
 }
 
 // Lineset
-template<std::size_t DIM>
+template <std::size_t DIM>
 BraggStackBandstructure<DIM>::LineSet::LineSet(
-    const BraggStackBandstructure<DIM>& structure, double l, double x1, double x2)
+    const BraggStackBandstructure<DIM>& structure, double l, double x1,
+    double x2)
     : structure_(structure), l_(l), x1_(x1), x2_(x2), totalNumberOfLines_(0) {}
 
-template<std::size_t DIM>
-double BraggStackBandstructure<DIM>::LineSet::frequency(std::size_t line,
-                                                   double interpolation) const {
+template <std::size_t DIM>
+double BraggStackBandstructure<DIM>::LineSet::frequency(
+    std::size_t line, double interpolation) const {
     logger.assert_debug(line >= 0 && line <= numberOfLines(),
                         "Invalid line number");
     // Find line number
@@ -443,10 +445,10 @@ double BraggStackBandstructure<DIM>::LineSet::frequency(std::size_t line,
     x += interpolation * l_;
     double z = x1_ + interpolation * (x2_ - x1_);
     LinearAlgebra::SmallVector<3> k({z, x, y});
-    return structure_.findRoot(k, index, tm);
+    return structure_.findRoot(z, std::sqrt(x * x + y * y), index, tm);
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 void BraggStackBandstructure<DIM>::LineSet::addLine(
     std::size_t multiplicity, double x, double y,
     std::pair<std::size_t, std::size_t> modes) {
@@ -454,18 +456,18 @@ void BraggStackBandstructure<DIM>::LineSet::addLine(
     totalNumberOfLines_ += modes.first + modes.second;
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 std::size_t BraggStackBandstructure<DIM>::LineSet::multiplicity(
     std::size_t line) const {
     return findMode(line).first->multiplicity_;
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 std::size_t BraggStackBandstructure<DIM>::LineSet::numberOfLines() const {
     return totalNumberOfLines_;
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 int BraggStackBandstructure<DIM>::LineSet::lineType(std::size_t line) const {
     std::pair<const MultiMode*, std::size_t> mode = findMode(line);
     if (std::abs(mode.first->x_) < 1e-8 && std::abs(mode.first->y_) < 1e-8 &&
@@ -482,7 +484,7 @@ int BraggStackBandstructure<DIM>::LineSet::lineType(std::size_t line) const {
     return 2;
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 std::string BraggStackBandstructure<DIM>::LineSet::lineTitle(
     std::size_t line) const {
     std::ostringstream out;
@@ -506,8 +508,9 @@ std::string BraggStackBandstructure<DIM>::LineSet::lineTitle(
     return out.str();
 }
 
-template<std::size_t DIM>
-std::pair<const typename BraggStackBandstructure<DIM>::LineSet::MultiMode*, std::size_t>
+template <std::size_t DIM>
+std::pair<const typename BraggStackBandstructure<DIM>::LineSet::MultiMode*,
+          std::size_t>
     BraggStackBandstructure<DIM>::LineSet::findMode(std::size_t line) const {
     logger.assert_debug(line >= 0 && line <= numberOfLines(),
                         "Invalid line number");

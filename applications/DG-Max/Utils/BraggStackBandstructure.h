@@ -172,11 +172,15 @@ class BraggStackBandstructure : public BandStructure<3> {
     /// \brief The fraction of the stack consisting of material with eps1.
     const double fraction_;
 
-    // Function indicator function, which roots determine which paramaters
-    // give a valid TE mode.
-    double valuete(double omega, LinearAlgebra::SmallVector<3> k) const;
-    // See valuete, but for TM modes.
-    double valuetm(double omega, LinearAlgebra::SmallVector<3> k) const;
+    /// Indicator function where roots indicate a valid TE mode
+    ///
+    /// \param omega The frequency
+    /// \param kp The perpendicular wavevector
+    /// \param kt The transverse wavevector
+    /// \return Root indicator
+    double valuete(double omega, double kp, double kt) const;
+    /// See valuete
+    double valuetm(double omega, double kp, double kt) const;
 
     /// \brief Find roots (angular frequencies) of the te or tm mode functions.
     ///
@@ -184,12 +188,13 @@ class BraggStackBandstructure : public BandStructure<3> {
     /// (valuete, valuetm), thereby findind the frequencies at which a TE/TM
     /// mode exists.
     ///
-    /// \param k The k vector at which to find the roots
+    /// \param kp The perpendicular wavevector
+    /// \param kt The transverse wavevector
     /// \param omegamax The maximum angular frequency to consider
     /// \param tm Whether to look for roots of the TM (true) or TE (false)
     /// function.
     /// \param out The vector to which to add the found frequencies.
-    void findRoots(LinearAlgebra::SmallVector<3> k, double omegamax, bool tm,
+    void findRoots(double kp, double kt, double omegamax, bool tm,
                    std::vector<double>& out) const;
 
     /// \brief Internal function for findRoots, where we look for the roots on
@@ -198,17 +203,18 @@ class BraggStackBandstructure : public BandStructure<3> {
     /// We assume that the interval is very small compared to the variation in
     /// valuete/tm and hence that there is at most one root or two very closely
     /// spaced roots.
-    /// \param k The wavevector
+    /// \param kp The perpendicular wavevector
+    /// \param kt The transverse wavevector
     /// \param omin The minimum angular frequency
     /// \param omax The maximum angular frequency
     /// \param tm TM or TE mode?
     /// \param out Vector to output the results in.
-    void findRootsInterval(LinearAlgebra::SmallVector<3> k, double omin,
+    void findRootsInterval(double kp, double kt, double omin,
                            double omax, bool tm,
                            std::vector<double>& out) const;
 
     /// \brief Similar to findRoots, but find the n-th root
-    double findRoot(LinearAlgebra::SmallVector<3> k, std::size_t n,
+    double findRoot(double kp, double kt, std::size_t n,
                     bool tm) const;
 };
 
