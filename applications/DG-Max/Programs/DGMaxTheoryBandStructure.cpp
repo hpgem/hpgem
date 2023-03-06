@@ -112,8 +112,12 @@ void runWithDimension() {
         auto freqs =
             structure->computeLinearSpectrum(kpoint, omegaMax * (2 * M_PI));
         std::cout << (kindex + 1);
-        for (std::size_t i = 0; i < DIM; ++i) {
-            std::cout << "," << kpoint[i] / (2 * M_PI);
+        for (std::size_t i = 0; i < 3; ++i) {
+            if (i < DIM) {
+                std::cout << "," << kpoint[i] / (2 * M_PI);
+            } else {
+                std::cout << ",0";
+            }
         }
         std::cout << "," << kpoint.l2Norm() / (2 * M_PI);
         std::size_t modeCount = 0;
