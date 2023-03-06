@@ -123,37 +123,29 @@ int main(int argc, char** argv) {
     }
 }
 
-template <>
-std::unique_ptr<BandStructure<3>> getStructure() {
-    std::array<LinearAlgebra::SmallVector<3>, 3> reciprocals;
-    for (std::size_t i = 0; i < 3; ++i) {
+template <std::size_t DIM>
+std::unique_ptr<HomogeneousBandStructure<DIM>> getHomogenousStructure() {
+    std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocals;
+    for (std::size_t i = 0; i < DIM; ++i) {
         reciprocals[i][i] = 2.0 * M_PI;
     }
-    switch (structureArg.getValue()) {
-        case 0:
-            return std::make_unique<HomogeneousBandStructure<3>>(
-                reciprocals, backgroundEpsArg.getValue());
-        case 1:
-            return std::make_unique<BraggStackBandstructure<3>>(
-                backgroundEpsArg.getValue(), foregroundEpsArg.getValue());
-        default:
-            logger.fail("Unknown structure %", structureArg.getValue());
-    }
+    return std::make_unique<HomogeneousBandStructure<DIM>>(
+        reciprocals, backgroundEpsArg.getValue());
 }
 
-template <>
-std::unique_ptr<BandStructure<2>> getStructure() {
-    std::array<LinearAlgebra::SmallVector<2>, 2> reciprocals;
-    for (std::size_t i = 0; i < 2; ++i) {
-        reciprocals[i][i] = 1.0;
-    }
+template <std::size_t DIM>
+std::unique_ptr<BraggStackBandstructure<DIM>> getBraggStack() {
+    return std::make_unique<BraggStackBandstructure<DIM>>(
+        backgroundEpsArg.getValue(), foregroundEpsArg.getValue());
+}
+
+template <std::size_t DIM>
+std::unique_ptr<BandStructure<DIM>> getStructure() {
     switch (structureArg.getValue()) {
         case 0:
-            return std::make_unique<HomogeneousBandStructure<2>>(
-                reciprocals, backgroundEpsArg.getValue());
+            return getHomogenousStructure<DIM>();
         case 1:
-            return std::make_unique<BraggStackBandstructure<2>>(
-                backgroundEpsArg.getValue(), foregroundEpsArg.getValue());
+            return getBraggStack<DIM>();
         default:
             logger.fail("Unknown structure %", structureArg.getValue());
     }
