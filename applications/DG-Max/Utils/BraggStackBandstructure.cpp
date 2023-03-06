@@ -275,11 +275,12 @@ std::unique_ptr<typename BandStructure<3>::LineSet>
         queue.pop();
         // Reciprocal wavevector in the transverse direction.
         LinearAlgebra::SmallVector<2> kp({2 * M_PI * p[0], 2 * M_PI * p[1]});
-        LinearAlgebra::SmallVector<2> dk = tpoint1 - kp;
+        LinearAlgebra::SmallVector<2> dk1 = tpoint1 - kp;
+        LinearAlgebra::SmallVector<2> dk2 = tpoint2 - kp;
         // Distance along the line
-        double x = dk * kdir;
+        double x = dk1 * kdir;
         // Distance to the line
-        double y = (dk - x * kdir).l2Norm();
+        double y = (dk1 - x * kdir).l2Norm();
         double xmin = intervalDist(x, -l2, 0);
         double mindist = std::sqrt(xmin * xmin + y * y);
 
@@ -315,25 +316,20 @@ std::unique_ptr<typename BandStructure<3>::LineSet>
             // of the amount of bands at either end of the line.
             modes[newMode] = 1;  // Single degeneracy
             std::vector<double> roots;
-            // Maybe kr = kp - point1?
-            LinearAlgebra::SmallVector<3> kr(
-                {point1[0], kp[0] - point1[1], kp[1] - point1[2]});
-            findRoots(kr[0], std::sqrt(kr[1] * kr[1] + kr[2] * kr[2]),
-                      maxFrequency, false, roots);
+            // Transverse wavevector for k-point1 relative to lattice point kp
+            double kt_rel1 = dk1.l2Norm();
+            findRoots(point1[0], kt_rel1, maxFrequency, false, roots);
             std::size_t teRoots = roots.size();
             roots.clear();
-            findRoots(kr[0], std::sqrt(kr[1] * kr[1] + kr[2] * kr[2]),
-                      maxFrequency, true, roots);
+            findRoots(point1[0], kt_rel1, maxFrequency, true, roots);
             std::size_t tmRoots = roots.size();
             roots.clear();
-            kr = LinearAlgebra::SmallVector<3>(
-                {point2[0], kp[0] - point2[1], kp[1] - point2[2]});
-            findRoots(kr[0], std::sqrt(kr[1] * kr[1] + kr[2] * kr[2]),
-                      maxFrequency, false, roots);
+            // Transverse wavevector for k-point2 relative to lattice point kp
+            double kt_rel2 = dk2.l2Norm();
+            findRoots(point2[0], kt_rel2, maxFrequency, false, roots);
             teRoots = std::max(teRoots, roots.size());
             roots.clear();
-            findRoots(kr[0], std::sqrt(kr[1] * kr[1] + kr[2] * kr[2]),
-                      maxFrequency, true, roots);
+            findRoots(point2[0], kt_rel2, maxFrequency, true, roots);
             tmRoots = std::max(tmRoots, roots.size());
             // If ky = kz = 0 then the TE and TM modes will overlap.
             // We test if ky and kz of the line don't change by checking l2
