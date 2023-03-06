@@ -100,7 +100,7 @@ void runWithDimension() {
     std::cout << "k-index,kx,ky,kz,kmag/2pi";
     if (maxModesArgs.isUsed()) {
         for (std::size_t i = 0; i < maxModesArgs.getValue(); ++i) {
-            std::cout << ",mode" << i;
+            std::cout << ",mode" << (i+1);
         }
     }
     std::cout << std::endl;
