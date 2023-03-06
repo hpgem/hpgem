@@ -388,9 +388,11 @@ std::unique_ptr<typename BandStructure<DIM>::LineSet>
 }
 
 template <std::size_t DIM>
-double BraggStackBandstructure<DIM>::valuete(double omega, double kp,
+double BraggStackBandstructure<DIM>::valuetm(double omega, double kp,
                                              double kt) const {
     // See Yarev & Yeh 6.2-24 for the original formula
+    // + 6.2-12 for the coefficients
+    // Note they use the opposite TE/TM convention from photonics
     double kt2 = kt * kt;
     std::complex<double> k1z =
         std::sqrt(std::complex<double>(eps1_ * omega * omega - kt2));
@@ -412,9 +414,11 @@ double BraggStackBandstructure<DIM>::valuete(double omega, double kp,
 }
 
 template <std::size_t DIM>
-double BraggStackBandstructure<DIM>::valuetm(double omega, double kp,
+double BraggStackBandstructure<DIM>::valuete(double omega, double kp,
                                              double kt) const {
     // See Yarev & Yeh 6.2-24 for the original formula
+    // + 6.2-14 for the coefficients
+    // Note they use the opposite TE/TM convention from photonics
     double kt2 = kt * kt;
     std::complex<double> k1z =
         std::sqrt(std::complex<double>(eps1_ * omega * omega - kt2));
