@@ -41,10 +41,16 @@ using namespace hpgem;
 ///    direction. To keep this simple we use a cube as unit cell. This results
 ///    in some band folding.
 ///
-template<std::size_t DIM>
+template <std::size_t DIM>
 class BraggStackBandstructure : public BandStructure<DIM> {
    public:
-    BraggStackBandstructure(double eps1, double eps2, double fraction = 0.5);
+    BraggStackBandstructure(double eps1, double eps2, double fraction = 0.5,
+                            double transverseSize = 1.0);
+
+    /// Include TE modes
+    void setComputeTE(bool compute) { computeTE_ = compute; }
+    /// Include TM modes
+    void setComputeTM(bool compute) { computeTM_ = compute; }
 
     std::vector<double> computeLinearSpectrum(
         LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const final;
@@ -164,13 +170,18 @@ class BraggStackBandstructure : public BandStructure<DIM> {
 
     std::unique_ptr<typename BandStructure<DIM>::LineSet> computeLines(
         LinearAlgebra::SmallVector<DIM> point1,
-        LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const final;
+        LinearAlgebra::SmallVector<DIM> point2,
+        double maxFrequency) const final;
 
    private:
     const double eps1_;
     const double eps2_;
     /// \brief The fraction of the stack consisting of material with eps1.
     const double fraction_;
+    /// Relative size of the transverse lattice
+    const double transverseSize_;
+
+    bool computeTM_, computeTE_;
 
     /// Indicator function where roots indicate a valid TE mode
     ///
@@ -209,13 +220,11 @@ class BraggStackBandstructure : public BandStructure<DIM> {
     /// \param omax The maximum angular frequency
     /// \param tm TM or TE mode?
     /// \param out Vector to output the results in.
-    void findRootsInterval(double kp, double kt, double omin,
-                           double omax, bool tm,
-                           std::vector<double>& out) const;
+    void findRootsInterval(double kp, double kt, double omin, double omax,
+                           bool tm, std::vector<double>& out) const;
 
     /// \brief Similar to findRoots, but find the n-th root
-    double findRoot(double kp, double kt, std::size_t n,
-                    bool tm) const;
+    double findRoot(double kp, double kt, std::size_t n, bool tm) const;
 };
 
 #endif  // HPGEM_APP_BRAGGSTACKBANDSTRUCTURE_H

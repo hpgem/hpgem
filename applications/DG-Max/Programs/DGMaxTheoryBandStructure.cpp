@@ -56,6 +56,15 @@ auto& backgroundEpsArg = Base::register_argument<double>(
     'b', "epsilon1", "Background epsilon", false, 1.0);
 auto& foregroundEpsArg = Base::register_argument<double>(
     'f', "epsilon2", "Foreground epsilon (Bragg stack)", false, 12.1);
+auto& modeTypes = Base::register_argument<std::string>(
+    '\0', "modes", "Compute \"TE\", \"TM\" or \"both\" (Braggstack only)",
+    false, "both");
+
+auto& maxModesArgs = Base::register_argument<std::size_t>(
+    '\0', "maxmodes", "Maximum number of modes printed", false);
+
+auto& transverseLattice =Base::register_argument<double>(
+    '\0', "braggtransversesize", "Relative size of the transverse lattice ", false, 1.0);
 
 // Points in reciprocal space that are visted
 // Usual format of (2@)[point1]:[point2]: .... :[pointn]
@@ -87,18 +96,33 @@ void runWithDimension() {
     auto structure = getStructure<DIM>();
     double omegaMax = maxFreqArg.getValue();
 
+    // Header
+    std::cout << "k-index,kx,ky,kz,kmag/2pi";
+    if (maxModesArgs.isUsed()) {
+        for (std::size_t i = 0; i < maxModesArgs.getValue(); ++i) {
+            std::cout << ",mode" << i;
+        }
+    }
+    std::cout << std::endl;
+
+    // Compute modes
     for (std::size_t kindex = 0; kindex < kpath.totalNumberOfSteps();
          ++kindex) {
         auto kpoint = kpath.k(kindex);
-        auto freqs = structure->computeLinearSpectrum(kpoint, omegaMax * (2 * M_PI));
+        auto freqs =
+            structure->computeLinearSpectrum(kpoint, omegaMax * (2 * M_PI));
         std::cout << (kindex + 1);
         for (std::size_t i = 0; i < DIM; ++i) {
             std::cout << "," << kpoint[i] / (2 * M_PI);
         }
         std::cout << "," << kpoint.l2Norm() / (2 * M_PI);
+        std::size_t modeCount = 0;
         for (auto& freq : freqs) {
-            std::cout << "," << std::setprecision(8)
-                      << (freq / (2 * M_PI));
+            modeCount++;
+            std::cout << "," << std::setprecision(8) << (freq / (2 * M_PI));
+            if (maxModesArgs.isUsed() && maxModesArgs.getValue() == modeCount) {
+                break;
+            }
         }
         std::cout << std::endl;
     }
@@ -127,14 +151,29 @@ std::unique_ptr<HomogeneousBandStructure<DIM>> getHomogenousStructure() {
     for (std::size_t i = 0; i < DIM; ++i) {
         reciprocals[i][i] = 2.0 * M_PI;
     }
+    if (modeTypes.hasArgument()) {
+        DGMaxLogger(WARN, "Mode types argument is ignored");
+    }
+    if (transverseLattice.hasArgument()) {
+        DGMaxLogger(WARN, "Argument % unused", transverseLattice.getLongTag());
+    }
     return std::make_unique<HomogeneousBandStructure<DIM>>(
         reciprocals, backgroundEpsArg.getValue());
 }
 
 template <std::size_t DIM>
 std::unique_ptr<BraggStackBandstructure<DIM>> getBraggStack() {
-    return std::make_unique<BraggStackBandstructure<DIM>>(
-        backgroundEpsArg.getValue(), foregroundEpsArg.getValue());
+    auto structure = std::make_unique<BraggStackBandstructure<DIM>>(
+        backgroundEpsArg.getValue(), foregroundEpsArg.getValue(),
+        0.5, transverseLattice.getValue());
+    if (modeTypes.getValue() == "TE") {
+        structure->setComputeTM(false);
+    } else if (modeTypes.getValue() == "TM") {
+        structure->setComputeTE(false);
+    } else if (modeTypes.getValue() != "both") {
+        logger.fail("Unknown mode type \"%\"", modeTypes.getValue());
+    }
+    return structure;
 }
 
 template <std::size_t DIM>

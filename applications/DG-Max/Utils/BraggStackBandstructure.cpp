@@ -10,8 +10,14 @@ using namespace hpgem;
 
 template <std::size_t DIM>
 BraggStackBandstructure<DIM>::BraggStackBandstructure(double eps1, double eps2,
-                                                      double fraction)
-    : eps1_(eps1), eps2_(eps2), fraction_(fraction) {}
+                                                      double fraction,
+                                                      double transverseSize)
+    : eps1_(eps1),
+      eps2_(eps2),
+      fraction_(fraction),
+      computeTE_(true),
+      computeTM_(true),
+      transverseSize_(transverseSize) {}
 
 template <std::size_t DIM>
 std::vector<double> BraggStackBandstructure<DIM>::computeLinearSpectrum(
@@ -39,12 +45,16 @@ std::vector<double> BraggStackBandstructure<DIM>::computeLinearSpectrum(
         toProcess.pop();
         LinearAlgebra::SmallVector<DIM - 1> ktransverseRel = ktransverse;
         for (std::size_t i = 0; i < DIM - 1; ++i) {
-            ktransverseRel[i] += 2 * M_PI * offset[i];
+            ktransverseRel[i] += 2 * M_PI * offset[i] / transverseSize_;
         }
         double ktransverseRelMag = ktransverseRel.l2Norm();
         std::size_t size = freqs.size();
-        findRoots(kp, ktransverseRelMag, omegaMax, false, freqs);
-        findRoots(kp, ktransverseRelMag, omegaMax, true, freqs);
+        if (computeTE_) {
+            findRoots(kp, ktransverseRelMag, omegaMax, false, freqs);
+        }
+        if (computeTM_) {
+            findRoots(kp, ktransverseRelMag, omegaMax, true, freqs);
+        }
         if (freqs.size() != size) {
             // This offset contributed, add its non considered neighbours.
             for (auto neighbour : offset.getNeighbours()) {
@@ -280,8 +290,8 @@ std::unique_ptr<typename BandStructure<DIM>::LineSet>
         LinearAlgebra::SmallVector<DIM - 1> dk1 = tpoint1;
         LinearAlgebra::SmallVector<DIM - 1> dk2 = tpoint2;
         for (std::size_t i = 0; i < DIM - 1; ++i) {
-            dk1[i] -= 2 * M_PI * p[i];
-            dk2[i] -= 2 * M_PI * p[i];
+            dk1[i] -= 2 * M_PI * p[i] / transverseSize_;
+            dk2[i] -= 2 * M_PI * p[i] / transverseSize_;
         }
         // Distance along the line
         double x = dk1 * kdir;
@@ -324,18 +334,26 @@ std::unique_ptr<typename BandStructure<DIM>::LineSet>
             std::vector<double> roots;
             // Transverse wavevector for k-point1 relative to lattice point kp
             double kt_rel1 = dk1.l2Norm();
-            findRoots(point1[0], kt_rel1, maxFrequency, false, roots);
+            if (computeTE_) {
+                findRoots(point1[0], kt_rel1, maxFrequency, false, roots);
+            }
             std::size_t teRoots = roots.size();
             roots.clear();
-            findRoots(point1[0], kt_rel1, maxFrequency, true, roots);
+            if (computeTM_) {
+                findRoots(point1[0], kt_rel1, maxFrequency, true, roots);
+            }
             std::size_t tmRoots = roots.size();
             roots.clear();
             // Transverse wavevector for k-point2 relative to lattice point kp
             double kt_rel2 = dk2.l2Norm();
-            findRoots(point2[0], kt_rel2, maxFrequency, false, roots);
+            if (computeTE_) {
+                findRoots(point2[0], kt_rel2, maxFrequency, false, roots);
+            }
             teRoots = std::max(teRoots, roots.size());
             roots.clear();
-            findRoots(point2[0], kt_rel2, maxFrequency, true, roots);
+            if (computeTM_) {
+                findRoots(point2[0], kt_rel2, maxFrequency, true, roots);
+            }
             tmRoots = std::max(tmRoots, roots.size());
             // If ky = kz = 0 then the TE and TM modes will overlap.
             // We test if ky and kz of the line don't change by checking l2
