@@ -90,17 +90,15 @@ void runWithDimension() {
     for (std::size_t kindex = 0; kindex < kpath.totalNumberOfSteps();
          ++kindex) {
         auto kpoint = kpath.k(kindex);
-        auto freqs = structure->computeSpectrum(kpoint, omegaMax * (2 * M_PI));
+        auto freqs = structure->computeLinearSpectrum(kpoint, omegaMax * (2 * M_PI));
         std::cout << (kindex + 1);
         for (std::size_t i = 0; i < DIM; ++i) {
             std::cout << "," << kpoint[i] / (2 * M_PI);
         }
         std::cout << "," << kpoint.l2Norm() / (2 * M_PI);
         for (auto& freq : freqs) {
-            for (std::size_t i = 0; i < freq.second; ++i) {
-                std::cout << "," << std::setprecision(8)
-                          << (freq.first / (2 * M_PI));
-            }
+            std::cout << "," << std::setprecision(8)
+                      << (freq / (2 * M_PI));
         }
         std::cout << std::endl;
     }
