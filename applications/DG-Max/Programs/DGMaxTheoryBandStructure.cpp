@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <DGMaxProgramUtils.h>
 #include <Utils/KSpacePath.h>
 #include <Utils/BandStructure.h>
+#include <Utils/BandstructureGNUPlot.h>
 #include <Utils/HomogeneousBandStructure.h>
 #include <Utils/BraggStackBandstructure.h>
 
@@ -130,6 +131,9 @@ void runWithDimension() {
         }
         std::cout << std::endl;
     }
+
+    BandstructureGNUPlot<DIM> plotter (kpath, {}, *structure);
+    plotter.plot("theory.p");
 }
 
 int main(int argc, char** argv) {

@@ -247,7 +247,7 @@ std::unique_ptr<typename BandStructure<DIM>::LineSet>
     // consider that on a transverse wavevector a whole set of valid modes is
     // constructed by varying kx (the orthogonal wavevector).
 
-    for (std::size_t i = 0; i < 3; ++i) {
+    for (std::size_t i = 0; i < DIM; ++i) {
         logger.assert_always(std::abs(point1[i]) <= (M_PI + 1e-12),
                              "Only implemented for k in first Brillouin zone.");
         logger.assert_always(std::abs(point2[i]) <= (M_PI + 1e-12),
@@ -358,12 +358,15 @@ std::unique_ptr<typename BandStructure<DIM>::LineSet>
             // If ky = kz = 0 then the TE and TM modes will overlap.
             // We test if ky and kz of the line don't change by checking l2
             // We test if the lattice point is on the line by checking y
-            if (std::abs(l2) > 1e-12 || std::abs(y) > 1e-12) {
+            if (std::abs(l2) > 1e-12 || std::abs(y) > 1e-12 ||
+                !(computeTM_ && computeTE_)) {
                 modes2[newMode] = std::make_pair(teRoots, tmRoots);
             } else {
                 // Thus remove tmMode but add 1 to multiplicity
-                modes2[newMode] = std::make_pair(teRoots, 0);
-                modes[newMode]++;
+                if (computeTE_ && computeTM_) {
+                    modes2[newMode] = std::make_pair(teRoots, 0);
+                    modes[newMode]++;
+                }
             }
         }
 

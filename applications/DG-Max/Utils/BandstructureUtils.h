@@ -41,7 +41,11 @@ template <std::size_t DIM>
 struct LatticePoint {
     using Basis = std::array<LinearAlgebra::SmallVector<DIM>, DIM>;
 
-    LatticePoint() = default;
+    LatticePoint() {
+        for (std::size_t i = 0; i < DIM; ++i) {
+            coords_[i] = 0;
+        }
+    }
 
     LatticePoint(std::array<int, DIM> coords) : coords_(coords) {}
 
