@@ -63,6 +63,15 @@ class SmallMatrix {
     /// \brief Constructs a matrix of size n-rows by m-columns.
     SmallMatrix() : data_() {}
 
+    static SmallMatrix identity() {
+        SmallMatrix result;
+        for (std::size_t i = 0; i < std::min(numberOfRows, numberOfColumns);
+             ++i) {
+            result(i, i) = 1.0;
+        }
+        return result;
+    }
+
     explicit SmallMatrix(const SmallVector<numberOfRows>& other) : data_() {
         logger.assert_debug(numberOfColumns == 1,
                             "Trying to construct a matrix with more than 1 "

@@ -96,7 +96,9 @@ class ValueCoordinateTransformationData final
     const Geometry::Jacobian<DIM, DIM>& getTransposeJacobian() const final {
         return transposeJacobian;
     }
-    double getJacobianDet() const final { return jacobianDet; }
+    double getJacobianDet() const final {
+        return jacobianDet;
+    }
 
     void setJacobian(const Geometry::Jacobian<DIM, DIM>& newJacobian) {
         jacobian = newJacobian;

@@ -231,6 +231,17 @@ void processMesh(Preprocessor::Mesh<dimension> mesh) {
             logger(INFO, "Applying translation periodicity%", translation);
             Preprocessor::translationConnect(mesh, translation);
         }
+        for(std::size_t i = 0 ; i < 2; ++i) {
+            logger(INFO, "");
+            LinearAlgebra::SmallVector<dimension> ttemp;
+            ttemp[0] = +0.5;
+            ttemp[1] = i % 2 == 0 ? -0.5 : +0.5;
+            ttemp[2] = 0.707;
+            auto ttrans = LinearAlgebra::SmallMatrix<dimension,dimension>::identity();
+            ttrans[0] = -1.0;
+            logger(INFO, "Applying translation periodicity %, %", ttemp, ttrans);
+            Preprocessor::translationConnect(mesh, ttemp, ttrans);
+        }
         mesh.removeUnusedEntities();
         logger(INFO, "");
         logger(INFO, "After adding periodicity");

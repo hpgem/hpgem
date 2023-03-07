@@ -617,6 +617,8 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::updateKPoint(
         projector->updateKPoint(newK);
     }
 
+    Utilities::GlobalPetscMatrix::writeMatlab(getActualStiffnessMatrix(), "A.m");
+
     // Note, as we use a shell matrix for EPS, we don't have to call
     // EPSSetOperators, as the matrix used has not changed.
 
@@ -959,6 +961,7 @@ void DGMaxEigenvalue<DIM>::ProjectorWorkspace::updateKPoint(
     const LinearAlgebra::SmallVector<DIM>& k) {
     // Update the matrix
     phaseShifts_.apply(k, projectorMatrix_);
+    Utilities::GlobalPetscMatrix::writeMatlab(projectorMatrix_, "C.m");
 
     // Update the KSP & the inner projectionMatrix.
     PetscErrorCode error;

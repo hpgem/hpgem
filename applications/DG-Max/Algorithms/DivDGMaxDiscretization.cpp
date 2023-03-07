@@ -181,6 +181,10 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
             if (stab_.hasFlux(FluxType::BREZZI)) {
                 faceMatrix += brezziFluxBilinearTerm(face, bct);
             }
+
+//            if (bct != BCT::INTERNAL) {
+//                faceMatrix *= 0.0;
+//            }
             face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
             if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {

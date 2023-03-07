@@ -43,12 +43,14 @@
 
 #include <set>
 #include <LinearAlgebra/SmallVector.h>
+#include <LinearAlgebra/SmallMatrix.h>
 
 namespace Preprocessor {
 
 template <std::size_t dim>
 void translationConnect(Mesh<dim>& mesh,
-                        LinearAlgebra::SmallVector<dim> translation) {
+                        LinearAlgebra::SmallVector<dim> translation,
+                        LinearAlgebra::SmallMatrix<dim, dim> transform = LinearAlgebra::SmallMatrix<dim, dim>::identity()) {
     // Stage 1: Find coordinates on the boundary
     std::set<CoordId> boundaryCoords;
     for (const MeshEntity<dim - 1, dim>& face : mesh.getFaces()) {
@@ -69,7 +71,8 @@ void translationConnect(Mesh<dim>& mesh,
     // Hence perform an O(N^2) loop to match them
     std::map<CoordId, CoordId> pairing;
     for (CoordId coord1 : boundaryCoords) {
-        auto translatedCoord = mesh.getCoordinate(coord1) + translation;
+        LinearAlgebra::SmallVector<dim> startCoord = mesh.getCoordinate(coord1);
+        auto translatedCoord = transform * startCoord + translation;
         for (CoordId coord2 : boundaryCoords) {
             auto diff = translatedCoord - mesh.getCoordinate(coord2);
             if (diff.l2NormSquared() < 1e-16) {

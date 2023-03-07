@@ -53,6 +53,10 @@ inline double PhysicalFace<DIM>::basisFunction(std::size_t i) {
     double value = right.basisFunction(i - nLeftBasisFunctions[0]);
     if (requiresTransformation) {
         value = transform_[0]->transform(value, rightVectorTransform);
+        if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+            // Assume negative mirror character
+            value *= -1.00;;
+        }
     }
     return value;
 }
@@ -70,6 +74,10 @@ inline double PhysicalFace<DIM>::basisFunction(std::size_t i,
         right.basisFunction(i - nLeftBasisFunctions[unknown], unknown);
     if (requiresTransformation) {
         value = transform_[unknown]->transform(value, rightVectorTransform);
+        if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+            // Assume negative mirror character
+            value *= -1.00;;
+        }
     }
     return value;
 }
@@ -86,6 +94,10 @@ inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i) {
     double value = right.basisFunction(i);
     if (requiresTransformation) {
         value = transform_[0]->transform(value, rightVectorTransform);
+        if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+            // Assume negative mirror character
+            value *= -1.00;;
+        }
     }
     return value;
 }
@@ -103,6 +115,10 @@ inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i,
     double value = right.basisFunction(i, unknown);
     if (requiresTransformation) {
         value = transform_[unknown]->transform(value, rightVectorTransform);
+        if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+            // Assume negative mirror character
+            value *= -1.00;;
+        }
     }
     return value;
 }
@@ -276,6 +292,10 @@ inline void PhysicalFace<DIM>::basisFunction(
     right.basisFunction(i - nLeftBasisFunctions[0], result);
     if (requiresTransformation) {
         result = transform_[0]->transform(result, rightVectorTransform);
+        if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+            // Assume negative mirror character
+            result *= -1.00;;
+        }
     }
     return;
 }
@@ -293,6 +313,10 @@ inline void PhysicalFace<DIM>::basisFunction(
     right.basisFunction(i - nLeftBasisFunctions[unknown], result, unknown);
     if (requiresTransformation) {
         result = transform_[unknown]->transform(result, rightVectorTransform);
+        if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+            // Assume negative mirror character
+            result *= -1.00;;
+        }
     }
     return;
 }
@@ -310,6 +334,10 @@ inline void PhysicalFace<DIM>::basisFunction(
         right.basisFunction(i, result);
         if (requiresTransformation) {
             result = transform_[0]->transform(result, rightVectorTransform);
+            if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+                // Assume negative mirror character
+                result *= -1.00;;
+            }
         }
     }
 }
@@ -329,6 +357,10 @@ inline void PhysicalFace<DIM>::basisFunction(
         if (requiresTransformation) {
             result =
                 transform_[unknown]->transform(result, rightVectorTransform);
+            if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+                // Assume negative mirror character
+                result *= -1.00;;
+            }
         }
     }
 }
@@ -1030,6 +1062,10 @@ void PhysicalFace<DIM>::computeBasisFunctionDeriv(
             if (requiresTransformation) {
                 values[i] = transform_[unknown]->transformDeriv(
                     values[i], rightVectorTransform);
+                if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+                    // Assume negative mirror character
+                    values[i] *= -1.00;;
+                }
             }
         }
     }
@@ -1049,6 +1085,10 @@ void PhysicalFace<DIM>::computeBasisFunctionCurl(
             if (requiresTransformation) {
                 values[i] = transform_[unknown]->transformCurl(
                     values[i], rightVectorTransform);
+                if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+                    // Assume negative mirror character
+                    values[i] *= -1.00;;
+                }
             }
         }
     }
@@ -1069,6 +1109,10 @@ void PhysicalFace<DIM>::computeBasisFunctionDiv(std::vector<double>& values,
             if (requiresTransformation) {
                 values[i] = transform_[unknown]->transformDiv(
                     values[i], rightVectorTransform);
+                if (std::abs(getUnitNormalVector()[2]) > 0.5) {
+                    // Assume negative mirror character
+                    values[i] *= -1.00;;
+                }
             }
         }
     }
@@ -1139,6 +1183,15 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
     LinearAlgebra::SmallMatrix<DIM, DIM> rightMatrix =
         computeDirectionVectors(rightPoints);
 
+    const auto& normal = getUnitNormalVector();
+    if (std::abs(normal[2]) > 0.5) {
+        for (std::size_t i = 0; i < DIM; ++i) {
+            // Needed as the computeDirectionVectors assumes a transformation
+            // with det(R) = 1, while our current case has -1.
+            rightMatrix(DIM - 1, i) *= -1;
+        }
+    }
+
     // Computes the transformation matrix to map the directions on the right
     // face to those on the left face.
     leftMatrix.solve(rightMatrix);
@@ -1153,10 +1206,15 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
         }
     }
     if (requiresTransformation) {
+        if (std::abs(rightMatrix(1, 1) - 1) > 5e-2) {
+            logger(INFO, "WRONG!");
+        }
         // Check that it is a proper rotation matrix, no scaling and no improper
         // rotations.
-        logger.assert_debug(std::abs(rightMatrix.determinant() - 1.0) < 1e-8,
-                            "Not a good rotation matrix.");
+        logger.assert_debug(
+            std::abs(rightMatrix.determinant() - 1.0) < 1e-8 ||
+                std::abs(rightMatrix.determinant() + 1.0) < 1e-8,
+            "Not a good transformation matrix.");
         rightVectorTransform.setJacobian(rightMatrix);
     }
 }
