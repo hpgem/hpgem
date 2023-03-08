@@ -19,7 +19,7 @@ class BandstructureGNUPlot {
         const KSpacePath<DIM>& path, const std::vector<std::string>& pointNames,
         const BandStructure<DIM>& structure,
         const std::vector<std::vector<double>>* computedSpectrum = nullptr);
-    void plot(std::string fileName);
+    void plot(std::string fileName, double maxFrequency = M_PI);
 
    private:
     struct Line {

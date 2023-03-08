@@ -133,7 +133,7 @@ void runWithDimension() {
     }
 
     BandstructureGNUPlot<DIM> plotter (kpath, {}, *structure);
-    plotter.plot("theory.p");
+    plotter.plot("theory.p", omegaMax * 2 * M_PI);
 }
 
 int main(int argc, char** argv) {

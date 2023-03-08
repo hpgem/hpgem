@@ -31,8 +31,7 @@ BandstructureGNUPlot<DIM>::BandstructureGNUPlot(
 }
 
 template <std::size_t DIM>
-void BandstructureGNUPlot<DIM>::plot(std::string fileName) {
-    const double maxFreq = M_PI;
+void BandstructureGNUPlot<DIM>::plot(std::string fileName, double maxFrequency) {
 
     std::ofstream out(fileName);
     // Header
@@ -48,7 +47,7 @@ void BandstructureGNUPlot<DIM>::plot(std::string fileName) {
     }
     // Set x,y range
     out << "xmin=" << 0.0 << ";xmax=" << totalDistance << std::endl;
-    out << "ymin=" << 0.0 << ";ymax=" << maxFreq << std::endl;
+    out << "ymin=" << 0.0 << ";ymax=" << maxFrequency << std::endl;
     out << "set xrange [xmin:xmax]" << std::endl;
     out << "set yrange [ymin:ymax]" << std::endl;
     // Move the legend/key to the bottom, reducing overlap
@@ -73,7 +72,7 @@ void BandstructureGNUPlot<DIM>::plot(std::string fileName) {
     for (std::size_t i = 1; i < path_.numberOfCornerPoints(); ++i) {
         std::unique_ptr<typename BandStructure<DIM>::LineSet> lines =
             structure_.computeLines(path_.kcorner(i - 1), path_.kcorner(i),
-                                    maxFreq);
+                                    maxFrequency);
         for (std::size_t j = 0; j < lines->numberOfLines(); ++j) {
             Line pline = band(*lines, j, xpoints[i - 1], xpoints[i], "");
             gnulines.emplace_back(pline);
