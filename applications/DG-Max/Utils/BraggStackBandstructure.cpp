@@ -197,34 +197,37 @@ void BraggStackBandstructure<DIM>::findRootsInterval(
         bool rootsFound = false;
         // Golden section loop
         while (std::abs(c - d) > 1e-12 && !rootsFound) {
-            if (fc < fd) {
+            if (fc < 0) {
+                // Negative value of f found at c while f(a) and f(b) are
+                // positive. Hence, we must have two positions d,e with
+                // a < d < c < e < b such that f(d) = f(e) = 0.
+                out.emplace_back(bisect(func, a, c));
+                out.emplace_back(bisect(func, c, b));
+                rootsFound = true;
+            } else  if (fd < 0) {
+                // Similar to the case fc < 0, but now with fd.
+                out.emplace_back(bisect(func, a, d));
+                out.emplace_back(bisect(func, d, b));
+                rootsFound = true;
+            } else if (fc < fd) {
+                // Actual golden section case 1:
+                // fc < fd means that the minimum must be between a < c < d
+                // and point b (>d) can be eliminated as candidate
                 b = d;
                 fb = fd;
                 d = c;
                 fd = fc;
                 c = b - (b - a) / phi;
                 fc = func(c);
-                if (fc < 0) {
-                    // Negative value of f found at c while f(a) and f(b) are
-                    // positive. Hence we must have two positions d,e with
-                    // a < d < c < e < b such that f(d) = f(e) = 0.
-                    out.emplace_back(bisect(func, a, c));
-                    out.emplace_back(bisect(func, c, b));
-                    rootsFound = true;
-                }
             } else {
+                // Golden section case 2: Point a can be discarded
                 a = c;
                 fa = fc;
                 c = d;
                 fc = fd;
                 d = a + (b - a) / phi;
                 fd = func(d);
-                if (fd < 0) {
-                    // Similar to the case fc < 0, but now with fd.
-                    out.emplace_back(bisect(func, a, d));
-                    out.emplace_back(bisect(func, d, b));
-                    rootsFound = true;
-                }
+
             }
         }
         if (!rootsFound && std::abs(fa) < 1e-12) {
