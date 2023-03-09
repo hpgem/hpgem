@@ -86,6 +86,7 @@ KSpacePath<DIM> parsePath();
 
 int main(int argc, char** argv) {
     registerLogLevelCommandLineFlag();
+    DGMax::registerEpsilonCommandLineOptions();  // For predefined structures
     Base::parse_options(argc, argv);
     initDGMaxLogging();
     DGMax::printArguments(argc, argv);

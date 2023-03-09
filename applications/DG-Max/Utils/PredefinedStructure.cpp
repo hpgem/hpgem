@@ -37,10 +37,33 @@
  */
 #include "PredefinedStructure.h"
 #include "Base/Element.h"
+#include "Base/CommandLineOptions.h"
 
 namespace DGMax {
 
 using namespace hpgem;
+
+static Base::CommandLineOption<double>* epsilonBackgroundArg = nullptr;
+static Base::CommandLineOption<double>* epsilonFeatureArg = nullptr;
+
+void registerEpsilonCommandLineOptions() {
+    epsilonBackgroundArg = &Base::register_argument<double>(
+        '\0', "epsbackground", "Background epsilon for predefined structures",
+        false);
+    epsilonFeatureArg = &Base::register_argument<double>(
+        '\0', "epsfeature",
+        "Feature epsilon for predefined structures (central pore of square, "
+        "cylinder, IW)",
+        false);
+}
+
+double getEpsilonArg(double def, Base::CommandLineOption<double>* arg) {
+    if (arg == nullptr || !arg->hasArgument()) {
+        return def;
+    } else {
+        return arg->getValue();
+    }
+}
 
 ElementInfos* PredefinedStructureDescription::createElementInfo(
     const Base::Element* element) {
@@ -134,30 +157,30 @@ template <std::size_t DIM>
 double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
                        PredefinedStructure structureType) {
     if (structureType == PredefinedStructure::VACUUM) {  // Vacuum Case
-        return 1;
+        return getEpsilonArg(1.0, epsilonBackgroundArg);
     }
     if (structureType == PredefinedStructure::BRAGG_STACK) {  // Bragg Stack
         if (pPhys[0] < 0.5) {
-            return 13;
+            return getEpsilonArg(1.0, epsilonFeatureArg);
         }
-        return 1;
+        return getEpsilonArg(1.0, epsilonBackgroundArg);
 
     } else if (structureType == PredefinedStructure::CYLINDER) {
         // Cylinder Case with radius 0.2 at (0.5, 0.5)
         if ((pPhys[0] - 0.5) * (pPhys[0] - 0.5) +
                 (pPhys[1] - 0.5) * (pPhys[1] - 0.5) <=
             0.2 * 0.2) {
-            return 13;
+            return getEpsilonArg(13.0, epsilonFeatureArg);
         }
-        return 1;
+        return getEpsilonArg(1.0, epsilonBackgroundArg);
 
     } else if (structureType == PredefinedStructure::SQUARE_HOLE) {
         // Cube in Cuboid Case with width of pilars of 0.1a
         if (pPhys[0] < 0.1 || pPhys[0] > 0.9 || pPhys[1] < 0.1 ||
             pPhys[1] > 0.9) {
-            return 1;
+            return getEpsilonArg(1.0, epsilonFeatureArg);
         }
-        return 13;
+        return getEpsilonArg(13.0, epsilonBackgroundArg);
 
     }
 
@@ -189,9 +212,9 @@ double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
             (pPhys[0] - 0.707) * (pPhys[0] - 0.707) +
                     (pPhys[1] - 0.25) * (pPhys[1] - 0.25) <=
                 0.19 * 0.19) {
-            return 1;
+            return getEpsilonArg(1.0, epsilonFeatureArg);
         }
-        return 13;
+        return getEpsilonArg(1.0, epsilonBackgroundArg);
 
     } else if (structureType == PredefinedStructure::INVERSE_WOODPILE_NEW) {
         const double a = 1.414;
@@ -207,16 +230,16 @@ double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
 
         if (insideIWPore(pPhys[0], pPhys[1] + offZPores, a, c, r) ||
             insideIWPore(pPhys[2], pPhys[1] + offXPores, a, c, r)) {
-            return 1.0;
+            return getEpsilonArg(1.0, epsilonFeatureArg);
         } else {
             // Use by default the same value as in COPS MPB computations.
-            return 12.1;
+            return getEpsilonArg(12.1, epsilonBackgroundArg);
         }
 
     } else {
         std::cout << "Incorrect value for SetEpsilon"
                   << "\n";
-        return 1.0;
+        return getEpsilonArg(1.0, epsilonFeatureArg);
     }
 }
 
