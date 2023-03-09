@@ -58,7 +58,7 @@ void registerEpsilonCommandLineOptions() {
 }
 
 double getEpsilonArg(double def, Base::CommandLineOption<double>* arg) {
-    if (arg == nullptr || !arg->hasArgument()) {
+    if (arg == nullptr || !arg->isUsed()) {
         return def;
     } else {
         return arg->getValue();
