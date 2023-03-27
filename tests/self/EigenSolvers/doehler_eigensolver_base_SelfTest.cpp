@@ -37,8 +37,12 @@
  */
 
 #include <iostream>
+#include <string>
 
-#include "DoehlerMaxwell.h"
+#include "petsc.h"
+#include "slepc.h"
+
+#include "EigenSolvers/DoehlerMaxwell.h"
 
 // #include "Base/CommandLineOptions.h"
 // 
@@ -47,11 +51,92 @@
 // #include "Utils/Verification/DivDGMaxEVConvergenceTest.h"
 // #include "Utils/Verification/EVTestPoint.h"
 
+static char help[] = "Solve an eigenvalue problem Ax = lMx using Doehler's algorithm.";
+
+PetscErrorCode read_matrix(Mat &M, std::string &name, std::string &filename, std::string &read_format);
+PetscErrorCode read_matrix(Mat &M, std::string &name, PetscViewer &viewer);
 
 int main(int argc, char** argv) {
     std::cout << "Testing Doehler eigensolver..." << std::endl; 
     
+    /*
+      PETSc and SLEPc need to be initialized, if we initialize SLEPc, PETSc is
+      also initialized, so we just initalize SLEPc with the helper message.
+    */
+    SlepcInitialize(&argc, &argv, PETSC_NULL, help);
+    
+    /*
+      Read the matrices from the data file.
+    */
+    
+    // Declare matrices 
+    Mat A, M, T;
+    
+    // The input file and data format
+    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_matrices.dat");
+    std::string data_format("binary");
+    
+    // The matrix names 
+    std::string A_name("A");
+    std::string M_name("M");
+    std::string T_name("T");
+    
+    // Load the matrices
+    PetscViewer viewer;
+    PetscViewerCreate(PETSC_COMM_WORLD, &viewer);
+    PetscViewerSetType(viewer, data_format.data());
+    
+    PetscViewerFileSetMode(viewer, FILE_MODE_READ);
+    PetscViewerFileSetName(viewer, ifilename.data());
+
+    read_matrix(A, A_name, viewer);
+    read_matrix(M, M_name, viewer);
+    read_matrix(T, M_name, viewer);
+
+    // Clean up viewer
+    PetscViewerDestroy(&viewer);
+    
+    // Setup eigenvalue problem solver
     hpgem::EigenSolvers::DoehlerMaxwellSolver doehler_eigensolver;
     
+    doehler_eigensolver.setMatrices(A, T);
+    doehler_eigensolver.setMaxIter(1000);
+    doehler_eigensolver.setTolerance(1e-10);
+    doehler_eigensolver.solve(5, T);
+    
+    return SlepcFinalize();
+    
     return 0;
+}
+
+
+
+PetscErrorCode read_matrix(Mat &M, std::string &name, std::string &filename, std::string &read_format) {
+  // Data viewer (for reading matrices from file)
+  PetscViewer     viewer;
+  PetscViewerCreate(PETSC_COMM_WORLD, &viewer);
+  PetscViewerSetType(viewer, read_format.data());
+  // PetscViewerPushFormat(viewer, PETSC_VIEWER_HDF5_MAT);
+  PetscViewerFileSetMode(viewer, FILE_MODE_READ);
+  PetscViewerFileSetName(viewer, filename.data());
+
+  // Read the PETSc object from viewer
+  read_matrix(M, name, viewer);
+
+  // Clean up
+  PetscViewerDestroy(&viewer);
+
+  return(0);
+}
+
+
+PetscErrorCode read_matrix(Mat &M, std::string &name, PetscViewer &viewer) {
+  // Create the matrix to store the saved data
+  MatCreate(PETSC_COMM_WORLD, &M);
+  PetscObjectSetName((PetscObject)M, name.data());
+
+  // Read the matrix from file
+  MatLoad(M, viewer);
+
+  return(0);
 }

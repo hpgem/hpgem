@@ -11,8 +11,8 @@ foreach(CPPFILE ${CPPFILES})
     #Make the exe
     add_executable(${EXECNAME} ${FILENAME})
 
-    target_link_libraries(${EXECNAME} EigenSolvers)
+    target_link_libraries(${EXECNAME} HPGEM::HPGEM PETSc::PETSc)
     
     # EigenSolvers should expose its public interface so that this is not necessary
-    target_include_directories(${EXECNAME} PRIVATE ${CMAKE_SOURCE_DIR}/kernel/EigenSolvers)
+    #target_include_directories(${EXECNAME} PRIVATE ${CMAKE_SOURCE_DIR}/kernel/EigenSolvers)
 endforeach()

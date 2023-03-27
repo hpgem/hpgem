@@ -39,21 +39,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef DOEHLERMAXWELLSOLVER_H
 #define DOEHLERMAXWELLSOLVER_H
 
-#include <petsc.h>
-#include <petscksp.h>
-
-#include <slepcbv.h>
-#include <slepceps.h>
-
-#include <iostream>
-#include <math.h>
-#include <cstdlib>
 #include <vector>
 
-#include <chrono>  // For timing
+#include "petsc.h"
+#include "slepc.h"
 
-#include <utility>
-#include <valarray>
+
+
 
 namespace hpgem {
 
@@ -62,48 +54,84 @@ namespace EigenSolvers {
 /**
  * Solver of the Maxwell equation based on the paper
  *   
- *
+ * Doehler, Ein neues Gradientenverfahren zur simultanen
+ * Berechnung der kleinsten oder groessten Eigenwerte des allgemeinen
+ * Eigenwertproblems. Numer. Math. 40, 79--91 (1982)
  *
  *
  *  Solve
- *     A x = lambda x
+ *     A x = lambda M x
  *
  *
  * for A = A^H and with the contraint C x = 0
  *
  * Implementation note:
- *      AmI = A - I
  *      Y = C^H (hermitian transpose of C)
  *      H = C * Y
- *      V :  search space used to construct the small ev problem
- *      Qt : projector matrix for the correction equation
- *      search_vect : vector in the search direction
- *      residue_vect : residue vector
- *      eta : shift in the correction equation
- *      ev_target : eigenvalue target
  */
 class DoehlerMaxwellSolver final {
 
    public:
     DoehlerMaxwellSolver();
     // PetscErrorCode clean();
-    // 
-    // void setMatrices(const Mat Ain, const Mat Cin);
-    // void setLinearSystem();
-    // PetscErrorCode solve(PetscInt nev);
+    
+    /**
+     * Sets the matrices A and C and defaults M to the identity matrix,  
+     * setting up the eigenvalue problem 
+     *  A x = lambda x
+     * constrained to 
+     *  C x = 0
+     * 
+     * @param[in] Ain the A matrix to assign to the eigenvalue problem.
+     * @param[in] Cin the C matrix to assign to the eigenvalue problem.
+     */
+    void setMatrices(const Mat Ain, const Mat Cin);
+    
+    /**
+     * Sets the matrices A, C, and M, setting up the eigenvalue problem 
+     *  A x = lambda M x
+     * constrained to 
+     *  C x = 0
+     * 
+     * @param[in] Ain the A matrix to assign to the eigenvalue problem.
+     * @param[in] Cin the C matrix to assign to the eigenvalue problem.
+     * @param[in] Min the M matrix to assign to the eigenvalue problem,
+     *            if set to NULL M is assumed the identity matrix.
+     */
+    void setMatrices(const Mat Ain, const Mat Cin, const Mat Min);
+    
+    // void setLinearSystem();  // TODO: seems to not be implemented in JacobiDavidsonMaxwell.cpp
+    
+    /**
+     * Solves the constrained eigenvalue problem 
+     *  A x = lambda M x
+     * constrained to 
+     *  C x = 0
+     * 
+     * Computes the lowest \p nev eigenvalues and associated eigenvectors.
+     *
+     * The computed eigenvalues are returned from getEigenPair().
+     *
+     * @param[in] nev the number of eigenvalues and associated eigenvectors to 
+     *                compute (lowest \p nenv eigenvalues).
+     */
+    PetscErrorCode solve(PetscInt nev, Mat &T_Mat_in);
+    
     // PetscInt getConverged();
     // PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
     // PetscInt getIterationCount();
     // 
-    // void setMaxIter(int n);
+    void setMaxIter(int n);
     // void setSearchSpaceMaxSize(int n);
     // void setCorrectionNiter(int n);
-    // void setTolerance(PetscReal tol);
+    void setTolerance(PetscReal tol);
     // void setTarget(PetscReal target);
     // void setPrecShift(PetscReal sigma);
     // void setSearchSpaceRestartSize(int n);
 
-   // private:
+   private:
+    void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec &L_Vec, BV &X_bv, 
+           PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv);
     // void initializeMatrices();
     // void initializeVectors();
     // void initializeSearchSpace(int nev);
@@ -120,7 +148,14 @@ class DoehlerMaxwellSolver final {
     // PetscErrorCode gramSchmidt(Vec &v, const BV &Q);
     // PetscErrorCode modifiedGramSchmidt(Vec &v, const BV &Q);
     // 
+    
+    
+    
+    // TODO: This is the projection function to use to enforce the constraint C x = 0
     // PetscErrorCode projectCorrectionVector(Vec &corr);
+    
+    
+    
     // 
     // PetscErrorCode computeSmallEigenvalues(std::vector<PetscReal> &eval,
     //                                        Vec *evec);
@@ -138,7 +173,7 @@ class DoehlerMaxwellSolver final {
     // PetscReal ev_target;
     // PetscReal eta;
     // PetscReal prec_shift;
-    // PetscInt maxIter;
+    PetscInt maxIter;
     // PetscInt correction_niter;
     // PetscInt iter = 0;
     // PetscInt search_space_maxsize;
@@ -149,18 +184,19 @@ class DoehlerMaxwellSolver final {
     // PetscInt eigenvectors_current_size = 0;
     // PetscInt Qt_current_size = 0;
     // PetscInt nconverged = 0;
-    // PetscReal tolerance;
-    // 
-    // Mat A, C;
+    PetscReal tolerance;
+    //
+    
+    Mat A, M, C;
+    BV eigenvectors;
+    std::vector<PetscScalar> eigenvalues;
+    
     // Mat Y, H;
     // BV Qt;
-    // BV eigenvectors;
+    
     // BV V;
     // Vec search_vect;
     // Vec residue_vect;
-    // 
-    // std::vector<PetscScalar> eigenvalues;
-    // 
     // bool print_small_evs = false;
 };
 
