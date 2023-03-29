@@ -5,7 +5,7 @@
 #include "slepc.h"
 
 #include "DoehlerMaxwell.h"
-// #include "Logger.h"
+#include "Logger.h"
 
 namespace hpgem {
 
@@ -67,6 +67,11 @@ void DoehlerMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin, const Mat M
   
   ierr = MatGetSize(Cin, &n, &m);
   // logger(INFO, "DoehlerSolver Contraint Size : % x %", n, m);
+  
+  // Initialize the matrices for enforcing the condition this->C * x = 0
+  // This is done by solving a Poisson-like problem, the matrices required for 
+  // solving this problem are initialized here
+  this->initializeMatrices();
 }
 
 PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
@@ -307,6 +312,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
       error_max = (error_max_temp > error_max) ? error_max_temp : error_max;
     }
     
+    error_max = error_max / A_n_rows;  // get the mean error or integral-like error
+    
     if(verbose)
       std::cout << "iter " << iter_idx << ": \t error_max = " << error_max << std::endl;
 
@@ -400,10 +407,20 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
       BVRestoreColumn(T_bv, column_idx_offset, &T_bv_column_Vec);
     } 
     
-    // TODO Apply the projector to ensure X and S satisfy the
-    // 
-    // TODO Update T (or update during the code so that at the restart of the
-    //      loop, we have the new T ready) (I think this is already done)
+    // TODO Apply the projector to ensure X and S satisfy the divergence free constraint
+    // C S = C X = 0
+    for(PetscInt column_idx = 0; column_idx < 2*n_eigs; column_idx++)
+    {
+      Vec T_bv_column_Vec;
+      BVGetColumn(T_bv, column_idx, &T_bv_column_Vec);  // get the column we want to replace in T_bv and link it to vector T_bv_column_Vec  
+      
+      // Project the column vector such that we enforce: this->C T_bv_column_Vec = 0
+      std::cout << "Projecting search vector " << column_idx << std::endl;
+      this->projectEigenVector(T_bv_column_Vec);
+      
+      BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
+    }
+    
 
   } while((iter_idx <= this->maxIter) && (error_max > this->tolerance));
   
@@ -429,6 +446,92 @@ void DoehlerMaxwellSolver::setMaxIter(int niter) {
 
 void DoehlerMaxwellSolver::setTolerance(PetscReal tol) {
     this->tolerance = tol;
+}
+
+void DoehlerMaxwellSolver::initializeMatrices() {
+
+    // initialize the Y and H matrix needed for the JD algorithm
+    PetscInt y_nrows, y_ncols;
+    PetscInt m_nrows, m_ncols;
+    PetscErrorCode ierr;
+
+    // we don't transpose this->C as it would change
+    // the matrix owned by the calling code
+    // Since M = I, Y = C.T
+    ierr = MatHermitianTranspose(this->C, MAT_INITIAL_MATRIX, &this->Y);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    // Compute H = Y.T M Y = C M Y = C Y
+    // M is indentity
+    ierr = MatProductCreate(this->C, this->Y, NULL, &this->H);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatProductSetType(this->H, MATPRODUCT_AB);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatProductSetFromOptions(this->H);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatProductSymbolic(this->H);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatProductNumeric(this->H);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+}
+
+PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
+
+    // compute eigen_v = eigen_v - Y H^{-1} C.T eigen_v
+
+    Vec rhs;
+    PetscInt c_ncols, c_nrows, c_local_ncols, c_local_nrows;
+    PetscInt corr_size, rhs_size;
+    KSP ksp;
+    PetscInt its;
+
+    auto tstart = std::chrono::high_resolution_clock::now();
+
+    MatGetSize(this->Y, &c_nrows, &c_ncols);
+    MatGetLocalSize(this->Y, &c_local_nrows, &c_local_ncols);
+
+    // create tmp_row vec
+    VecCreate(PETSC_COMM_WORLD, &rhs);
+    VecSetSizes(rhs, c_local_ncols, c_ncols);
+    VecSetFromOptions(rhs);
+
+    // compute rhs = C corr
+    MatMult(this->C, eigen_v, rhs);
+
+    // set up the linear system
+    KSPCreate(PETSC_COMM_WORLD, &ksp);
+    KSPSetType(ksp, KSPGMRES);
+    KSPSetOperators(ksp, this->H, this->H);
+    KSPSetFromOptions(ksp);
+    KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, 100);
+
+    // solve the linear system
+    //  H ksp_sol = (C eigen_v)
+    // -> ksp_sol = H^{-1} C eigen_v
+    // we store the solution (ksp_sol) in rhs
+    KSPSolve(ksp, rhs, rhs);
+    KSPGetIterationNumber(ksp, &its);
+
+    // compute corr - Y H^{-1} C eigen_v
+    // with rhs = H^{-1} C eigen_v
+    VecScale(rhs, -1.0);
+    MatMultAdd(this->Y, rhs, eigen_v, eigen_v);
+
+    VecDestroy(&rhs);
+    KSPDestroy(&ksp);
+
+    auto tstop = std::chrono::high_resolution_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
+
+    logger(DEBUG, "  -- projectEigenVector done in %d mu s [%d its]\n",
+           duration.count(), its);
+
+    return (0);
 }
 
 void DoehlerMaxwellSolver::compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec &L_Vec, BV &X_bv, 

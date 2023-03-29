@@ -130,6 +130,8 @@ class DoehlerMaxwellSolver final {
     // void setSearchSpaceRestartSize(int n);
 
    private:
+    void initializeMatrices();
+    PetscErrorCode projectEigenVector(Vec &eigen_v);
     void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec &L_Vec, BV &X_bv, 
            PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv);
     // void initializeMatrices();
@@ -191,7 +193,7 @@ class DoehlerMaxwellSolver final {
     BV eigenvectors;
     std::vector<PetscScalar> eigenvalues;
     
-    // Mat Y, H;
+    Mat Y, H;
     // BV Qt;
     
     // BV V;

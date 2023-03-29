@@ -70,16 +70,17 @@ int main(int argc, char** argv) {
     */
     
     // Declare matrices 
-    Mat A, M, T;
+    Mat A, M, T, C;
     
     // The input file and data format
-    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_matrices.dat");
+    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_C_matrices.dat");
     std::string data_format("binary");
     
     // The matrix names 
     std::string A_name("A");
     std::string M_name("M");
     std::string T_name("T");
+    std::string C_name("C");
     
     // Load the matrices
     PetscViewer viewer;
@@ -92,6 +93,7 @@ int main(int argc, char** argv) {
     read_matrix(A, A_name, viewer);
     read_matrix(M, M_name, viewer);
     read_matrix(T, M_name, viewer);
+    read_matrix(C, C_name, viewer);
 
     // Clean up viewer
     PetscViewerDestroy(&viewer);
@@ -99,10 +101,10 @@ int main(int argc, char** argv) {
     // Setup eigenvalue problem solver
     hpgem::EigenSolvers::DoehlerMaxwellSolver doehler_eigensolver;
     
-    doehler_eigensolver.setMatrices(A, T);
+    doehler_eigensolver.setMatrices(A, C);
     doehler_eigensolver.setMaxIter(1000);
     doehler_eigensolver.setTolerance(1e-10);
-    doehler_eigensolver.solve(5, T);
+    doehler_eigensolver.solve(8, T);
     
     return SlepcFinalize();
     
