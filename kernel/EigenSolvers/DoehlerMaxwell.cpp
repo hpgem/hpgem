@@ -147,20 +147,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
 
   // Apply the projector to ensure X and S satisfy the divergence free constraint
   // C S = C X = 0
-  for(PetscInt column_idx = 0; column_idx < 2*n_eigs; column_idx++)
-  {
-    Vec T_bv_column_Vec;
-    BVGetColumn(T_bv, column_idx, &T_bv_column_Vec);  // get the column we want to replace in T_bv and link it to vector T_bv_column_Vec  
-    
-    // Project the column vector such that we enforce: this->C T_bv_column_Vec = 0
-    // std::cout << "Projecting search vector " << column_idx << std::endl;
-    this->projectEigenVector(T_bv_column_Vec);
-    
-    BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
-    
-    // Cleanup work memory
-    VecDestroy(&T_bv_column_Vec);
-  }
+  projectBV(T_bv);
   
   // TODO Consider forcing all small matrices and vectors to be sequential
   
@@ -266,7 +253,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         BVRestoreColumn(Q_bv, eigen_v_idx, &eigen_v);  // restore the column so that we can reuse Q_bv
         
         // Cleanup work memory
-        VecDestroy(&M_mult_eigen_v);
+        //VecDestroy(&M_mult_eigen_v);
       }
       else 
       {
@@ -283,7 +270,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
       }
       
       // Cleanup work memory
-      VecDestroy(&eigen_v);
+      //VecDestroy(&eigen_v);
       
       // BVGetColumn(Q_bv, eigen_v_idx, &eigen_v); 
       // std::cout << "\n\nEigenvector:"  << eigen_v_idx << std::endl;
@@ -464,20 +451,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     // the solution is poluted, so we correct it every n_steps_projection
     if(iter_idx % n_steps_projection == 0)
     {
-      for(PetscInt column_idx = 0; column_idx < 2*n_eigs; column_idx++)
-      {
-        Vec T_bv_column_Vec;
-        BVGetColumn(T_bv, column_idx, &T_bv_column_Vec);  // get the column we want to replace in T_bv and link it to vector T_bv_column_Vec  
-      
-        // Project the column vector such that we enforce: this->C T_bv_column_Vec = 0
-        // std::cout << "Projecting search vector " << column_idx << std::endl;
-        this->projectEigenVector(T_bv_column_Vec);
-      
-        BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
-      
-        // Cleanup work memory
-        VecDestroy(&T_bv_column_Vec);
-      }
+      projectBV(T_bv);
     }
     
     // Cleanup work memory
@@ -563,6 +537,17 @@ void DoehlerMaxwellSolver::initializeMatrices() {
 
     ierr = MatProductNumeric(this->H);
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
+}
+
+void DoehlerMaxwellSolver::projectBV(BV bv) {
+    PetscInt lead, active;
+    BVGetActiveColumns(bv, &lead, &active);
+    for(PetscInt i = lead; i < active; ++i) {
+        Vec vec;
+        BVGetColumn(bv, i, &vec);
+        projectEigenVector(vec);
+        BVRestoreColumn(bv, i, &vec);
+    }
 }
 
 PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {

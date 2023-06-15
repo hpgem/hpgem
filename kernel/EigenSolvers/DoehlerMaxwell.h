@@ -126,6 +126,7 @@ class DoehlerMaxwellSolver final {
     
    private:
     void initializeMatrices();
+    void projectBV(BV bv);
     PetscErrorCode projectEigenVector(Vec &eigen_v);
     void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec &L_Vec, BV &X_bv, 
            PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv);
