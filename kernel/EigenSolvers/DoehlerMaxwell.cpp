@@ -1,5 +1,6 @@
 #include <numeric>
 #include <iostream>
+#include <iomanip>
 
 #include "petsc.h"
 #include "slepc.h"
@@ -84,6 +85,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
                           // names across implementations, but to keep the clearer name 
                           // n_eigs internally
   
+  PetscInt n_steps_projection = 10;  // Number of interations between projections to enforce C X = C S = 0
+  
   bool indefinite_dot = true;
   bool verbose = true;
   bool normalize_S = true;
@@ -143,7 +146,23 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
       BVSetRandom(T_bv);
     }
 
-  // TODO Apply the projector to ensure X and S satisfy the constraint
+  // Apply the projector to ensure X and S satisfy the divergence free constraint
+  // C S = C X = 0
+  for(PetscInt column_idx = 0; column_idx < 2*n_eigs; column_idx++)
+  {
+    Vec T_bv_column_Vec;
+    BVGetColumn(T_bv, column_idx, &T_bv_column_Vec);  // get the column we want to replace in T_bv and link it to vector T_bv_column_Vec  
+    
+    // Project the column vector such that we enforce: this->C T_bv_column_Vec = 0
+    // std::cout << "Projecting search vector " << column_idx << std::endl;
+    this->projectEigenVector(T_bv_column_Vec);
+    
+    BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
+    
+    // Cleanup work memory
+    VecDestroy(&T_bv_column_Vec);
+  }
+  
   // TODO Consider forcing all small matrices and vectors to be sequential
   
   // Iterate to find corrected solutions to the eigenvalue
@@ -241,10 +260,13 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
         VecDuplicate(eigen_v, &M_mult_eigen_v);  // create a temporary vector with the same shape for storing M_Mat_p * eigen_v
         MatMult(M_Mat_p, eigen_v, M_mult_eigen_v);  // compute M_Mat_p * eigen_v
         PetscScalar eigen_v_norm_squared;  // the square of the norm of the eigenvector, here is potentially complex since it is a pseudo-norm
-        VecTDot(M_mult_eigen_v, eigen_v, &eigen_v_norm_squared);  // compute the indefinite vector dot product squared
+        VecDot(M_mult_eigen_v, eigen_v, &eigen_v_norm_squared);  // compute the indefinite vector dot product squared
         VecScale(eigen_v, 1.0/std::sqrt(eigen_v_norm_squared));  // normalise it
                   
         BVRestoreColumn(Q_bv, eigen_v_idx, &eigen_v);  // restore the column so that we can reuse Q_bv
+        
+        // Cleanup work memory
+        VecDestroy(&M_mult_eigen_v);
       }
       else 
       {
@@ -259,6 +281,9 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
         // std::cout << "\n\nEigenvector:"  << eigen_v_idx << std::endl;
         // VecView(eigen_v, PETSC_VIEWER_STDOUT_WORLD);
       }
+      
+      // Cleanup work memory
+      VecDestroy(&eigen_v);
       
       // BVGetColumn(Q_bv, eigen_v_idx, &eigen_v); 
       // std::cout << "\n\nEigenvector:"  << eigen_v_idx << std::endl;
@@ -308,7 +333,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
                                     // to compute the maximum error
     for(PetscInt eigen_v_idx = 0; eigen_v_idx < n_eigs; eigen_v_idx++)
     {
-      BVNormColumn(R_bv,eigen_v_idx, NORM_2, &error_max_temp);
+      BVNormColumn(R_bv, eigen_v_idx, NORM_2, &error_max_temp);
       error_max = (error_max_temp > error_max) ? error_max_temp : error_max;
     }
     
@@ -324,7 +349,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
     BVCreate(PETSC_COMM_WORLD, &RR_bv);
     BVSetSizes(RR_bv, PETSC_DECIDE, A_n_rows, n_eigs);
     BVSetFromOptions(RR_bv);
-    this->compute_residual_eigen_v(this->A, this->M, L_Vec, R_bv, n_eigs, n_eigs, RR_bv);
+    this->compute_residual_eigen_v(this->A, this->M, L_Vec, R_bv, 0, n_eigs, RR_bv);
     
     BVSetActiveColumns(T_bv_new, n_eigs, 2*n_eigs);
     Mat W_r_bv_Mat;
@@ -363,6 +388,9 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
       }
       
       BVRestoreColumn(V_bv, column_idx, &V_bv_col_Vec);
+      
+      // Cleanup work memory
+      VecDestroy(&V_bv_col_Vec);
     }
     
     // Compute the new search space
@@ -379,8 +407,11 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
       Vec T_bv_column_Vec;
       BVGetColumn(T_bv, column_idx, &T_bv_column_Vec);  // get the column we want to replace in T_bv and link it to vector T_bv_column_Vec
       BVCopyVec(this->eigenvectors, column_idx, T_bv_column_Vec);     // copy the column of this->eigenvectors into the T_bv_column_Vec vector, effectively 
-                                                        // copying the column of this->eigenvectors into the column of T_bv 
+                                                                      // copying the column of this->eigenvectors into the column of T_bv 
       BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
+      
+      // Cleanup work memory
+      VecDestroy(&T_bv_column_Vec);
     }
     
     // Update S part
@@ -402,26 +433,61 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
       // the new search directions. This essentially means normalizing the columns
       // of S.
       if(normalize_S)
-        VecNormalize(T_bv_column_Vec, NULL);
+      {
+        // This is not the same as done in Matlab, in Matlab it is a pseudo-norm
+        //    VecNormalize(T_bv_column_Vec, NULL);
+        // So we make it equal to Matlab
+        Vec T_bv_column_mult;
+        VecDuplicate(T_bv_column_Vec, &T_bv_column_mult);
+        PetscScalar T_bv_column_pseudonorm;
+        VecCopy(T_bv_column_Vec, T_bv_column_mult);  // first make a copy to store the pointwise multiplication
+        VecPointwiseMult(T_bv_column_mult, T_bv_column_mult, T_bv_column_mult);  // pointwise multiplication
+        VecSum(T_bv_column_mult, &T_bv_column_pseudonorm);  // sum the components of pointwise multiplication to get a pseudonorm
+        VecScale(T_bv_column_Vec, 1.0/T_bv_column_pseudonorm);  // scale the vector with the pseudonorm
+        
+        // Cleanup work memory 
+        VecDestroy(&T_bv_column_mult);
+      }
                                                           
       BVRestoreColumn(T_bv, column_idx_offset, &T_bv_column_Vec);
-    } 
+      
+      // Cleanup work memory
+      VecDestroy(&T_bv_column_Vec);
+    }
+     
     
-    // TODO Apply the projector to ensure X and S satisfy the divergence free constraint
-    // C S = C X = 0
-    for(PetscInt column_idx = 0; column_idx < 2*n_eigs; column_idx++)
+    // Apply the projector to ensure X and S satisfy the divergence free constraint
+    //    C S = C X = 0
+    // This with exact arithmetics is not necessary, but due to roundoff errors, 
+    // the solution is poluted, so we correct it every n_steps_projection
+    if(iter_idx % n_steps_projection == 0)
     {
-      Vec T_bv_column_Vec;
-      BVGetColumn(T_bv, column_idx, &T_bv_column_Vec);  // get the column we want to replace in T_bv and link it to vector T_bv_column_Vec  
+      for(PetscInt column_idx = 0; column_idx < 2*n_eigs; column_idx++)
+      {
+        Vec T_bv_column_Vec;
+        BVGetColumn(T_bv, column_idx, &T_bv_column_Vec);  // get the column we want to replace in T_bv and link it to vector T_bv_column_Vec  
       
-      // Project the column vector such that we enforce: this->C T_bv_column_Vec = 0
-      std::cout << "Projecting search vector " << column_idx << std::endl;
-      this->projectEigenVector(T_bv_column_Vec);
+        // Project the column vector such that we enforce: this->C T_bv_column_Vec = 0
+        // std::cout << "Projecting search vector " << column_idx << std::endl;
+        this->projectEigenVector(T_bv_column_Vec);
       
-      BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
+        BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
+      
+        // Cleanup work memory
+        VecDestroy(&T_bv_column_Vec);
+      }
     }
     
-
+    // Cleanup work memory
+    BVDestroy(&T_bv_new);
+    BVDestroy(&W_r_bv);
+    BVDestroy(&R_bv);
+    BVDestroy(&RR_bv);
+    BVDestroy(&V_bv);
+    MatDestroy(&Q_Mat);
+    MatDestroy(&W_r_bv_Mat);
+    MatDestroy(&V_bv_Mat);    
+    
   } while((iter_idx <= this->maxIter) && (error_max > this->tolerance));
   
   // Transfer eigenvalues
@@ -430,6 +496,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
     PetscScalar eigen_value;
     VecGetValues(L_Vec, 1, &eigen_v_idx, &eigen_value);
     this->eigenvalues[eigen_v_idx] = eigen_value;
+    std::cout << std::setprecision(10) << std::fixed;
     std::cout << "Eigenvalue " << eigen_v_idx << ": " << eigen_value << std::endl;
   } 
   
@@ -487,6 +554,7 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
     PetscInt c_ncols, c_nrows, c_local_ncols, c_local_nrows;
     PetscInt corr_size, rhs_size;
     KSP ksp;
+    PC pc;
     PetscInt its;
 
     auto tstart = std::chrono::high_resolution_clock::now();
@@ -503,10 +571,19 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
     MatMult(this->C, eigen_v, rhs);
 
     // set up the linear system
+    // KSPCreate(PETSC_COMM_WORLD, &ksp);
+    // KSPSetType(ksp, KSPGMRES);
+    // KSPSetOperators(ksp, this->H, this->H);
+    // KSPSetFromOptions(ksp);
+    // KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, 100);
+    
     KSPCreate(PETSC_COMM_WORLD, &ksp);
-    KSPSetType(ksp, KSPGMRES);
+    KSPSetType(ksp, KSPPREONLY);
     KSPSetOperators(ksp, this->H, this->H);
-    KSPSetFromOptions(ksp);
+    KSPGetPC(ksp, &pc);
+    PCSetType(pc, PCLU);
+    PCFactorSetMatSolverType(pc, MATSOLVERMUMPS);
+    
     KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, 100);
 
     // solve the linear system
@@ -589,6 +666,10 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec 
   
   // Compute (A @ X) - (M @ (X * L))
   BVMult(R_bv, -1, 1.0, MXL_bv, NULL);
+  
+  // Cleanup work memory
+  BVDestroy(&XL_bv);
+  BVDestroy(&MXL_bv);
 }
 
 }  // namespace EigenSolvers

@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     Mat A, M, T, C;
     
     // The input file and data format
-    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_C_matrices.dat");
+    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_C_4_matrices.dat");
     std::string data_format("binary");
     
     // The matrix names 
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
     hpgem::EigenSolvers::DoehlerMaxwellSolver doehler_eigensolver;
     
     doehler_eigensolver.setMatrices(A, C);
-    doehler_eigensolver.setMaxIter(1000);
+    doehler_eigensolver.setMaxIter(3000);
     doehler_eigensolver.setTolerance(1e-10);
     doehler_eigensolver.solve(8, T);
     
