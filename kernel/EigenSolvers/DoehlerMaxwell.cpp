@@ -253,7 +253,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         BVRestoreColumn(Q_bv, eigen_v_idx, &eigen_v);  // restore the column so that we can reuse Q_bv
         
         // Cleanup work memory
-        //VecDestroy(&M_mult_eigen_v);
+        VecDestroy(&M_mult_eigen_v);
       }
       else 
       {
@@ -268,9 +268,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         // std::cout << "\n\nEigenvector:"  << eigen_v_idx << std::endl;
         // VecView(eigen_v, PETSC_VIEWER_STDOUT_WORLD);
       }
-      
-      // Cleanup work memory
-      //VecDestroy(&eigen_v);
       
       // BVGetColumn(Q_bv, eigen_v_idx, &eigen_v); 
       // std::cout << "\n\nEigenvector:"  << eigen_v_idx << std::endl;
@@ -377,9 +374,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
       }
       
       BVRestoreColumn(V_bv, column_idx, &V_bv_col_Vec);
-      
-      // Cleanup work memory
-      VecDestroy(&V_bv_col_Vec);
     }
     
     // Compute the new search space
@@ -398,9 +392,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
       BVCopyVec(this->eigenvectors, column_idx, T_bv_column_Vec);     // copy the column of this->eigenvectors into the T_bv_column_Vec vector, effectively 
                                                                       // copying the column of this->eigenvectors into the column of T_bv 
       BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
-      
-      // Cleanup work memory
-      VecDestroy(&T_bv_column_Vec);
     }
     
     // Update S part
@@ -439,9 +430,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
       }
                                                           
       BVRestoreColumn(T_bv, column_idx_offset, &T_bv_column_Vec);
-      
-      // Cleanup work memory
-      VecDestroy(&T_bv_column_Vec);
     }
      
     
