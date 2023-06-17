@@ -38,6 +38,9 @@ auto& method = Base::register_argument<std::string>(
 auto& useJDMax = Base::register_argument<bool>(
     '\0', "use_jdmax", "boolean to use Jacobi-Davidson eigensolver (default)",
     false, false);
+auto& useDoehler = Base::register_argument<bool>(
+    '\0', "use_doehler", "boolean to use Doehler eigensolver (default false)",
+    false, false);
 
 // Max number of Jacobi Davidson iterations, e.g. -jd_iter 140
 auto& jdNiter = Base::register_argument<std::size_t>(
@@ -402,6 +405,7 @@ void runWithDimension() {
         config.shiftFactor_ = 0;
         config.useProjector_ = useProjector;
         config.use_jdmax_ = useJDMax.getValue();
+        config.use_doehler_ = useDoehler.getValue();
         config.jdmax_niter_ = jdNiter.getValue();
         config.jdmax_search_space_max_size_ = jdMaxSize.getValue();
         config.jdmax_search_space_restart_size_ = jdRestartSize.getValue();

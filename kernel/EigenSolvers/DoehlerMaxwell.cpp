@@ -84,7 +84,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   PetscInt n_eigs = nev;  // this is done to keep the function parameter with the same 
                           // names across implementations, but to keep the clearer name 
                           // n_eigs internally
-    
+  PetscErrorCode err;
   bool indefinite_dot = true;
   bool verbose = true;
   bool normalize_S = true;
@@ -174,16 +174,19 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   
   // Setup the (small) eigensolver 
   EPS eigen_solver;
-  EPSCreate(PETSC_COMM_WORLD, &eigen_solver);
+  err = EPSCreate(PETSC_COMM_WORLD, &eigen_solver);
+  CHKERRABORT(PETSC_COMM_WORLD, err);
   
   do
   {
     iter_idx++;  // update counter for number of iterations performed
     
     // Compute the reduced matrices on the space spanned by T = [X, S]
-    BVMatProject(T_bv, this->A, T_bv, A_Mat_p);
+    err = BVMatProject(T_bv, this->A, T_bv, A_Mat_p);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
     
-    BVMatProject(T_bv, this->M, T_bv, M_Mat_p);
+    err = BVMatProject(T_bv, this->M, T_bv, M_Mat_p);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
     
     // Make sure the resulting reduced matrices are still symmetric
     // Symmetry can be lost due to roundoff and accumulation errors
@@ -223,12 +226,18 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     EPSSetWhichEigenpairs(eigen_solver, EPS_SMALLEST_REAL);
     EPSSetDimensions(eigen_solver, 2*n_eigs, PETSC_DEFAULT, PETSC_DEFAULT);  // of we do not force the number of eigenvalues to compute, for a matrix larger than 20 SLEPc defaults to computing only 1 eigenvalue
     EPSSetFromOptions(eigen_solver);
-    EPSSolve(eigen_solver);
+    err = EPSSolve(eigen_solver);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
     
     // Save all eigenvectors into the BV Q_bv
     // and normalise the eigenvectors using M_Mat_p as the inner product matrix
     if(!indefinite_dot)  // need to check if bool is correct
       BVSetMatrix(Q_bv, M_Mat_p, PETSC_FALSE);
+    {
+        PetscInt tconv;
+        EPSGetConverged(eigen_solver, &tconv);
+//        logger(INFO, "Converged %", tconv);
+    }
     
     for(PetscInt eigen_v_idx = 0; eigen_v_idx < 2*n_eigs; eigen_v_idx++)
     {
@@ -237,7 +246,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
       
       // Extract the eigenvector and eigenvalue
       BVGetColumn(Q_bv, eigen_v_idx, &eigen_v);  // first get the column to update 
-      EPSGetEigenpair(eigen_solver, eigen_v_idx, &L_value, NULL, eigen_v, NULL);  // update the column with the eigenvector
+      err = EPSGetEigenpair(eigen_solver, eigen_v_idx, &L_value, NULL, eigen_v, NULL);  // update the column with the eigenvector
+      CHKERRABORT(PETSC_COMM_WORLD, err);
       VecSetValue(L_Vec, eigen_v_idx, L_value, INSERT_VALUES);  // update the eigenvalue
       
       if(indefinite_dot)
@@ -460,7 +470,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     PetscScalar eigen_value;
     VecGetValues(L_Vec, 1, &eigen_v_idx, &eigen_value);
     this->eigenvalues[eigen_v_idx] = eigen_value;
-  } 
+  }
+  iter = iter_idx;
   
   std::cout << "\n**************************************************************" << std::endl;
   std::cout << "* Doehler eingenvalue solver (PETSc) END" << std::endl;
@@ -484,16 +495,10 @@ PetscInt DoehlerMaxwellSolver::getConverged() {
 PetscErrorCode DoehlerMaxwellSolver::getEigenPair(PetscInt index,
                                                   PetscScalar &eval,
                                                   Vec &evec) {
-    // return the eigen value at the position index
-    PetscErrorCode ierr;
-    Vec tmp_vec;
-    eval = this->eigenvalues[index];
-    ierr = BVGetColumn(this->eigenvectors, index, &tmp_vec);
-    VecDuplicate(tmp_vec, &evec);
-    VecCopy(tmp_vec, evec);
-    BVRestoreColumn(this->eigenvectors, index, &tmp_vec);
-    VecDestroy(&tmp_vec);
-    return (0);
+    logger.assert_always(index < getConverged(), "Asking for eigenvalue % with only % converged",
+                         index, getConverged());
+    eval = eigenvalues[index];
+    return BVCopyVec(eigenvectors, index, evec);
 }
 
 void DoehlerMaxwellSolver::initializeMatrices() {
@@ -605,6 +610,7 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
 
 void DoehlerMaxwellSolver::compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec &L_Vec, BV &X_bv, 
       PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv){
+    PetscErrorCode err;
   //  Computes:
   //    R = A_Mat @ X_bv - M_Mat @ (X_bv * L)
   //   
@@ -649,12 +655,14 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec 
   else
   {
     BVDuplicate(XL_bv, &MXL_bv);  
-    BVMatMult(XL_bv, M_Mat, MXL_bv);  // make the multiplication M @ (X * L[eigen_idx_start:eigen_idx_end])
+    err = BVMatMult(XL_bv, M_Mat, MXL_bv);  // make the multiplication M @ (X * L[eigen_idx_start:eigen_idx_end])
+    CHKERRABORT(PETSC_COMM_WORLD, err);
   }
   
   // Compute A @ X
   // We use already R_bv, we then substract M @ (X * L) to get the final residual value
-  BVMatMult(X_bv, A_Mat, R_bv);  // make the multiplication A @ X
+  err = BVMatMult(X_bv, A_Mat, R_bv);  // make the multiplication A @ X
+  CHKERRABORT(PETSC_COMM_WORLD, err);
   
   // Compute (A @ X) - (M @ (X * L))
   BVMult(R_bv, -1, 1.0, MXL_bv, NULL);

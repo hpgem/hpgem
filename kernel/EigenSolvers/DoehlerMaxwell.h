@@ -120,7 +120,9 @@ class DoehlerMaxwellSolver final {
     
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
-    // PetscInt getIterationCount();
+    PetscInt getIterationCount() const {
+        return iter;
+    }
     void setMaxIter(int n);
     void setTolerance(PetscReal tol);
     
@@ -173,7 +175,7 @@ class DoehlerMaxwellSolver final {
     // PetscReal prec_shift;
     PetscInt maxIter;
     // PetscInt correction_niter;
-    // PetscInt iter = 0;
+    PetscInt iter = 0;
     // PetscInt search_space_maxsize;
     // PetscInt search_space_restart_size;
     // PetscInt search_space_current_size = 0;
@@ -181,7 +183,6 @@ class DoehlerMaxwellSolver final {
     // 
     PetscInt eigenvectors_current_size = 0;
     // PetscInt Qt_current_size = 0;
-    // PetscInt nconverged = 0;
     PetscReal tolerance;
     //
     

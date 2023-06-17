@@ -136,6 +136,24 @@ void Eigenpairs::loadEigenpairs(
     std::iota(ordering_.begin(), ordering_.end(), 0);
 }
 
+void Eigenpairs::loadEigenpairs(EigenSolvers::DoehlerMaxwellSolver &solver, Vec sample) {
+    PetscInt converged = solver.getConverged();
+    PetscErrorCode err;
+
+    reserve(converged, sample);
+    eigenvalues_.resize(converged);
+    ordering_.resize(converged);
+
+    // Load the eigenpairs
+    for (PetscInt i = 0; i < converged; ++i) {
+        err = solver.getEigenPair(i, eigenvalues_[i], eigenvectors_[i]);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+    }
+
+    // // Reset the ordering
+    std::iota(ordering_.begin(), ordering_.end(), 0);
+}
+
 void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
     logger.assert_always(ordering.size() == size(),
                          "Ordering is of incorrect size");

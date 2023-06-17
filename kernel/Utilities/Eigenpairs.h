@@ -45,6 +45,7 @@
 #include <slepc.h>
 #include "Logger.h"
 #include "../EigenSolvers/JacobiDavidsonMaxwell.h"
+#include "../EigenSolvers/DoehlerMaxwell.h"
 
 namespace hpgem {
 namespace Utilities {
@@ -82,6 +83,8 @@ class Eigenpairs final {
      */
     void loadEigenpairs(EPS eps, Vec sample);
     void loadEigenpairs(EigenSolvers::JacobiDavidsonMaxwellSolver& eps,
+                        Vec sample);
+    void loadEigenpairs(EigenSolvers::DoehlerMaxwellSolver& solver,
                         Vec sample);
 
     /**

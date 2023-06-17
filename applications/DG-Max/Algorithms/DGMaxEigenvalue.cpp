@@ -53,6 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Base/MeshManipulator.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "EigenSolvers/JacobiDavidsonMaxwell.h"
+#include "EigenSolvers/DoehlerMaxwell.h"
 #include "Utilities/Eigenpairs.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
@@ -168,6 +169,7 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
 
     // Jacobi Davidson solver
     EigenSolvers::JacobiDavidsonMaxwellSolver jdmaxSolver_;
+    EigenSolvers::DoehlerMaxwellSolver doehlerSolver_;
 
     // Phase offset shifts
     std::unique_ptr<typename DGMaxEigenvalue<DIM>::ShiftWorkspace> shifts;
@@ -395,12 +397,13 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::~SolverWorkspace() {
         error = MatDestroy(&product_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
     }
-
-    if (!config_.use_jdmax_) {
-        error = EPSDestroy(&epsSolver_);
+    if (config_.use_doehler_) {
+        // Nothing to do
+    } else if (config_.use_jdmax_) {
+        error = jdmaxSolver_.clean();
         CHKERRABORT(PETSC_COMM_WORLD, error);
     } else {
-        error = jdmaxSolver_.clean();
+        error = EPSDestroy(&epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
     }
 }
@@ -509,8 +512,11 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
 
     EPSType etype;
 
-    if (config_.use_jdmax_) {
-
+    if (config_.use_doehler_) {
+        doehlerSolver_.setMaxIter(config_.jdmax_niter_);
+        doehlerSolver_.setTolerance(config_.jdmax_tol_);
+        doehlerSolver_.setMatrices(stiffnessMatrix_, projector->projectorMatrix_);
+    } else if (config_.use_jdmax_) {
         // set the parameters of the solver based on the config_
         jdmaxSolver_.setMaxIter(config_.jdmax_niter_);
         jdmaxSolver_.setSearchSpaceMaxSize(
@@ -626,7 +632,9 @@ template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
 
     std::swap(eigenpairs_, previousEigenpairs_);
-    if (config_.use_jdmax_) {
+    if (config_.use_doehler_) {
+        eigenpairs_.loadEigenpairs(doehlerSolver_, tempFieldVector_);
+    } else if (config_.use_jdmax_) {
         eigenpairs_.loadEigenpairs(jdmaxSolver_, tempFieldVector_);
     } else {
         eigenpairs_.loadEigenpairs(epsSolver_, tempFieldVector_);
@@ -715,25 +723,20 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         DGMaxLogger(INFO, "Projected initial vector");
     }
 
-    if (config_.use_jdmax_) {
-
-        auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
+    if (config_.use_doehler_) {
+        Mat temp = nullptr;
+        doehlerSolver_.solve(targetNumberOfEigenvalues, temp);
+        numEigenvalues = doehlerSolver_.getConverged();
+        iterations = doehlerSolver_.getIterationCount();
+    } else if (config_.use_jdmax_) {
         error = jdmaxSolver_.solve(targetNumberOfEigenvalues);
         CHKERRABORT(PETSC_COMM_WORLD, error);
-        std::chrono::duration<double> time =
-            std::chrono::high_resolution_clock::now() - start;
+        time = std::chrono::high_resolution_clock::now() - start;
 
         numEigenvalues = jdmaxSolver_.getConverged();
         iterations = jdmaxSolver_.getIterationCount();
-
-        DGMaxLogger(INFO,
-                    "Eigenvalue solver stopped after % iterations with % "
-                    "eigenvalues in %s",
-                    iterations, numEigenvalues, time.count());
-
-    }
-
-    else {
+    } else {
 
         // Use solution of previous time as starting point for the next one.
         error = EPSSetInitialSpace(epsSolver_, eigenpairs_.size(),
@@ -761,25 +764,22 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         CHKERRABORT(PETSC_COMM_WORLD, error);
         DGMaxLogger(INFO, "Solver setup completed");
 
-        auto start = std::chrono::high_resolution_clock::now();
-
         error = EPSSolve(epsSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         // Some basic statistics
-        std::chrono::duration<double> time =
-            std::chrono::high_resolution_clock::now() - start;
+        time = std::chrono::high_resolution_clock::now() - start;
 
         error = EPSGetConverged(epsSolver_, &numEigenvalues);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         error = EPSGetIterationNumber(epsSolver_, &iterations);
         CHKERRABORT(PETSC_COMM_WORLD, error);
-
-        DGMaxLogger(INFO,
-                    "Eigenvalue solver stopped after % iterations with % "
-                    "eigenvalues in %s",
-                    iterations, numEigenvalues, time.count());
     }
+
+    DGMaxLogger(INFO,
+                "Eigenvalue solver stopped after % iterations with % "
+                "eigenvalues in %s",
+                iterations, numEigenvalues, time.count());
 
     // Post processing //
     /////////////////////
