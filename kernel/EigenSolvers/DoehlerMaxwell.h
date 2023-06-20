@@ -100,8 +100,6 @@ class DoehlerMaxwellSolver final {
      */
     void setMatrices(const Mat Ain, const Mat Cin, const Mat Min);
     
-    // void setLinearSystem();  // TODO: seems to not be implemented in JacobiDavidsonMaxwell.cpp
-    
     /**
      * Solves the constrained eigenvalue problem 
      *  A x = lambda M x
@@ -114,21 +112,18 @@ class DoehlerMaxwellSolver final {
      *
      * @param[in] nev the number of eigenvalues and associated eigenvectors to 
      *                compute (lowest \p nenv eigenvalues).
+     * @param[in] n_steps_projection the number of iterations to perform before
+     *                enforcing a projection onto div(eigen_v) = 0.
+    *                 <default> 100
      */
-    PetscErrorCode solve(PetscInt nev, Mat &T_Mat_in);
+    PetscErrorCode solve(PetscInt nev, Mat &T_Mat_in, PetscInt n_steps_projection = 10);
     
-    // PetscInt getConverged();
-    // PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
+    PetscInt getConverged();
+    PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
     // PetscInt getIterationCount();
-    // 
     void setMaxIter(int n);
-    // void setSearchSpaceMaxSize(int n);
-    // void setCorrectionNiter(int n);
     void setTolerance(PetscReal tol);
-    // void setTarget(PetscReal target);
-    // void setPrecShift(PetscReal sigma);
-    // void setSearchSpaceRestartSize(int n);
-
+    
    private:
     void initializeMatrices();
     PetscErrorCode projectEigenVector(Vec &eigen_v);
@@ -183,7 +178,7 @@ class DoehlerMaxwellSolver final {
     // PetscInt search_space_current_size = 0;
     // PetscInt V_current_size = 0;
     // 
-    // PetscInt eigenvectors_current_size = 0;
+    PetscInt eigenvectors_current_size = 0;
     // PetscInt Qt_current_size = 0;
     // PetscInt nconverged = 0;
     PetscReal tolerance;

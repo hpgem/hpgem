@@ -65,6 +65,11 @@ int main(int argc, char** argv) {
     */
     SlepcInitialize(&argc, &argv, PETSC_NULL, help);
     
+    // Computation parameters
+    PetscInt n_eigenvalues = 8;  // number of eigenvalues to compute
+    PetscReal tol = 1e-5;  // tolerance to use as stopping criterium for eigenvalues
+    int max_iter = 3000;  // maximum number of iterations to perform before stopping
+    
     /*
       Read the matrices from the data file.
     */
@@ -102,10 +107,21 @@ int main(int argc, char** argv) {
     hpgem::EigenSolvers::DoehlerMaxwellSolver doehler_eigensolver;
     
     doehler_eigensolver.setMatrices(A, C);
-    doehler_eigensolver.setMaxIter(3000);
-    doehler_eigensolver.setTolerance(1e-10);
-    doehler_eigensolver.solve(8, T);
+    doehler_eigensolver.setMaxIter(max_iter);
+    doehler_eigensolver.setTolerance(tol);
+    doehler_eigensolver.solve(n_eigenvalues, T);
     
+    // Display results
+    std::cout << "\nNumber of converged eigenvalues: " << doehler_eigensolver.getConverged() << std::endl;
+    
+    for(PetscInt eigen_v_idx = 0; eigen_v_idx < n_eigenvalues; eigen_v_idx++) {
+      PetscScalar eigen_value;
+      Vec eigen_vector;
+      doehler_eigensolver.getEigenPair(eigen_v_idx, eigen_value, eigen_vector);
+      std::cout << "Eigenvalue " << eigen_v_idx << ": " << eigen_value << std::endl;
+    }
+    
+    // Finalize
     return SlepcFinalize();
     
     return 0;

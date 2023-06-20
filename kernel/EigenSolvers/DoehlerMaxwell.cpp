@@ -75,7 +75,7 @@ void DoehlerMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin, const Mat M
   this->initializeMatrices();
 }
 
-PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
+PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt n_steps_projection) {
         
   std::cout << "\n**************************************************************" << std::endl;
   std::cout << "* Doehler eingenvalue solver (PETSc) START" << std::endl;
@@ -84,9 +84,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
   PetscInt n_eigs = nev;  // this is done to keep the function parameter with the same 
                           // names across implementations, but to keep the clearer name 
                           // n_eigs internally
-  
-  PetscInt n_steps_projection = 10;  // Number of interations between projections to enforce C X = C S = 0
-  
+    
   bool indefinite_dot = true;
   bool verbose = true;
   bool normalize_S = true;
@@ -331,9 +329,11 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
                       // start with zero value to be sure we update it
     PetscReal error_max_temp = 0.0;  // temporary storage for maximum error used in for loop below
                                     // to compute the maximum error
+    this->eigenvectors_current_size = 0;  // reset the number of converged eigenvalues in case some went from converged to unconverged (we update all, even if already converged)
     for(PetscInt eigen_v_idx = 0; eigen_v_idx < n_eigs; eigen_v_idx++)
     {
       BVNormColumn(R_bv, eigen_v_idx, NORM_2, &error_max_temp);
+      if((error_max_temp/A_n_rows) < this->tolerance) ++this->eigenvectors_current_size;  // if error below tolerance count the eigenvector as converged
       error_max = (error_max_temp > error_max) ? error_max_temp : error_max;
     }
     
@@ -496,8 +496,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in) {
     PetscScalar eigen_value;
     VecGetValues(L_Vec, 1, &eigen_v_idx, &eigen_value);
     this->eigenvalues[eigen_v_idx] = eigen_value;
-    std::cout << std::setprecision(10) << std::fixed;
-    std::cout << "Eigenvalue " << eigen_v_idx << ": " << eigen_value << std::endl;
   } 
   
   std::cout << "\n**************************************************************" << std::endl;
@@ -513,6 +511,25 @@ void DoehlerMaxwellSolver::setMaxIter(int niter) {
 
 void DoehlerMaxwellSolver::setTolerance(PetscReal tol) {
     this->tolerance = tol;
+}
+
+PetscInt DoehlerMaxwellSolver::getConverged() {
+    return this->eigenvectors_current_size;
+}
+
+PetscErrorCode DoehlerMaxwellSolver::getEigenPair(PetscInt index,
+                                                  PetscScalar &eval,
+                                                  Vec &evec) {
+    // return the eigen value at the position index
+    PetscErrorCode ierr;
+    Vec tmp_vec;
+    eval = this->eigenvalues[index];
+    ierr = BVGetColumn(this->eigenvectors, index, &tmp_vec);
+    VecDuplicate(tmp_vec, &evec);
+    VecCopy(tmp_vec, evec);
+    BVRestoreColumn(this->eigenvectors, index, &tmp_vec);
+    VecDestroy(&tmp_vec);
+    return (0);
 }
 
 void DoehlerMaxwellSolver::initializeMatrices() {
