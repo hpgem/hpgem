@@ -38,6 +38,7 @@
 
 #include <iostream>
 #include <string>
+#include <iomanip>
 
 #include "petsc.h"
 #include "slepc.h"
@@ -66,7 +67,7 @@ int main(int argc, char** argv) {
     SlepcInitialize(&argc, &argv, PETSC_NULL, help);
     
     // Computation parameters
-    PetscInt n_eigenvalues = 8;  // number of eigenvalues to compute
+    PetscInt n_eigenvalues = 20;  // number of eigenvalues to compute
     PetscReal tol = 1e-5;  // tolerance to use as stopping criterium for eigenvalues
     int max_iter = 3000;  // maximum number of iterations to perform before stopping
     
@@ -118,6 +119,7 @@ int main(int argc, char** argv) {
       PetscScalar eigen_value;
       Vec eigen_vector;
       doehler_eigensolver.getEigenPair(eigen_v_idx, eigen_value, eigen_vector);
+      std::cout << std::setprecision(10) << std::fixed;
       std::cout << "Eigenvalue " << eigen_v_idx << ": " << eigen_value << std::endl;
     }
     

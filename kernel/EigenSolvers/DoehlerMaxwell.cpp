@@ -98,6 +98,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   std::cout << "System size:" << std::endl;
   std::cout << "   n_rows: " << A_n_rows << std::endl;
   std::cout << "   n_cols: " << A_n_cols << std::endl;
+  std::cout << "   n_eigs: " << n_eigs << std::endl;
   
   // Initialize the eigenvector solution
   BVCreate(PETSC_COMM_WORLD, &this->eigenvectors);
@@ -233,6 +234,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         
     EPSSetProblemType(eigen_solver, EPS_GNHEP);
     EPSSetWhichEigenpairs(eigen_solver, EPS_SMALLEST_REAL);
+    EPSSetDimensions(eigen_solver, 2*n_eigs, PETSC_DEFAULT, PETSC_DEFAULT);  // of we do not force the number of eigenvalues to compute, for a matrix larger than 20 SLEPc defaults to computing only 1 eigenvalue
     EPSSetFromOptions(eigen_solver);
     EPSSolve(eigen_solver);
     
