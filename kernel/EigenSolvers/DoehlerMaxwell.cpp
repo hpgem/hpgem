@@ -80,7 +80,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   // Initialize the matrices for enforcing the condition this->C * x = 0
   // This is done by solving a Poisson-like problem, the matrices required for
   // solving this problem are initialized here
-  this->initializeMatrices();
+  this->setupProjection();
 
   PetscInt n_eigs = nev;  // this is done to keep the function parameter with the same 
                           // names across implementations, but to keep the clearer name 
@@ -474,7 +474,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   }
   iter = iter_idx;
 
-  this->destroyMatrices();
+  this->cleanupProjection();
   
   std::cout << "\n**************************************************************" << std::endl;
   std::cout << "* Doehler eingenvalue solver (PETSc) END" << std::endl;
@@ -504,13 +504,11 @@ PetscErrorCode DoehlerMaxwellSolver::getEigenPair(PetscInt index,
     return BVCopyVec(eigenvectors, index, evec);
 }
 
-void DoehlerMaxwellSolver::initializeMatrices() {
+void DoehlerMaxwellSolver::setupProjection() {
     logger.assert_always(this->M == nullptr,
                          "Projection unsupported with non identity mass matrix");
 
-    // initialize the Y and H matrix needed for the JD algorithm
-    PetscInt y_nrows, y_ncols;
-    PetscInt m_nrows, m_ncols;
+    // initialize the Y and H matrix needed for the projector
     PetscErrorCode ierr;
 
     // we don't transpose this->C as it would change
@@ -535,9 +533,26 @@ void DoehlerMaxwellSolver::initializeMatrices() {
 
     ierr = MatProductNumeric(this->H);
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    // Set up solver
+    PC pc;
+    KSPCreate(PETSC_COMM_WORLD, &projectionSolver_);
+    KSPSetType(projectionSolver_, KSPPREONLY);
+    KSPSetOperators(projectionSolver_, this->H, this->H);
+    KSPGetPC(projectionSolver_, &pc);
+    PCSetType(pc, PCLU);
+    PCFactorSetMatSolverType(pc, MATSOLVERMUMPS);
+
+    KSPSetTolerances(projectionSolver_, 1e-12, 1.e-12, PETSC_DEFAULT, 100);
+    KSPSetFromOptions(projectionSolver_);
+
+    // Temporary vector used in the projection
+    MatCreateVecs(this->H, &this->projectionTempVector_, nullptr);
 }
 
-void DoehlerMaxwellSolver::destroyMatrices() {
+void DoehlerMaxwellSolver::cleanupProjection() {
+    VecDestroy(&this->projectionTempVector_);
+    KSPDestroy(&this->projectionSolver_);
     MatDestroy(&this->H);
     MatDestroy(&this->Y);
 }
@@ -556,26 +571,11 @@ void DoehlerMaxwellSolver::projectBV(BV bv) {
 PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
 
     // compute eigen_v = eigen_v - Y H^{-1} C.T eigen_v
-
-    Vec rhs;
-    PetscInt c_ncols, c_nrows, c_local_ncols, c_local_nrows;
-    PetscInt corr_size, rhs_size;
-    KSP ksp;
-    PC pc;
     PetscInt its;
 
     auto tstart = std::chrono::high_resolution_clock::now();
-
-    MatGetSize(this->Y, &c_nrows, &c_ncols);
-    MatGetLocalSize(this->Y, &c_local_nrows, &c_local_ncols);
-
-    // create tmp_row vec
-    VecCreate(PETSC_COMM_WORLD, &rhs);
-    VecSetSizes(rhs, c_local_ncols, c_ncols);
-    VecSetFromOptions(rhs);
-
     // compute rhs = C corr
-    MatMult(this->C, eigen_v, rhs);
+    MatMult(this->C, eigen_v, this->projectionTempVector_);
 
     // set up the linear system
     // KSPCreate(PETSC_COMM_WORLD, &ksp);
@@ -583,30 +583,18 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
     // KSPSetOperators(ksp, this->H, this->H);
     // KSPSetFromOptions(ksp);
     // KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, 100);
-    
-    KSPCreate(PETSC_COMM_WORLD, &ksp);
-    KSPSetType(ksp, KSPPREONLY);
-    KSPSetOperators(ksp, this->H, this->H);
-    KSPGetPC(ksp, &pc);
-    PCSetType(pc, PCLU);
-    PCFactorSetMatSolverType(pc, MATSOLVERMUMPS);
-    
-    KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, 100);
 
     // solve the linear system
     //  H ksp_sol = (C eigen_v)
     // -> ksp_sol = H^{-1} C eigen_v
     // we store the solution (ksp_sol) in rhs
-    KSPSolve(ksp, rhs, rhs);
-    KSPGetIterationNumber(ksp, &its);
+    KSPSolve(this->projectionSolver_, this->projectionTempVector_, this->projectionTempVector_);
+    KSPGetIterationNumber(this->projectionSolver_, &its);
 
     // compute corr - Y H^{-1} C eigen_v
     // with rhs = H^{-1} C eigen_v
-    VecScale(rhs, -1.0);
-    MatMultAdd(this->Y, rhs, eigen_v, eigen_v);
-
-    VecDestroy(&rhs);
-    KSPDestroy(&ksp);
+    VecScale(this->projectionTempVector_, -1.0);
+    MatMultAdd(this->Y, this->projectionTempVector_, eigen_v, eigen_v);
 
     auto tstop = std::chrono::high_resolution_clock::now();
     auto duration =

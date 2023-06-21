@@ -127,8 +127,8 @@ class DoehlerMaxwellSolver final {
     void setTolerance(PetscReal tol);
     
    private:
-    void initializeMatrices();
-    void destroyMatrices();
+    void setupProjection();
+    void cleanupProjection();
     void projectBV(BV bv);
     PetscErrorCode projectEigenVector(Vec &eigen_v);
     void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec &L_Vec, BV &X_bv, 
@@ -192,8 +192,10 @@ class DoehlerMaxwellSolver final {
     std::vector<PetscScalar> eigenvalues;
 
 
-    // Objects needed during the solve
+    // Objects needed during the solve for the projector
     Mat Y, H;
+    KSP projectionSolver_;
+    Vec projectionTempVector_;
     // BV Qt;
     
     // BV V;
