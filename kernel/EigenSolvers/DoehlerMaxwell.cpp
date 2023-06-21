@@ -1,6 +1,7 @@
 #include <numeric>
 #include <iostream>
 #include <iomanip>
+#include <chrono>
 
 #include "petsc.h"
 #include "slepc.h"
