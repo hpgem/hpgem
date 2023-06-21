@@ -128,6 +128,7 @@ class DoehlerMaxwellSolver final {
     
    private:
     void initializeMatrices();
+    void destroyMatrices();
     void projectBV(BV bv);
     PetscErrorCode projectEigenVector(Vec &eigen_v);
     void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec &L_Vec, BV &X_bv, 
@@ -189,7 +190,9 @@ class DoehlerMaxwellSolver final {
     Mat A, M, C;
     BV eigenvectors;
     std::vector<PetscScalar> eigenvalues;
-    
+
+
+    // Objects needed during the solve
     Mat Y, H;
     // BV Qt;
     

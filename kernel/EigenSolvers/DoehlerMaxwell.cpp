@@ -69,19 +69,19 @@ void DoehlerMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin, const Mat M
   
   ierr = MatGetSize(Cin, &n, &m);
   // logger(INFO, "DoehlerSolver Contraint Size : % x %", n, m);
-  
-  // Initialize the matrices for enforcing the condition this->C * x = 0
-  // This is done by solving a Poisson-like problem, the matrices required for 
-  // solving this problem are initialized here
-  this->initializeMatrices();
 }
 
 PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt n_steps_projection) {
-        
+
   std::cout << "\n**************************************************************" << std::endl;
   std::cout << "* Doehler eingenvalue solver (PETSc) START" << std::endl;
   std::cout << "**************************************************************\n" << std::endl;
-  
+
+  // Initialize the matrices for enforcing the condition this->C * x = 0
+  // This is done by solving a Poisson-like problem, the matrices required for
+  // solving this problem are initialized here
+  this->initializeMatrices();
+
   PetscInt n_eigs = nev;  // this is done to keep the function parameter with the same 
                           // names across implementations, but to keep the clearer name 
                           // n_eigs internally
@@ -473,6 +473,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     this->eigenvalues[eigen_v_idx] = eigen_value;
   }
   iter = iter_idx;
+
+  this->destroyMatrices();
   
   std::cout << "\n**************************************************************" << std::endl;
   std::cout << "* Doehler eingenvalue solver (PETSc) END" << std::endl;
@@ -503,6 +505,8 @@ PetscErrorCode DoehlerMaxwellSolver::getEigenPair(PetscInt index,
 }
 
 void DoehlerMaxwellSolver::initializeMatrices() {
+    logger.assert_always(this->M == nullptr,
+                         "Projection unsupported with non identity mass matrix");
 
     // initialize the Y and H matrix needed for the JD algorithm
     PetscInt y_nrows, y_ncols;
@@ -531,6 +535,11 @@ void DoehlerMaxwellSolver::initializeMatrices() {
 
     ierr = MatProductNumeric(this->H);
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
+}
+
+void DoehlerMaxwellSolver::destroyMatrices() {
+    MatDestroy(&this->H);
+    MatDestroy(&this->Y);
 }
 
 void DoehlerMaxwellSolver::projectBV(BV bv) {
