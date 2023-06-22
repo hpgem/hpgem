@@ -173,10 +173,23 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   // Vector containing eigenvalues 
   Vec L_Vec;
   
-  // Setup the (small) eigensolver 
-  EPS eigen_solver;
-  err = EPSCreate(PETSC_COMM_WORLD, &eigen_solver);
-  CHKERRABORT(PETSC_COMM_WORLD, err);
+  // Setup the (small) eigensolver
+  DS denseSolver;
+  {
+      DSCreate(PETSC_COMM_WORLD, &denseSolver);
+      DSSetType(denseSolver, DSGHEP);
+      DSAllocate(denseSolver, 2 * n_eigs);
+      DSSetDimensions(denseSolver, 2 * n_eigs, 0, 0);
+      // Comparison context for sorting the eigenvalues
+      SlepcSC sc;
+      DSGetSlepcSC(denseSolver, &sc);
+      sc->comparison = SlepcCompareSmallestMagnitude;
+      sc->comparisonctx = nullptr;
+      sc->map = nullptr;
+      sc->mapobj = nullptr;
+      sc->rg = nullptr;
+  }
+
   
   do
   {
@@ -201,7 +214,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     MatHermitianTranspose(M_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p);
     MatAXPY(M_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
     MatScale(M_Mat_p, 0.5);
-    
+
     // std::cout << "\n\nThe A matrix:" << std::endl;
     // MatView(A_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
 
@@ -222,22 +235,10 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     
     // Compute the Ritz values (L) and Ritz vectors (Q) of the reduced eigenvalue problem
     {
-        DS denseSolver;
-        DSCreate(PETSC_COMM_WORLD, &denseSolver);
-        {
-            // Setup direct solver for the small scale problem
-            DSSetType(denseSolver, DSGHEP);
-            DSAllocate(denseSolver, 2 * n_eigs);
-            DSSetDimensions(denseSolver, 2 * n_eigs, 0, 0);
-            SlepcSC sc;
-            DSGetSlepcSC(denseSolver, &sc);
-            sc->comparison = SlepcCompareSmallestMagnitude;
-            sc->comparisonctx = nullptr;
-            sc->map = nullptr;
-            sc->mapobj = nullptr;
-            sc->rg = nullptr;
-        }
+        // Reset the eigenvalue solver
+        DSSetState(denseSolver, DS_STATE_RAW);
 
+        // Set the matrices
         Mat temp;
         DSGetMat(denseSolver, DS_MAT_A, &temp);
         MatCopy(A_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
@@ -246,6 +247,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         MatCopy(M_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
         DSRestoreMat(denseSolver, DS_MAT_B, &temp);
 
+        // Solve & Sort
         std::vector<PetscScalar> evs (2*n_eigs);
         std::vector<PetscScalar> evs1 (2*n_eigs);
         DSSolve(denseSolver, evs.data(), evs1.data());
@@ -262,7 +264,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         for(PetscInt i = 0; i < 2 *n_eigs; ++i) {
             VecSetValue(L_Vec, i, evs[i], INSERT_VALUES);  // update the eigenvalue
         }
-        DSDestroy(&denseSolver);
     }
     
     // std::cout << "\n\nEigenvalues:" << std::endl;
@@ -454,6 +455,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   iter = iter_idx;
 
   this->cleanupProjection();
+  DSDestroy(&denseSolver);
   
   std::cout << "\n**************************************************************" << std::endl;
   std::cout << "* Doehler eingenvalue solver (PETSc) END" << std::endl;
