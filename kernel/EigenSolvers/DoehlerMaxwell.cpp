@@ -295,7 +295,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     
     BV W_r_bv;  // the search space
     BVCreate(PETSC_COMM_WORLD, &W_r_bv);
-    BVSetSizes(W_r_bv, PETSC_DECIDE, A_n_rows, n_eigs);
+    BVSetSizes(W_r_bv, A_n_local_rows, A_n_rows, n_eigs);
     BVSetFromOptions(W_r_bv);
     
     BVSetActiveColumns(T_bv_new, n_eigs, 2*n_eigs);  // activate the columns associated to the search space
@@ -305,7 +305,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     // Compute the residual with the updated eigenvectors
     BV R_bv;  // the residual column vectors
     BVCreate(PETSC_COMM_WORLD, &R_bv);
-    BVSetSizes(R_bv, PETSC_DECIDE, A_n_rows, n_eigs);
+    BVSetSizes(R_bv, A_n_local_rows, A_n_rows, n_eigs);
     BVSetFromOptions(R_bv);
     this->compute_residual_eigen_v(this->A, this->M, L_Vec, this->eigenvectors, 0, n_eigs, R_bv);
      
@@ -332,7 +332,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     // Compute the new augmented solution space (the correction space) and the new search space
     BV RR_bv;  // the BV containing the residual of the residual BV
     BVCreate(PETSC_COMM_WORLD, &RR_bv);
-    BVSetSizes(RR_bv, PETSC_DECIDE, A_n_rows, n_eigs);
+    BVSetSizes(RR_bv, A_n_local_rows, A_n_rows, n_eigs);
     BVSetFromOptions(RR_bv);
     this->compute_residual_eigen_v(this->A, this->M, L_Vec, R_bv, 0, n_eigs, RR_bv);
     
