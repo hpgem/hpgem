@@ -115,6 +115,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   err = BVSetSizes(this->eigenvectors, A_n_local_rows, A_n_rows, n_eigs);
   CHKERRABORT(PETSC_COMM_WORLD, err);
   BVSetFromOptions(this->eigenvectors);
+  std::vector<PetscScalar> ritzValues (2*n_eigs);
   
   // Initialize tranformation matrix T as a bv system (used to project to the reduced space)
   BV T_bv;
@@ -171,11 +172,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   MatSetUp(M_Mat_p);
 
   //H_Mat_p will be created on first usage
-                         
-  // Vector containing eigenvalues 
-  Vec L_Vec;
-  // Create temporary vector to store eigenvalues
-  MatCreateVecs(A_Mat_p, &L_Vec, NULL);
   
   // Setup the (small) eigensolver
   DS denseSolver;
@@ -249,16 +245,13 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         DSRestoreMat(denseSolver, DS_MAT_B, &temp);
 
         // Solve & Sort
-        std::vector<PetscScalar> evs (2*n_eigs);
+
         std::vector<PetscScalar> evs1 (2*n_eigs);
-        DSSolve(denseSolver, evs.data(), evs1.data());
-        DSSort(denseSolver, evs.data(), evs1.data(), nullptr, nullptr, nullptr);
-        DSSynchronize(denseSolver, evs.data(), nullptr);
+        err = DSSolve(denseSolver, ritzValues.data(), evs1.data());
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        DSSort(denseSolver, ritzValues.data(), evs1.data(), nullptr, nullptr, nullptr);
+        DSSynchronize(denseSolver, ritzValues.data(), nullptr);
         // Copy back the eigenvectors
-        // Copy the eigenvalues
-        for(PetscInt i = 0; i < 2 *n_eigs; ++i) {
-            VecSetValue(L_Vec, i, evs[i], INSERT_VALUES);  // update the eigenvalue
-        }
     }
     
     // std::cout << "\n\nEigenvalues:" << std::endl;
@@ -294,7 +287,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     BVCreate(PETSC_COMM_WORLD, &R_bv);
     BVSetSizes(R_bv, A_n_local_rows, A_n_rows, n_eigs);
     BVSetFromOptions(R_bv);
-    this->compute_residual_eigen_v(this->A, this->M, L_Vec, this->eigenvectors, 0, n_eigs, R_bv);
+    this->compute_residual_eigen_v(this->A, this->M, ritzValues, this->eigenvectors, 0, n_eigs, R_bv);
      
     // Compute the max "L2" error norm
     error_max = 0.0;  // initialise the maximum error of all eigenvectors
@@ -321,7 +314,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     BVCreate(PETSC_COMM_WORLD, &RR_bv);
     BVSetSizes(RR_bv, A_n_local_rows, A_n_rows, n_eigs);
     BVSetFromOptions(RR_bv);
-    this->compute_residual_eigen_v(this->A, this->M, L_Vec, R_bv, 0, n_eigs, RR_bv);
+    this->compute_residual_eigen_v(this->A, this->M, ritzValues, R_bv, 0, n_eigs, RR_bv);
     
     BVSetActiveColumns(T_bv_new, n_eigs, 2*n_eigs);
     Mat W_r_bv_Mat;
@@ -351,8 +344,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         PetscInt row_idx_offset = row_idx + n_eigs; 
         
         VecGetValues(V_bv_col_Vec, 1, &row_idx, &V_value);
-        VecGetValues(L_Vec, 1, &row_idx_offset, &L_value_row_idx);
-        VecGetValues(L_Vec, 1, &column_idx, &L_value_column_idx);
+        L_value_row_idx = ritzValues[row_idx_offset];
+        L_value_column_idx = ritzValues[column_idx];
         
         V_value = -V_value / (L_value_row_idx - std::conj(L_value_column_idx));
         
@@ -442,9 +435,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   // Transfer eigenvalues
   this->eigenvalues.assign(n_eigs, 0);  // re-initialize the eigenvalues not keep old values 
   for(PetscInt eigen_v_idx = 0; eigen_v_idx < n_eigs; eigen_v_idx++) {
-    PetscScalar eigen_value;
-    VecGetValues(L_Vec, 1, &eigen_v_idx, &eigen_value);
-    this->eigenvalues[eigen_v_idx] = eigen_value;
+    this->eigenvalues[eigen_v_idx] = ritzValues[eigen_v_idx];
   }
   iter = iter_idx;
 
@@ -455,7 +446,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   MatDestroy(&M_Mat_p);
   MatDestroy(&H_Mat_p);
   MatDestroy(&H_Mat_p1);
-  VecDestroy(&L_Vec);
   PetscRandomDestroy(&random_context);
   
   std::cout << "\n**************************************************************" << std::endl;
@@ -588,7 +578,8 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
     return (0);
 }
 
-void DoehlerMaxwellSolver::compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec &L_Vec, BV &X_bv, 
+void DoehlerMaxwellSolver::compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat,
+                                                    const std::vector<PetscScalar>& ritzValues, BV &X_bv,
       PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv){
     PetscErrorCode err;
   //  Computes:
@@ -620,8 +611,7 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, Vec 
     // the indices as done below.
     PetscInt bv_column_idx = eigen_v_idx - eigen_idx_start;  // get the column index of the eigenvector 
                                                              // of the BV associated to eigenvalue eigen_v_idx
-    PetscScalar eigen_value;
-    VecGetValues(L_Vec, 1, &eigen_v_idx, &eigen_value);
+    PetscScalar eigen_value = ritzValues[eigen_v_idx];
     BVScaleColumn(XL_bv, bv_column_idx, eigen_value);
   }
   
