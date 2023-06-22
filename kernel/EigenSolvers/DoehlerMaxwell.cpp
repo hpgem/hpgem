@@ -163,11 +163,11 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   
   // Reduced matrices obtained by projecting A_Mat and M_Mat
   // into the T_bv space (approximate eigenvectors \ocirc search space) 
-  MatCreateDense(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2*n_eigs, 2*n_eigs, NULL, &A_Mat_p);
   Mat A_Mat_p, M_Mat_p, H_Mat_p, H_Mat_p1;  // H_Mat_p is a temporary hermitian matrix of either A_Mat_p or M_Mat_p
+  MatCreateSeqDense(PETSC_COMM_SELF, 2*n_eigs, 2*n_eigs, NULL, &A_Mat_p);
   MatSetUp(A_Mat_p);
    
-  MatCreateDense(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2*n_eigs, 2*n_eigs, NULL, &M_Mat_p);
+  MatCreateSeqDense(PETSC_COMM_SELF, 2*n_eigs, 2*n_eigs, NULL, &M_Mat_p);
   MatSetUp(M_Mat_p);
 
   //H_Mat_p will be created on first usage
