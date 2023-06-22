@@ -123,13 +123,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   BVSetSizes(T_bv, A_n_local_rows, A_n_rows, 2*n_eigs);
   BVSetFromOptions(T_bv);
   
-  // Initialize eigenvector bv system to store the eigenvectors computed each iteration
-  BV Q_bv;
-  BVCreate(PETSC_COMM_WORLD, &Q_bv);
-  
-  BVSetSizes(Q_bv, PETSC_DECIDE, 2*n_eigs, 2*n_eigs);
-  BVSetFromOptions(Q_bv);
-  
   // Set the initial (guess) values
   // (the n_eigs eigenvectors we wish to find and the 
   // n_eigs vector search directions)
@@ -262,12 +255,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
         DSSort(denseSolver, evs.data(), evs1.data(), nullptr, nullptr, nullptr);
         DSSynchronize(denseSolver, evs.data(), nullptr);
         // Copy back the eigenvectors
-        Mat rayleighVectors;
-        DSGetMat(denseSolver, DS_MAT_Q, &rayleighVectors);
-        BVGetMat(Q_bv, &temp);
-        MatCopy(rayleighVectors, temp, DIFFERENT_NONZERO_PATTERN); // Both dense
-        BVRestoreMat(Q_bv, &temp);
-        DSRestoreMat(denseSolver, DS_MAT_Q, &rayleighVectors);
         // Copy the eigenvalues
         for(PetscInt i = 0; i < 2 *n_eigs; ++i) {
             VecSetValue(L_Vec, i, evs[i], INSERT_VALUES);  // update the eigenvalue
@@ -283,10 +270,10 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     BVCopy(T_bv, T_bv_new);
     
     // Reconstruct the eigenvectors (all at once)
-    Mat Q_Mat;  // get the matrix associated to the search space eigenvectors to use with mult below
-    BVGetMat(Q_bv, &Q_Mat); 
-    BVMultInPlace(T_bv_new, Q_Mat, 0, 2*n_eigs); // make the multiplication T_bv_new = T_bv * Q_mat (reconstruct eigenvalues)  
-    BVRestoreMat(Q_bv, &Q_Mat);  // restore the matrix so that we can reuse Q_bv
+    Mat ritzSmallVectors;  // get the matrix associated to the search space eigenvectors to use with mult below
+    DSGetMat(denseSolver, DS_MAT_Q, &ritzSmallVectors);
+    BVMultInPlace(T_bv_new, ritzSmallVectors, 0, 2*n_eigs); // make the multiplication T_bv_new = T_bv * Q_mat (reconstruct eigenvalues)
+    DSRestoreMat(denseSolver, DS_MAT_Q, &ritzSmallVectors);
     
     BVSetActiveColumns(T_bv_new, 0, n_eigs);  // activate the columns associated to the approximate solution
     BVCopy(T_bv_new, this->eigenvectors);
@@ -447,7 +434,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     BVDestroy(&R_bv);
     BVDestroy(&RR_bv);
     BVDestroy(&V_bv);
-    MatDestroy(&Q_Mat);
     MatDestroy(&W_r_bv_Mat);
     MatDestroy(&V_bv_Mat);    
     
@@ -465,7 +451,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   this->cleanupProjection();
   DSDestroy(&denseSolver);
   BVDestroy(&T_bv);
-  BVDestroy(&Q_bv);
   MatDestroy(&A_Mat_p);
   MatDestroy(&M_Mat_p);
   MatDestroy(&H_Mat_p);
