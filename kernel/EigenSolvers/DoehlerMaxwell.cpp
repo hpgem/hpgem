@@ -13,8 +13,13 @@ namespace hpgem {
 
 namespace EigenSolvers {
 
-DoehlerMaxwellSolver::DoehlerMaxwellSolver() {
+DoehlerMaxwellSolver::DoehlerMaxwellSolver()
+    : eigenvectors(nullptr) {
   std::cout << "Initialize DoehlerMaxwellSolver!!!!!" << std::endl;
+}
+
+DoehlerMaxwellSolver::~DoehlerMaxwellSolver() {
+    BVDestroy(&eigenvectors);
 }
 
 void DoehlerMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin) {
@@ -123,6 +128,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   // Set the initial (guess) values
   // (the n_eigs eigenvectors we wish to find and the 
   // n_eigs vector search directions)
+  PetscRandom random_context (nullptr);
   if(false)
     {
       // Use initial values from python for one to one comparison
@@ -137,7 +143,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     else
     {
       // Use randomly generated values to initialize T_bv
-      PetscRandom random_context;
       PetscRandomCreate(PETSC_COMM_WORLD, &random_context);
       PetscRandomSetInterval(random_context, 0.0, 1.0);
       PetscRandomSetFromOptions(random_context);
@@ -165,13 +170,14 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   MatSetUp(A_Mat_p);
    
   MatCreateDense(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2*n_eigs, 2*n_eigs, NULL, &M_Mat_p);
-  MatSetUp(M_Mat_p); 
-  
-  MatCreateDense(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2*n_eigs, 2*n_eigs, NULL, &H_Mat_p);
-  MatSetUp(H_Mat_p); 
+  MatSetUp(M_Mat_p);
+
+  //H_Mat_p will be created on first usage
                          
   // Vector containing eigenvalues 
   Vec L_Vec;
+  // Create temporary vector to store eigenvalues
+  MatCreateVecs(A_Mat_p, &L_Vec, NULL);
   
   // Setup the (small) eigensolver
   DS denseSolver;
@@ -206,12 +212,12 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     // Symmetry can be lost due to roundoff and accumulation errors
     
     // Force symmetry in A_Mat_p
-    MatHermitianTranspose(A_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p);
+    MatHermitianTranspose(A_Mat_p, iter_idx == 1 ? MAT_INITIAL_MATRIX : MAT_REUSE_MATRIX, &H_Mat_p);
     MatAXPY(A_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
     MatScale(A_Mat_p, 0.5);
     
     // Force symmetry in M_Mat_p
-    MatHermitianTranspose(M_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p);
+    MatHermitianTranspose(M_Mat_p, MAT_REUSE_MATRIX, &H_Mat_p);
     MatAXPY(M_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
     MatScale(M_Mat_p, 0.5);
 
@@ -220,9 +226,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
 
     // std::cout << "\n\nThe M matrix:" << std::endl;
     // MatView(M_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
-    
-    // Create temporary vector to store eigenvalues
-    MatCreateVecs(A_Mat_p, &L_Vec, NULL);
     
     // std::cout << "\n\nThe L_Vec vector:" << std::endl;
     // VecView(L_Vec, PETSC_VIEWER_STDOUT_WORLD);
@@ -456,6 +459,13 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
 
   this->cleanupProjection();
   DSDestroy(&denseSolver);
+  BVDestroy(&T_bv);
+  BVDestroy(&Q_bv);
+  MatDestroy(&A_Mat_p);
+  MatDestroy(&M_Mat_p);
+  MatDestroy(&H_Mat_p);
+  VecDestroy(&L_Vec);
+  PetscRandomDestroy(&random_context);
   
   std::cout << "\n**************************************************************" << std::endl;
   std::cout << "* Doehler eingenvalue solver (PETSc) END" << std::endl;

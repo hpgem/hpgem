@@ -74,6 +74,7 @@ class DoehlerMaxwellSolver final {
    public:
     DoehlerMaxwellSolver();
     // PetscErrorCode clean();
+    ~DoehlerMaxwellSolver();
     
     /**
      * Sets the matrices A and C and defaults M to the identity matrix,  
