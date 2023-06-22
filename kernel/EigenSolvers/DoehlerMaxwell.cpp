@@ -170,8 +170,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   
   // Reduced matrices obtained by projecting A_Mat and M_Mat
   // into the T_bv space (approximate eigenvectors \ocirc search space) 
-  Mat A_Mat_p, M_Mat_p, H_Mat_p;  // H_Mat_p is a temporary hermitian matrix of either A_Mat_p or M_Mat_p
   MatCreateDense(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2*n_eigs, 2*n_eigs, NULL, &A_Mat_p);
+  Mat A_Mat_p, M_Mat_p, H_Mat_p, H_Mat_p1;  // H_Mat_p is a temporary hermitian matrix of either A_Mat_p or M_Mat_p
   MatSetUp(A_Mat_p);
    
   MatCreateDense(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2*n_eigs, 2*n_eigs, NULL, &M_Mat_p);
@@ -222,8 +222,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     MatScale(A_Mat_p, 0.5);
     
     // Force symmetry in M_Mat_p
-    MatHermitianTranspose(M_Mat_p, MAT_REUSE_MATRIX, &H_Mat_p);
-    MatAXPY(M_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
+    MatHermitianTranspose(M_Mat_p, iter_idx == 1 ? MAT_INITIAL_MATRIX : MAT_REUSE_MATRIX, &H_Mat_p1);
+    MatAXPY(M_Mat_p, 1.0, H_Mat_p1, SAME_NONZERO_PATTERN);
     MatScale(M_Mat_p, 0.5);
 
     // std::cout << "\n\nThe A matrix:" << std::endl;
@@ -469,6 +469,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   MatDestroy(&A_Mat_p);
   MatDestroy(&M_Mat_p);
   MatDestroy(&H_Mat_p);
+  MatDestroy(&H_Mat_p1);
   VecDestroy(&L_Vec);
   PetscRandomDestroy(&random_context);
   
