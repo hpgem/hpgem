@@ -99,7 +99,9 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   
   // Compute initial parameters, like system size, etc 
   PetscInt A_n_rows, A_n_cols;  // number of rows and columns of matrix A
+  PetscInt A_n_local_rows;
   MatGetSize(this->A, &A_n_rows, &A_n_cols);
+  MatGetLocalSize(this->A, &A_n_local_rows, nullptr);
   
   std::cout << "System size:" << std::endl;
   std::cout << "   n_rows: " << A_n_rows << std::endl;
@@ -107,15 +109,18 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   std::cout << "   n_eigs: " << n_eigs << std::endl;
   
   // Initialize the eigenvector solution
-  BVCreate(PETSC_COMM_WORLD, &this->eigenvectors);
-  BVSetSizes(this->eigenvectors, PETSC_DECIDE, A_n_rows, n_eigs);
+  if(this->eigenvectors == nullptr) {
+      BVCreate(PETSC_COMM_WORLD, &this->eigenvectors);
+  }
+  err = BVSetSizes(this->eigenvectors, A_n_local_rows, A_n_rows, n_eigs);
+  CHKERRABORT(PETSC_COMM_WORLD, err);
   BVSetFromOptions(this->eigenvectors);
   
   // Initialize tranformation matrix T as a bv system (used to project to the reduced space)
   BV T_bv;
   BVCreate(PETSC_COMM_WORLD, &T_bv);
   
-  BVSetSizes(T_bv, PETSC_DECIDE, A_n_rows, 2*n_eigs);
+  BVSetSizes(T_bv, A_n_local_rows, A_n_rows, 2*n_eigs);
   BVSetFromOptions(T_bv);
   
   // Initialize eigenvector bv system to store the eigenvectors computed each iteration
