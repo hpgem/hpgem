@@ -221,69 +221,48 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     // MatView(M_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
     
     // Compute the Ritz values (L) and Ritz vectors (Q) of the reduced eigenvalue problem
-    EPSSetOperators(eigen_solver, A_Mat_p, M_Mat_p);
-        
-    EPSSetProblemType(eigen_solver, EPS_GNHEP);
-    EPSSetWhichEigenpairs(eigen_solver, EPS_SMALLEST_REAL);
-    EPSSetDimensions(eigen_solver, 2*n_eigs, PETSC_DEFAULT, PETSC_DEFAULT);  // of we do not force the number of eigenvalues to compute, for a matrix larger than 20 SLEPc defaults to computing only 1 eigenvalue
-    EPSSetFromOptions(eigen_solver);
-    err = EPSSolve(eigen_solver);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-    
-    // Save all eigenvectors into the BV Q_bv
-    // and normalise the eigenvectors using M_Mat_p as the inner product matrix
-    if(!indefinite_dot)  // need to check if bool is correct
-      BVSetMatrix(Q_bv, M_Mat_p, PETSC_FALSE);
     {
-        PetscInt tconv;
-        EPSGetConverged(eigen_solver, &tconv);
-//        logger(INFO, "Converged %", tconv);
-    }
-    
-    for(PetscInt eigen_v_idx = 0; eigen_v_idx < 2*n_eigs; eigen_v_idx++)
-    {
-      Vec eigen_v;  // temporary eigenvector to extract from EPS and store in Q_bv
-      PetscScalar L_value;  // temporary eigenvalue to extract from EPS and store in L_Vec
-      
-      // Extract the eigenvector and eigenvalue
-      BVGetColumn(Q_bv, eigen_v_idx, &eigen_v);  // first get the column to update 
-      err = EPSGetEigenpair(eigen_solver, eigen_v_idx, &L_value, NULL, eigen_v, NULL);  // update the column with the eigenvector
-      CHKERRABORT(PETSC_COMM_WORLD, err);
-      VecSetValue(L_Vec, eigen_v_idx, L_value, INSERT_VALUES);  // update the eigenvalue
-      
-      if(indefinite_dot)
-      {
-        // Normalise the eigenector using just the transpose, without conjugation
-        Vec M_mult_eigen_v;
-        VecDuplicate(eigen_v, &M_mult_eigen_v);  // create a temporary vector with the same shape for storing M_Mat_p * eigen_v
-        MatMult(M_Mat_p, eigen_v, M_mult_eigen_v);  // compute M_Mat_p * eigen_v
-        PetscScalar eigen_v_norm_squared;  // the square of the norm of the eigenvector, here is potentially complex since it is a pseudo-norm
-        VecDot(M_mult_eigen_v, eigen_v, &eigen_v_norm_squared);  // compute the indefinite vector dot product squared
-        VecScale(eigen_v, 1.0/std::sqrt(eigen_v_norm_squared));  // normalise it
-                  
-        BVRestoreColumn(Q_bv, eigen_v_idx, &eigen_v);  // restore the column so that we can reuse Q_bv
-        
-        // Cleanup work memory
-        VecDestroy(&M_mult_eigen_v);
-      }
-      else 
-      {
-        // Return the updated column vector to Q_bv
-        BVRestoreColumn(Q_bv, eigen_v_idx, &eigen_v);  // restore the column so that we can reuse Q_bv
+        DS denseSolver;
+        DSCreate(PETSC_COMM_WORLD, &denseSolver);
+        {
+            // Setup direct solver for the small scale problem
+            DSSetType(denseSolver, DSGHEP);
+            DSAllocate(denseSolver, 2 * n_eigs);
+            DSSetDimensions(denseSolver, 2 * n_eigs, 0, 0);
+            SlepcSC sc;
+            DSGetSlepcSC(denseSolver, &sc);
+            sc->comparison = SlepcCompareSmallestMagnitude;
+            sc->comparisonctx = nullptr;
+            sc->map = nullptr;
+            sc->mapobj = nullptr;
+            sc->rg = nullptr;
+        }
 
-        // Normalise it using BV (this uses the conjugate transpose)
-        PetscReal eigen_v_norm;  // note that here it need to be a real since here it is a real norm
-        BVNormColumn(Q_bv, eigen_v_idx, NORM_2, &eigen_v_norm);  // compute the norm of the eigenvector
-        BVScaleColumn(Q_bv, eigen_v_idx, eigen_v_norm);  // normalise it 
-        
-        // std::cout << "\n\nEigenvector:"  << eigen_v_idx << std::endl;
-        // VecView(eigen_v, PETSC_VIEWER_STDOUT_WORLD);
-      }
-      
-      // BVGetColumn(Q_bv, eigen_v_idx, &eigen_v); 
-      // std::cout << "\n\nEigenvector:"  << eigen_v_idx << std::endl;
-      // VecView(eigen_v, PETSC_VIEWER_STDOUT_WORLD);
-      // BVRestoreColumn(Q_bv, eigen_v_idx, &eigen_v);  // restore the column so that we can reuse Q_bv        
+        Mat temp;
+        DSGetMat(denseSolver, DS_MAT_A, &temp);
+        MatCopy(A_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
+        DSRestoreMat(denseSolver, DS_MAT_A, &temp);
+        DSGetMat(denseSolver, DS_MAT_B, &temp);
+        MatCopy(M_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
+        DSRestoreMat(denseSolver, DS_MAT_B, &temp);
+
+        std::vector<PetscScalar> evs (2*n_eigs);
+        std::vector<PetscScalar> evs1 (2*n_eigs);
+        DSSolve(denseSolver, evs.data(), evs1.data());
+        DSSort(denseSolver, evs.data(), evs1.data(), nullptr, nullptr, nullptr);
+        DSSynchronize(denseSolver, evs.data(), nullptr);
+        // Copy back the eigenvectors
+        Mat rayleighVectors;
+        DSGetMat(denseSolver, DS_MAT_Q, &rayleighVectors);
+        BVGetMat(Q_bv, &temp);
+        MatCopy(rayleighVectors, temp, DIFFERENT_NONZERO_PATTERN); // Both dense
+        BVRestoreMat(Q_bv, &temp);
+        DSRestoreMat(denseSolver, DS_MAT_Q, &rayleighVectors);
+        // Copy the eigenvalues
+        for(PetscInt i = 0; i < 2 *n_eigs; ++i) {
+            VecSetValue(L_Vec, i, evs[i], INSERT_VALUES);  // update the eigenvalue
+        }
+        DSDestroy(&denseSolver);
     }
     
     // std::cout << "\n\nEigenvalues:" << std::endl;
