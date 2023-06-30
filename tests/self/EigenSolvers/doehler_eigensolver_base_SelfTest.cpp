@@ -57,7 +57,7 @@ static char help[] = "Solve an eigenvalue problem Ax = lMx using Doehler's algor
 PetscErrorCode read_matrix(Mat &M, std::string &name, std::string &filename, std::string &read_format);
 PetscErrorCode read_matrix(Mat &M, std::string &name, PetscViewer &viewer);
 
-int main(int argc, char** argv) {
+PetscErrorCode main(int argc, char** argv) {
     std::cout << "Testing Doehler eigensolver..." << std::endl; 
     
     /*
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     Mat A, M, T, C;
     
     // The input file and data format
-    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_C_4_matrices.dat");
+    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_C_14_matrices.dat");
     std::string data_format("binary");
     
     // The matrix names 
@@ -113,20 +113,29 @@ int main(int argc, char** argv) {
     doehler_eigensolver.solve(n_eigenvalues, T);
     
     // Display results
-    std::cout << "\nNumber of converged eigenvalues: " << doehler_eigensolver.getConverged() << std::endl;
+    PetscMPIInt rank;
+    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
     
+    if(rank == 0) std::cout << "\nNumber of converged eigenvalues: " << doehler_eigensolver.getConverged() << std::endl;
+
     for(PetscInt eigen_v_idx = 0; eigen_v_idx < n_eigenvalues; eigen_v_idx++) {
-      PetscScalar eigen_value;
+      PetscErrorCode ierr;
       Vec eigen_vector;
-      doehler_eigensolver.getEigenPair(eigen_v_idx, eigen_value, eigen_vector);
-      std::cout << std::setprecision(10) << std::fixed;
-      std::cout << "Eigenvalue " << eigen_v_idx << ": " << eigen_value << std::endl;
+      MatCreateVecs(A, &eigen_vector, NULL);
+      PetscScalar eigen_value;
+      ierr = doehler_eigensolver.getEigenPair(eigen_v_idx, eigen_value, eigen_vector);
+      if(rank == 0)
+      {
+        std::cout << std::setprecision(10) << std::fixed;
+        std::cout << "Eigenvalue " << eigen_v_idx << ": " << eigen_value << std::endl;
+      }
+      VecDestroy(&eigen_vector);
     }
+    
+    MPI_Barrier(PETSC_COMM_WORLD);
     
     // Finalize
     return SlepcFinalize();
-    
-    return 0;
 }
 
 

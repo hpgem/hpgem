@@ -115,7 +115,7 @@ class DoehlerMaxwellSolver final {
      *                compute (lowest \p nenv eigenvalues).
      * @param[in] n_steps_projection the number of iterations to perform before
      *                enforcing a projection onto div(eigen_v) = 0.
-    *                 <default> 100
+    *                 <default> 10
      */
     PetscErrorCode solve(PetscInt nev, Mat &T_Mat_in, PetscInt n_steps_projection = 10);
     
@@ -132,6 +132,7 @@ class DoehlerMaxwellSolver final {
     void cleanupProjection();
     void projectBV(BV bv);
     PetscErrorCode projectEigenVector(Vec &eigen_v);
+    PetscErrorCode computeRitzValuesAndVectors(BV &T_bv, PetscInt n_eigs, std::vector<PetscScalar> &L_std_vec, BV &T_bv_new);
     void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, const std::vector<PetscScalar>& ritzValues, BV &X_bv,
            PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv);
     // void initializeMatrices();
