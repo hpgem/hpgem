@@ -40,6 +40,7 @@
 #include "Logger.h"
 
 #include <cstdlib>
+#include <cstdint>
 
 namespace hpgem {
 

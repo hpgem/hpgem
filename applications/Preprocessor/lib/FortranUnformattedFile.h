@@ -40,6 +40,7 @@
 
 #include <fstream>
 #include <streambuf>
+#include <cstdint>
 
 /**
  * @brief Reader for Fortran-Unformatted files
