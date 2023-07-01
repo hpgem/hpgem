@@ -47,6 +47,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <cstdint>
 
 namespace Preprocessor {
 
