@@ -334,96 +334,96 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     this->compute_residual_eigen_v(this->A, this->M, ritzValues, R_bv, 0, n_eigs, RR_bv);
     
     BVSetActiveColumns(T_bv_new, n_eigs, 2*n_eigs);
-    Mat W_r_bv_Mat;
-    BVGetMat(W_r_bv, &W_r_bv_Mat);
-    
-    BV V_bv;
-    BVCreate(PETSC_COMM_WORLD, &V_bv);
-    BVSetSizes(V_bv, PETSC_DECIDE, n_eigs, n_eigs);
-    BVSetFromOptions(V_bv);
+//    Mat W_r_bv_Mat;
+//    BVGetMat(W_r_bv, &W_r_bv_Mat);
+//
+//    BV V_bv;
+//    BVCreate(PETSC_COMM_WORLD, &V_bv);
+//    BVSetSizes(V_bv, PETSC_DECIDE, n_eigs, n_eigs);
+//    BVSetFromOptions(V_bv);
 
     // Part 1 of the idea: Use BVDot to create a sequentially dense matrix
 //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
 //    // -v_j^H(A - lm_j B)w = R(v)^H W
-//    Mat out; // Make it
-//    MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &out);
-//    err = BVDot(W_r_bv, RR_bv, out);
-//    CHKERRABORT(PETSC_COMM_WORLD, err);
+    Mat out; // Make it
+    MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &out);
+    err = BVDot(RR_bv, W_r_bv, out);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
     // Use this matrix later on in the BVMult(R, 1, 1, W_r_bv, out);
 
     // Part 2 of the idea: To update it pull it out of petsc
-//    std::vector<PetscScalar> values (n_eigs*n_eigs);
-//    std::vector<PetscInt> indices(n_eigs);
-//    std::iota(indices.begin(), indices.end(), 0);
-//    MatGetValues(out, indices.size(), indices.data(), indices.size(), indices.data(),values.data());
-//    // Update
-//    for(std::size_t col = 0; col < n_eigs; col++) {
-//      for(std::size_t row = 0; row < n_eigs; row++) {
-//        values[row * n_eigs + col] /= -(ritzValues[row + n_eigs] - std::conj(ritzValues[col]));
-//      }
-//    }
-//    MatSetValues(out, indices.size(), indices.data(), indices.size(), indices.data(),values.data(), INSERT_VALUES);
-//    err = MatAssemblyBegin(out, MAT_FINAL_ASSEMBLY);
-//    CHKERRABORT(PETSC_COMM_WORLD, err);
-//    err =  MatAssemblyEnd(out, MAT_FINAL_ASSEMBLY);
-//    CHKERRABORT(PETSC_COMM_WORLD, err);
-
-
-    BVMatMultHermitianTranspose(RR_bv, W_r_bv_Mat, V_bv);      
-    
-    BVRestoreMat(W_r_bv, &W_r_bv_Mat);  // restore the matrix so that we can reuse W_r_bv
-
-    // Divide by -(L[n_eigs:].reshape([-1, 1]) - L[:n_eigs].conjugate())
-    for(PetscInt column_idx = 0; column_idx < n_eigs; column_idx++)
-    {
-      Vec V_bv_col_Vec;
-      BVGetColumn(V_bv, column_idx, &V_bv_col_Vec);
-      // Get ownership ranges so that we only loop over the local range
-      PetscInt start_row, end_row;
-      VecGetOwnershipRange(V_bv_col_Vec, &start_row, &end_row);
-      for(PetscInt row_idx = start_row; row_idx < end_row; row_idx++)
-      {
-        PetscScalar V_value;
-        PetscScalar L_value_row_idx;  // L[row_idx + n_eigs]
-        PetscScalar L_value_column_idx;  // L[column_idx]
-
-        PetscInt row_idx_offset = row_idx + n_eigs;
-
-        err = VecGetValues(V_bv_col_Vec, 1, &row_idx, &V_value);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-        L_value_row_idx = ritzValues[row_idx_offset];
-        L_value_column_idx = ritzValues[column_idx];
-        V_value = -V_value / (L_value_row_idx - std::conj(L_value_column_idx));
-
-        err = VecSetValue(V_bv_col_Vec, row_idx, V_value, INSERT_VALUES);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-        err = VecAssemblyBegin(V_bv_col_Vec);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-        err = VecAssemblyEnd(V_bv_col_Vec);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
+    std::vector<PetscScalar> values (n_eigs*n_eigs);
+    std::vector<PetscInt> indices(n_eigs);
+    std::iota(indices.begin(), indices.end(), 0);
+    MatGetValues(out, indices.size(), indices.data(), indices.size(), indices.data(), values.data());
+    // Update
+    for(std::size_t col = 0; col < n_eigs; col++) {
+      for(std::size_t row = 0; row < n_eigs; row++) {
+        values[row * n_eigs + col] /= -(ritzValues[row + n_eigs] - std::conj(ritzValues[col]));
       }
-
-      BVRestoreColumn(V_bv, column_idx, &V_bv_col_Vec);
     }
+    MatSetValues(out, indices.size(), indices.data(), indices.size(), indices.data(),values.data(), INSERT_VALUES);
+    err = MatAssemblyBegin(out, MAT_FINAL_ASSEMBLY);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err =  MatAssemblyEnd(out, MAT_FINAL_ASSEMBLY);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+
+
+//    BVMatMultHermitianTranspose(RR_bv, W_r_bv_Mat, V_bv);
     
-    // Compute the new search space
-    Mat V_bv_Mat;
-    BVGetMat(V_bv, &V_bv_Mat);
-    Mat V_bv_Mat_seq;
-    PetscInt n_communicators;
-    MPI_Comm_size(PETSC_COMM_WORLD, &n_communicators);
-    MatCreateRedundantMatrix(V_bv_Mat, n_communicators, PETSC_COMM_SELF, MAT_INITIAL_MATRIX, &V_bv_Mat_seq);
+//    BVRestoreMat(W_r_bv, &W_r_bv_Mat);  // restore the matrix so that we can reuse W_r_bv
+
+//    // Divide by -(L[n_eigs:].reshape([-1, 1]) - L[:n_eigs].conjugate())
+//    for(PetscInt column_idx = 0; column_idx < n_eigs; column_idx++)
+//    {
+//      Vec V_bv_col_Vec;
+//      BVGetColumn(V_bv, column_idx, &V_bv_col_Vec);
+//      // Get ownership ranges so that we only loop over the local range
+//      PetscInt start_row, end_row;
+//      VecGetOwnershipRange(V_bv_col_Vec, &start_row, &end_row);
+//      for(PetscInt row_idx = start_row; row_idx < end_row; row_idx++)
+//      {
+//        PetscScalar V_value;
+//        PetscScalar L_value_row_idx;  // L[row_idx + n_eigs]
+//        PetscScalar L_value_column_idx;  // L[column_idx]
+//
+//        PetscInt row_idx_offset = row_idx + n_eigs;
+//
+//        err = VecGetValues(V_bv_col_Vec, 1, &row_idx, &V_value);
+//        CHKERRABORT(PETSC_COMM_WORLD, err);
+//        L_value_row_idx = ritzValues[row_idx_offset];
+//        L_value_column_idx = ritzValues[column_idx];
+//        V_value = -V_value / (L_value_row_idx - std::conj(L_value_column_idx));
+//
+//        err = VecSetValue(V_bv_col_Vec, row_idx, V_value, INSERT_VALUES);
+////        CHKERRABORT(PETSC_COMM_WORLD, err);
+////        err = VecAssemblyBegin(V_bv_col_Vec);
+////        CHKERRABORT(PETSC_COMM_WORLD, err);
+////        err = VecAssemblyEnd(V_bv_col_Vec);
+////        CHKERRABORT(PETSC_COMM_WORLD, err);
+//      }
+//
+//      BVRestoreColumn(V_bv, column_idx, &V_bv_col_Vec);
+//    }
+    
+//    // Compute the new search space
+//    Mat V_bv_Mat;
+//    BVGetMat(V_bv, &V_bv_Mat);
+//    Mat V_bv_Mat_seq;
+//    PetscInt n_communicators;
+//    MPI_Comm_size(PETSC_COMM_WORLD, &n_communicators);
+//    MatCreateRedundantMatrix(V_bv_Mat, n_communicators, PETSC_COMM_SELF, MAT_INITIAL_MATRIX, &V_bv_Mat_seq);
 
 //      Mat V_bv_Mat_seq;
 //      MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &V_bv_Mat_seq);
 //      MatSetRandom(V_bv_Mat_seq, random_context);
       
-      
-    BVMult(R_bv, 1.0, 1.0, W_r_bv, V_bv_Mat_seq);
-    BVRestoreMat(V_bv, &V_bv_Mat);
+      BVMult(R_bv, 1.0, 1.0, W_r_bv, out);
+//    BVMult(R_bv, 1.0, 1.0, W_r_bv, V_bv_Mat_seq);
+//    BVRestoreMat(V_bv, &V_bv_Mat);
     
-    MatDestroy(&V_bv_Mat_seq);
-    MatDestroy(&V_bv_Mat);
+//    MatDestroy(&V_bv_Mat_seq);
+//    MatDestroy(&V_bv_Mat);
       
     // Restart T_bv
       
@@ -490,9 +490,9 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     BVDestroy(&W_r_bv);
     BVDestroy(&R_bv);
     BVDestroy(&RR_bv);
-    BVDestroy(&V_bv);
-    MatDestroy(&W_r_bv_Mat);
-    MatDestroy(&V_bv_Mat);
+//    BVDestroy(&V_bv);
+//    MatDestroy(&W_r_bv_Mat);
+//    MatDestroy(&V_bv_Mat);
     
   } while((iter_idx <= this->maxIter) && (error_max > this->tolerance));
   

@@ -79,7 +79,7 @@ PetscErrorCode main(int argc, char** argv) {
     Mat A, M, T, C;
     
     // The input file and data format
-    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_C_14_matrices.dat");
+    std::string ifilename("/Users/apalha/work/dev/hpgem/eigensolver_doehler/petsc__eigensolver_doehler/src/python/A_M_T_C_4_matrices.dat");
     std::string data_format("binary");
     
     // The matrix names 
