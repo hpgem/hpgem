@@ -74,6 +74,11 @@ class PredefinedStructureDescription : public StructureDescription {
     PredefinedStructure structure_;
     std::size_t dimension_;
 };
+
+/// Registers two command line options --epsbackground and --epsfeature
+/// that can be used to change the epsilon of the predefined structures
+void registerEpsilonCommandLineOptions();
+
 }  // namespace DGMax
 
 #endif  // HPGEM_PREDEFINEDSTRUCTURE_H
