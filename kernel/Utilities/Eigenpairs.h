@@ -84,8 +84,7 @@ class Eigenpairs final {
     void loadEigenpairs(EPS eps, Vec sample);
     void loadEigenpairs(EigenSolvers::JacobiDavidsonMaxwellSolver& eps,
                         Vec sample);
-    void loadEigenpairs(EigenSolvers::DoehlerMaxwellSolver& solver,
-                        Vec sample);
+    void loadEigenpairs(EigenSolvers::DoehlerMaxwellSolver& solver, Vec sample);
 
     /**
      * Reorder the currently stored eigenpairs

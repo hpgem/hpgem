@@ -515,7 +515,8 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
     if (config_.use_doehler_) {
         doehlerSolver_.setMaxIter(config_.jdmax_niter_);
         doehlerSolver_.setTolerance(config_.jdmax_tol_);
-        doehlerSolver_.setMatrices(stiffnessMatrix_, projector->projectorMatrix_);
+        doehlerSolver_.setMatrices(stiffnessMatrix_,
+                                   projector->projectorMatrix_);
     } else if (config_.use_jdmax_) {
         // set the parameters of the solver based on the config_
         jdmaxSolver_.setMaxIter(config_.jdmax_niter_);

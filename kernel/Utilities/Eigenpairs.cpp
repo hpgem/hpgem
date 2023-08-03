@@ -136,7 +136,8 @@ void Eigenpairs::loadEigenpairs(
     std::iota(ordering_.begin(), ordering_.end(), 0);
 }
 
-void Eigenpairs::loadEigenpairs(EigenSolvers::DoehlerMaxwellSolver &solver, Vec sample) {
+void Eigenpairs::loadEigenpairs(EigenSolvers::DoehlerMaxwellSolver &solver,
+                                Vec sample) {
     PetscInt converged = solver.getConverged();
     PetscErrorCode err;
 
