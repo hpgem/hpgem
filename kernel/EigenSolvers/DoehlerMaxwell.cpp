@@ -50,10 +50,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                             // the same names across implementations, but to
                             // keep the clearer name n_eigs internally
     PetscErrorCode err;
-    bool indefinite_dot = true;
-    bool verbose = true;
-    bool normalize_S = true;
-
     // Get the rank of the process for display purposes
     PetscMPIInt rank;
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
