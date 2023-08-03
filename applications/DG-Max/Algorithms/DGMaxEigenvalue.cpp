@@ -728,6 +728,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     if (config_.use_doehler_) {
         Mat temp = nullptr;
         doehlerSolver_.solve(targetNumberOfEigenvalues, temp);
+        time = std::chrono::high_resolution_clock::now() - start;
         numEigenvalues = doehlerSolver_.getConverged();
         iterations = doehlerSolver_.getIterationCount();
     } else if (config_.use_jdmax_) {
