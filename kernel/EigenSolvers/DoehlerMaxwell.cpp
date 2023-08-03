@@ -465,25 +465,27 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
       // solution to this problem is to normalize these vectors associated to
       // the new search directions. This essentially means normalizing the columns
       // of S.
-      if(normalize_S)
-      {
-        // This is not the same as done in Matlab, in Matlab it is a pseudo-norm
-        //    VecNormalize(T_bv_column_Vec, NULL);
-        // So we make it equal to Matlab
-        Vec T_bv_column_mult;
-        VecDuplicate(T_bv_column_Vec, &T_bv_column_mult);
-        PetscScalar T_bv_column_pseudonorm;
-        VecCopy(T_bv_column_Vec, T_bv_column_mult);  // first make a copy to store the pointwise multiplication
-        VecPointwiseMult(T_bv_column_mult, T_bv_column_mult, T_bv_column_mult);  // pointwise multiplication
-        VecSum(T_bv_column_mult, &T_bv_column_pseudonorm);  // sum the components of pointwise multiplication to get a pseudonorm
-        VecScale(T_bv_column_Vec, 1.0/T_bv_column_pseudonorm);  // scale the vector with the pseudonorm
-        
-        // Cleanup work memory 
-        VecDestroy(&T_bv_column_mult);
-      }
+//      if(normalize_S)
+//      {
+//        // This is not the same as done in Matlab, in Matlab it is a pseudo-norm
+//        //    VecNormalize(T_bv_column_Vec, NULL);
+//        // So we make it equal to Matlab
+//        Vec T_bv_column_mult;
+//        VecDuplicate(T_bv_column_Vec, &T_bv_column_mult);
+//        PetscScalar T_bv_column_pseudonorm;
+//        VecCopy(T_bv_column_Vec, T_bv_column_mult);  // first make a copy to store the pointwise multiplication
+//        VecPointwiseMult(T_bv_column_mult, T_bv_column_mult, T_bv_column_mult);  // pointwise multiplication
+//        VecSum(T_bv_column_mult, &T_bv_column_pseudonorm);  // sum the components of pointwise multiplication to get a pseudonorm
+//        VecScale(T_bv_column_Vec, 1.0/T_bv_column_pseudonorm);  // scale the vector with the pseudonorm
+//
+//        // Cleanup work memory
+//        VecDestroy(&T_bv_column_mult);
+//      }
+//      VecNormalize(T_bv_column_Vec, nullptr);
                                                           
       BVRestoreColumn(T_bv, column_idx_offset, &T_bv_column_Vec);
     }
+    BVOrthogonalize(T_bv, nullptr);
      
     
     // Apply the projector to ensure X and S satisfy the divergence free constraint
