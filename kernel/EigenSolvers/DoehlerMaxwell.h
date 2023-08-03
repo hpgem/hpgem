@@ -44,16 +44,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "petsc.h"
 #include "slepc.h"
 
-
-
-
 namespace hpgem {
 
 namespace EigenSolvers {
 
 /**
  * Solver of the Maxwell equation based on the paper
- *   
+ *
  * Doehler, Ein neues Gradientenverfahren zur simultanen
  * Berechnung der kleinsten oder groessten Eigenwerte des allgemeinen
  * Eigenwertproblems. Numer. Math. 40, 79--91 (1982)
@@ -75,70 +72,73 @@ class DoehlerMaxwellSolver final {
     DoehlerMaxwellSolver();
     // PetscErrorCode clean();
     ~DoehlerMaxwellSolver();
-    
+
     /**
-     * Sets the matrices A and C and defaults M to the identity matrix,  
-     * setting up the eigenvalue problem 
+     * Sets the matrices A and C and defaults M to the identity matrix,
+     * setting up the eigenvalue problem
      *  A x = lambda x
-     * constrained to 
+     * constrained to
      *  C x = 0
-     * 
+     *
      * @param[in] Ain the A matrix to assign to the eigenvalue problem.
      * @param[in] Cin the C matrix to assign to the eigenvalue problem.
      */
     void setMatrices(const Mat Ain, const Mat Cin);
-    
+
     /**
-     * Sets the matrices A, C, and M, setting up the eigenvalue problem 
+     * Sets the matrices A, C, and M, setting up the eigenvalue problem
      *  A x = lambda M x
-     * constrained to 
+     * constrained to
      *  C x = 0
-     * 
+     *
      * @param[in] Ain the A matrix to assign to the eigenvalue problem.
      * @param[in] Cin the C matrix to assign to the eigenvalue problem.
      * @param[in] Min the M matrix to assign to the eigenvalue problem,
      *            if set to NULL M is assumed the identity matrix.
      */
     void setMatrices(const Mat Ain, const Mat Cin, const Mat Min);
-    
+
     /**
-     * Solves the constrained eigenvalue problem 
+     * Solves the constrained eigenvalue problem
      *  A x = lambda M x
-     * constrained to 
+     * constrained to
      *  C x = 0
-     * 
+     *
      * Computes the lowest \p nev eigenvalues and associated eigenvectors.
      *
      * The computed eigenvalues are returned from getEigenPair().
      *
-     * @param[in] nev the number of eigenvalues and associated eigenvectors to 
+     * @param[in] nev the number of eigenvalues and associated eigenvectors to
      *                compute (lowest \p nenv eigenvalues).
      * @param[in] n_steps_projection the number of iterations to perform before
      *                enforcing a projection onto div(eigen_v) = 0.
-    *                 <default> 10
+     *                 <default> 10
      */
-    PetscErrorCode solve(PetscInt nev, Mat &T_Mat_in, PetscInt n_steps_projection = 10);
-    
+    PetscErrorCode solve(PetscInt nev, Mat &T_Mat_in,
+                         PetscInt n_steps_projection = 10);
+
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
-    PetscInt getIterationCount() const {
-        return iter;
-    }
+    PetscInt getIterationCount() const { return iter; }
     void setMaxIter(int n);
     void setTolerance(PetscReal tol);
-    
+
    private:
     void setupProjection();
     void cleanupProjection();
     void projectBV(BV bv);
     PetscErrorCode projectEigenVector(Vec &eigen_v);
-    PetscErrorCode computeRitzValuesAndVectors(BV &T_bv, PetscInt n_eigs, std::vector<PetscScalar> &L_std_vec, BV &T_bv_new);
-    void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat, const std::vector<PetscScalar>& ritzValues, BV &X_bv,
-           PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv);
+    PetscErrorCode computeRitzValuesAndVectors(
+        BV &T_bv, PetscInt n_eigs, std::vector<PetscScalar> &L_std_vec,
+        BV &T_bv_new);
+    void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat,
+                                  const std::vector<PetscScalar> &ritzValues,
+                                  BV &X_bv, PetscInt eigen_idx_start,
+                                  PetscInt n_eigs, BV &R_bv);
     // void initializeMatrices();
     // void initializeVectors();
     // void initializeSearchSpace(int nev);
-    // 
+    //
     // PetscErrorCode computeRayleighQuotient(const Vec &x, PetscReal *out);
     // PetscErrorCode normalizeVector(Vec &x);
     // PetscErrorCode weightedVectorDot(const Vec &x, const Mat &K,
@@ -147,32 +147,28 @@ class DoehlerMaxwellSolver final {
     // PetscErrorCode solveCorrectionEquation(const Vec &res, Vec &sol);
     // PetscErrorCode computeResidueVector(const Vec &q, const PetscReal rho,
     //                                     Vec &res);
-    // 
+    //
     // PetscErrorCode gramSchmidt(Vec &v, const BV &Q);
     // PetscErrorCode modifiedGramSchmidt(Vec &v, const BV &Q);
-    // 
-    
-    
-    
-    // TODO: This is the projection function to use to enforce the constraint C x = 0
-    // PetscErrorCode projectCorrectionVector(Vec &corr);
-    
-    
-    
-    // 
+    //
+
+    // TODO: This is the projection function to use to enforce the constraint C
+    // x = 0 PetscErrorCode projectCorrectionVector(Vec &corr);
+
+    //
     // PetscErrorCode computeSmallEigenvalues(std::vector<PetscReal> &eval,
     //                                        Vec *evec);
     // PetscErrorCode correctionOperatorMatMult(Vec x, Vec y);
-    // 
+    //
     // static PetscErrorCode staticMatMultCorrOp(Mat M, Vec x, Vec y);
     // PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
     // PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
     // static PetscErrorCode staticMatMultCorrPrec(PC pc, Vec x, Vec y);
-    // 
+    //
     // PetscReal computeSmallResidue(const Mat &A, const Vec &x,
     //                               const PetscScalar lambda);
     // PetscErrorCode orderEigenvalues();
-    // 
+    //
     // PetscReal ev_target;
     // PetscReal eta;
     // PetscReal prec_shift;
@@ -183,23 +179,22 @@ class DoehlerMaxwellSolver final {
     // PetscInt search_space_restart_size;
     // PetscInt search_space_current_size = 0;
     // PetscInt V_current_size = 0;
-    // 
+    //
     PetscInt eigenvectors_current_size = 0;
     // PetscInt Qt_current_size = 0;
     PetscReal tolerance;
     //
-    
+
     Mat A, M, C;
     BV eigenvectors;
     std::vector<PetscScalar> eigenvalues;
-
 
     // Objects needed during the solve for the projector
     Mat Y, H;
     KSP projectionSolver_;
     Vec projectionTempVector_;
     // BV Qt;
-    
+
     // BV V;
     // Vec search_vect;
     // Vec residue_vect;
