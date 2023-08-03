@@ -264,7 +264,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         // solution to this problem is to normalize these vectors associated to
         // the new search directions. This essentially means normalizing the
         // columns of S.
-        BVOrthogonalize(T_bv, nullptr);
+        BVNormalize(T_bv, nullptr);
 
         // Apply the projector to ensure X and S satisfy the divergence free
         // constraint
