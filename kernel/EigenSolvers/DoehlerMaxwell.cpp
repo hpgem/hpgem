@@ -217,6 +217,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
         BVMult(R_bv, 1.0, 1.0, W_r_bv, out);
+        MatDestroy(&out);
 
         // Restart T_bv
 
