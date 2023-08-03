@@ -35,45 +35,9 @@ void DoehlerMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin, const Mat M
   // Set the A, C, and M matrices describing the eigenvalue problem
   // Ax = lambda M x with C x = 0.
   // If Min = NULL then M is assumed to be the identity matrix.
-  PetscErrorCode ierr;
-  PetscInt n, m;
-  PetscViewer viewer;
-  PetscBool knows_is_hermitian;
-  PetscBool is_hermitian;
-
   this->A = Ain;
   this->C = Cin;
   this->M = Min;
-
-  // Check if A is hermitian
-  
-  // Directly checking if A is hermitian is expensive, therefore we check if the 
-  // matrix knows it is hermitian. If it knows, inform the user. If not, inform 
-  // the user, we do not know if the matrix is hermitian or not.
-  ierr = MatIsHermitianKnown(A, &knows_is_hermitian, &is_hermitian);
-  
-  if (knows_is_hermitian) {
-    if (!is_hermitian) {
-        // logger(WARN, "Matrix A is not Hermitian\n");
-    }
-  }
-  else {
-    // logger(WARN, "Matrix A has no information on its Hermitian property\n");
-  }
-  
-  ierr = MatGetSize(Ain, &n, &m);
-  // logger(INFO, "DoehlerSolver System Size : % x %", n, m);
-  
-  if (Min != NULL) {
-    ierr = MatGetSize(Min, &n, &m);
-    // logger(INFO, "DoehlerSolver RHS Size : % x %", n, m);
-  }
-  else {
-    // logger(INFO, "DoehlerSolver RHS set to identity");
-  }
-  
-  ierr = MatGetSize(Cin, &n, &m);
-  // logger(INFO, "DoehlerSolver Contraint Size : % x %", n, m);
 }
 
 PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt n_steps_projection) {
@@ -139,150 +103,22 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   // (the n_eigs eigenvectors we wish to find and the 
   // n_eigs vector search directions)
   PetscRandom random_context (nullptr);
-  if(false)
-    {
-      // Use initial values from python for one to one comparison
-      Mat T_Mat;
-      MatCreateDense(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, A_n_rows, 2*n_eigs, NULL, &T_Mat);
-      MatSetUp(T_Mat); 
-      BVGetMat(T_bv, &T_Mat);
-      MatCopy(T_Mat_in, T_Mat, DIFFERENT_NONZERO_PATTERN);
-      BVRestoreMat(T_bv, &T_Mat);
-      if(rank == 0) std::cout << "Generate T_bv from input" << std::endl;
-    }
-    else
-    {
-      // Use randomly generated values to initialize T_bv
-      PetscRandomCreate(PETSC_COMM_WORLD, &random_context);
-      PetscRandomSetInterval(random_context, 0.0, 1.0);
-      PetscRandomSetFromOptions(random_context);
-      BVSetRandomContext(T_bv, random_context);
-      BVSetRandom(T_bv);
-      if(rank == 0) std::cout << "Generate T_bv internally" << std::endl;
-    }
+  PetscRandomCreate(PETSC_COMM_WORLD, &random_context);
+  PetscRandomSetInterval(random_context, 0.0, 1.0);
+  PetscRandomSetFromOptions(random_context);
+  BVSetRandomContext(T_bv, random_context);
+  BVSetRandom(T_bv);
 
   // Apply the projector to ensure X and S satisfy the divergence free constraint
   // C S = C X = 0
   this->projectBV(T_bv);
   
-  // TODO Consider forcing all small matrices and vectors to be sequential
-  
   // Iterate to find corrected solutions to the eigenvalue
   PetscInt iter_idx = 0;  // initialize counter for number of interations performed
   PetscReal error_max = 1.0;  // initialize error max to determine if the loop is over or not
-  
-  // Declare variables required in while loop 
-  
-  // Reduced matrices obtained by projecting A_Mat and M_Mat
-  // into the T_bv space (approximate eigenvectors \ocirc search space) 
-  Mat A_Mat_p, M_Mat_p, H_Mat_p, H_Mat_p1;  // H_Mat_p is a temporary hermitian matrix of either A_Mat_p or M_Mat_p
-  MatCreateSeqDense(PETSC_COMM_SELF, 2*n_eigs, 2*n_eigs, NULL, &A_Mat_p);
-  MatSetUp(A_Mat_p);
-   
-  MatCreateSeqDense(PETSC_COMM_SELF, 2*n_eigs, 2*n_eigs, NULL, &M_Mat_p);
-  MatSetUp(M_Mat_p);
-
-  //H_Mat_p will be created on first usage
-  
-//  // Setup the (small) eigensolver
-//  DS denseSolver;
-//  {
-//      DSCreate(PETSC_COMM_WORLD, &denseSolver);
-//      DSSetType(denseSolver, DSGHEP);
-//      DSAllocate(denseSolver, 2 * n_eigs);
-//      DSSetDimensions(denseSolver, 2 * n_eigs, 0, 0);
-//      // Comparison context for sorting the eigenvalues
-//      SlepcSC sc;
-//      DSGetSlepcSC(denseSolver, &sc);
-//      sc->comparison = SlepcCompareSmallestMagnitude;
-//      sc->comparisonctx = nullptr;
-//      sc->map = nullptr;
-//      sc->mapobj = nullptr;
-//      sc->rg = nullptr;
-//  }
-
-  
   do
   {
     iter_idx++;  // update counter for number of iterations performed
-    
-//    // Compute the reduced matrices on the space spanned by T = [X, S]
-//    err = BVMatProject(T_bv, this->A, T_bv, A_Mat_p);
-//    CHKERRABORT(PETSC_COMM_WORLD, err);
-//
-//    err = BVMatProject(T_bv, this->M, T_bv, M_Mat_p);
-//    CHKERRABORT(PETSC_COMM_WORLD, err);
-//
-//    // Make sure the resulting reduced matrices are still symmetric
-//    // Symmetry can be lost due to roundoff and accumulation errors
-//
-//    // Force symmetry in A_Mat_p
-//    MatHermitianTranspose(A_Mat_p, iter_idx == 1 ? MAT_INITIAL_MATRIX : MAT_REUSE_MATRIX, &H_Mat_p);
-//    MatAXPY(A_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
-//    MatScale(A_Mat_p, 0.5);
-//
-//    // Force symmetry in M_Mat_p
-//    MatHermitianTranspose(M_Mat_p, iter_idx == 1 ? MAT_INITIAL_MATRIX : MAT_REUSE_MATRIX, &H_Mat_p1);
-//    MatAXPY(M_Mat_p, 1.0, H_Mat_p1, SAME_NONZERO_PATTERN);
-//    MatScale(M_Mat_p, 0.5);
-//
-//    // std::cout << "\n\nThe A matrix:" << std::endl;
-//    // MatView(A_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
-//
-//    // std::cout << "\n\nThe M matrix:" << std::endl;
-//    // MatView(M_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
-//
-//    // std::cout << "\n\nThe L_Vec vector:" << std::endl;
-//    // VecView(L_Vec, PETSC_VIEWER_STDOUT_WORLD);
-//
-//    // std::cout << "\n\nThe A matrix:" << std::endl;
-//    // MatView(A_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
-//    //
-//    // std::cout << "\n\nThe M matrix:" << std::endl;
-//    // MatView(M_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
-//
-//    // Compute the Ritz values (L) and Ritz vectors (Q) of the reduced eigenvalue problem
-//    {
-//        // Reset the eigenvalue solver
-//        DSSetState(denseSolver, DS_STATE_RAW);
-//
-//        // Set the matrices
-//        Mat temp;
-//        DSGetMat(denseSolver, DS_MAT_A, &temp);
-//        MatCopy(A_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
-//        DSRestoreMat(denseSolver, DS_MAT_A, &temp);
-//        DSGetMat(denseSolver, DS_MAT_B, &temp);
-//        MatCopy(M_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
-//        DSRestoreMat(denseSolver, DS_MAT_B, &temp);
-//
-//        // Solve & Sort
-//
-//        std::vector<PetscScalar> evs1 (2*n_eigs);
-//        err = DSSolve(denseSolver, ritzValues.data(), evs1.data());
-//        CHKERRABORT(PETSC_COMM_WORLD, err);
-//        DSSort(denseSolver, ritzValues.data(), evs1.data(), nullptr, nullptr, nullptr);
-//        DSSynchronize(denseSolver, ritzValues.data(), nullptr);
-//        // Copy back the eigenvectors
-//    }
-//
-//    // std::cout << "\n\nEigenvalues:" << std::endl;
-//    // VecView(L_Vec, PETSC_VIEWER_STDOUT_WORLD);
-//
-//    // Now we can reconstruct the eigenvectors, i.e., compute them in the full space
-//    BV T_bv_new;  // the updated reconstructed vectors, below just make a copy to start with
-//    BVDuplicate(T_bv, &T_bv_new);
-//    BVCopy(T_bv, T_bv_new);
-//
-//    // Reconstruct the eigenvectors (all at once)
-//    Mat ritzSmallVectors;  // get the matrix associated to the search space eigenvectors to use with mult below
-//    DSGetMat(denseSolver, DS_MAT_Q, &ritzSmallVectors);
-//    BVMultInPlace(T_bv_new, ritzSmallVectors, 0, 2*n_eigs); // make the multiplication T_bv_new = T_bv * Q_mat (reconstruct eigenvalues)
-//    DSRestoreMat(denseSolver, DS_MAT_Q, &ritzSmallVectors);
-//
-//    BVSetActiveColumns(T_bv_new, 0, n_eigs);  // activate the columns associated to the approximate solution
-//    BVCopy(T_bv_new, this->eigenvectors);
-//
-//    BVSetActiveColumns(T_bv_new, 0, 2*n_eigs);  // always return to original state
     BV T_bv_new;  // the updated reconstructed vectors, below just make a copy to start with
     this->computeRitzValuesAndVectors(T_bv, n_eigs, ritzValues, T_bv_new);
       
@@ -344,15 +180,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     this->compute_residual_eigen_v(this->A, this->M, ritzValues, R_bv, 0, n_eigs, RR_bv);
     
     BVSetActiveColumns(T_bv_new, n_eigs, 2*n_eigs);
-//    Mat W_r_bv_Mat;
-//    BVGetMat(W_r_bv, &W_r_bv_Mat);
-//
-//    BV V_bv;
-//    BVCreate(PETSC_COMM_WORLD, &V_bv);
-//    BVSetSizes(V_bv, PETSC_DECIDE, n_eigs, n_eigs);
-//    BVSetFromOptions(V_bv);
 
-    // Part 1 of the idea: Use BVDot to create a sequentially dense matrix
 //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
 //    // -v_j^H(A - lm_j B)w = R(v)^H W
     Mat out; // Make it
@@ -361,7 +189,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     CHKERRABORT(PETSC_COMM_WORLD, err);
     // Use this matrix later on in the BVMult(R, 1, 1, W_r_bv, out);
 
-    // Part 2 of the idea: To update it pull it out of petsc
     std::vector<PetscScalar> values (n_eigs*n_eigs);
     std::vector<PetscInt> indices(n_eigs);
     std::iota(indices.begin(), indices.end(), 0);
@@ -378,62 +205,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     err =  MatAssemblyEnd(out, MAT_FINAL_ASSEMBLY);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
-
-//    BVMatMultHermitianTranspose(RR_bv, W_r_bv_Mat, V_bv);
-    
-//    BVRestoreMat(W_r_bv, &W_r_bv_Mat);  // restore the matrix so that we can reuse W_r_bv
-
-//    // Divide by -(L[n_eigs:].reshape([-1, 1]) - L[:n_eigs].conjugate())
-//    for(PetscInt column_idx = 0; column_idx < n_eigs; column_idx++)
-//    {
-//      Vec V_bv_col_Vec;
-//      BVGetColumn(V_bv, column_idx, &V_bv_col_Vec);
-//      // Get ownership ranges so that we only loop over the local range
-//      PetscInt start_row, end_row;
-//      VecGetOwnershipRange(V_bv_col_Vec, &start_row, &end_row);
-//      for(PetscInt row_idx = start_row; row_idx < end_row; row_idx++)
-//      {
-//        PetscScalar V_value;
-//        PetscScalar L_value_row_idx;  // L[row_idx + n_eigs]
-//        PetscScalar L_value_column_idx;  // L[column_idx]
-//
-//        PetscInt row_idx_offset = row_idx + n_eigs;
-//
-//        err = VecGetValues(V_bv_col_Vec, 1, &row_idx, &V_value);
-//        CHKERRABORT(PETSC_COMM_WORLD, err);
-//        L_value_row_idx = ritzValues[row_idx_offset];
-//        L_value_column_idx = ritzValues[column_idx];
-//        V_value = -V_value / (L_value_row_idx - std::conj(L_value_column_idx));
-//
-//        err = VecSetValue(V_bv_col_Vec, row_idx, V_value, INSERT_VALUES);
-////        CHKERRABORT(PETSC_COMM_WORLD, err);
-////        err = VecAssemblyBegin(V_bv_col_Vec);
-////        CHKERRABORT(PETSC_COMM_WORLD, err);
-////        err = VecAssemblyEnd(V_bv_col_Vec);
-////        CHKERRABORT(PETSC_COMM_WORLD, err);
-//      }
-//
-//      BVRestoreColumn(V_bv, column_idx, &V_bv_col_Vec);
-//    }
-    
-//    // Compute the new search space
-//    Mat V_bv_Mat;
-//    BVGetMat(V_bv, &V_bv_Mat);
-//    Mat V_bv_Mat_seq;
-//    PetscInt n_communicators;
-//    MPI_Comm_size(PETSC_COMM_WORLD, &n_communicators);
-//    MatCreateRedundantMatrix(V_bv_Mat, n_communicators, PETSC_COMM_SELF, MAT_INITIAL_MATRIX, &V_bv_Mat_seq);
-
-//      Mat V_bv_Mat_seq;
-//      MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &V_bv_Mat_seq);
-//      MatSetRandom(V_bv_Mat_seq, random_context);
-      
       BVMult(R_bv, 1.0, 1.0, W_r_bv, out);
-//    BVMult(R_bv, 1.0, 1.0, W_r_bv, V_bv_Mat_seq);
-//    BVRestoreMat(V_bv, &V_bv_Mat);
-    
-//    MatDestroy(&V_bv_Mat_seq);
-//    MatDestroy(&V_bv_Mat);
       
     // Restart T_bv
       
@@ -458,33 +230,14 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
                                                         // copying the column of R_bv into the column of T_bv 
                                                         // Note that the column index of R_bv is not offset, since R_bv 
                                                         // contains only the search space, only T_bv contains both the 
-                                                        // (approximate) solution and the search space, hence the offset needed. 
-      
-      // If nothing is done, the search directions result in vectors with very
-      // small norms. This leads to very badly conditioned reduced matrices. A
-      // solution to this problem is to normalize these vectors associated to
-      // the new search directions. This essentially means normalizing the columns
-      // of S.
-//      if(normalize_S)
-//      {
-//        // This is not the same as done in Matlab, in Matlab it is a pseudo-norm
-//        //    VecNormalize(T_bv_column_Vec, NULL);
-//        // So we make it equal to Matlab
-//        Vec T_bv_column_mult;
-//        VecDuplicate(T_bv_column_Vec, &T_bv_column_mult);
-//        PetscScalar T_bv_column_pseudonorm;
-//        VecCopy(T_bv_column_Vec, T_bv_column_mult);  // first make a copy to store the pointwise multiplication
-//        VecPointwiseMult(T_bv_column_mult, T_bv_column_mult, T_bv_column_mult);  // pointwise multiplication
-//        VecSum(T_bv_column_mult, &T_bv_column_pseudonorm);  // sum the components of pointwise multiplication to get a pseudonorm
-//        VecScale(T_bv_column_Vec, 1.0/T_bv_column_pseudonorm);  // scale the vector with the pseudonorm
-//
-//        // Cleanup work memory
-//        VecDestroy(&T_bv_column_mult);
-//      }
-//      VecNormalize(T_bv_column_Vec, nullptr);
-                                                          
+                                                        // (approximate) solution and the search space, hence the offset needed.
       BVRestoreColumn(T_bv, column_idx_offset, &T_bv_column_Vec);
     }
+    // If nothing is done, the search directions result in vectors with very
+    // small norms. This leads to very badly conditioned reduced matrices. A
+    // solution to this problem is to normalize these vectors associated to
+    // the new search directions. This essentially means normalizing the columns
+    // of S.
     BVOrthogonalize(T_bv, nullptr);
      
     
@@ -502,9 +255,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     BVDestroy(&W_r_bv);
     BVDestroy(&R_bv);
     BVDestroy(&RR_bv);
-//    BVDestroy(&V_bv);
-//    MatDestroy(&W_r_bv_Mat);
-//    MatDestroy(&V_bv_Mat);
     
   } while((iter_idx <= this->maxIter) && (error_max > this->tolerance));
   
@@ -518,10 +268,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
   this->cleanupProjection();
 //  DSDestroy(&denseSolver);
   BVDestroy(&T_bv);
-//  MatDestroy(&A_Mat_p);
-//  MatDestroy(&M_Mat_p);
-//  MatDestroy(&H_Mat_p);
-//  MatDestroy(&H_Mat_p1);
   PetscRandomDestroy(&random_context);
   
   // Show info that solver started
@@ -587,16 +333,6 @@ void DoehlerMaxwellSolver::setupProjection() {
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
     // Set up solver
-//    PC pc;
-//    KSPCreate(PETSC_COMM_WORLD, &projectionSolver_);
-//    KSPSetType(projectionSolver_, KSPPREONLY);
-//    KSPSetOperators(projectionSolver_, this->H, this->H);
-//    KSPGetPC(projectionSolver_, &pc);
-//    PCSetType(pc, PCLU);
-//    PCFactorSetMatSolverType(pc, MATSOLVERMUMPS);
-//    KSPSetTolerances(this->projectionSolver_, 1e-12, 1.e-12, PETSC_DEFAULT, 100);
-//    KSPSetFromOptions(this->projectionSolver_);
-    
     KSPCreate(PETSC_COMM_WORLD, &this->projectionSolver_);
     KSPSetType(this->projectionSolver_, KSPGMRES);
     KSPSetOperators(this->projectionSolver_, this->H, this->H);
@@ -633,13 +369,6 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
     auto tstart = std::chrono::high_resolution_clock::now();
     // compute rhs = C corr
     MatMult(this->C, eigen_v, this->projectionTempVector_);
-
-    // set up the linear system
-    // KSPCreate(PETSC_COMM_WORLD, &ksp);
-    // KSPSetType(ksp, KSPGMRES);
-    // KSPSetOperators(ksp, this->H, this->H);
-    // KSPSetFromOptions(ksp);
-    // KSPSetTolerances(ksp, 1e-12, 1.e-12, PETSC_DEFAULT, 100);
 
     // solve the linear system
     //  H ksp_sol = (C eigen_v)
@@ -700,21 +429,6 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(BV &T_bv, Petsc
     MatHermitianTranspose(M_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p1);
     MatAXPY(M_Mat_p, 1.0, H_Mat_p1, SAME_NONZERO_PATTERN);
     MatScale(M_Mat_p, 0.5);
-
-    // std::cout << "\n\nThe A matrix:" << std::endl;
-    // MatView(A_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
-
-    // std::cout << "\n\nThe M matrix:" << std::endl;
-    // MatView(M_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
-
-    // std::cout << "\n\nThe L_Vec vector:" << std::endl;
-    // VecView(L_Vec, PETSC_VIEWER_STDOUT_WORLD);
-
-    // std::cout << "\n\nThe A matrix:" << std::endl;
-    // MatView(A_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
-    //
-    // std::cout << "\n\nThe M matrix:" << std::endl;
-    // MatView(M_Mat_p, PETSC_VIEWER_STDOUT_WORLD);
     
     // Setup the (small) eigensolver
     DS denseSolver;
@@ -756,9 +470,6 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(BV &T_bv, Petsc
         DSSynchronize(denseSolver, ritzValues.data(), nullptr);
         // Copy back the eigenvectors
     }
-
-    // std::cout << "\n\nEigenvalues:" << std::endl;
-    // VecView(L_Vec, PETSC_VIEWER_STDOUT_WORLD);
 
     // Now we can reconstruct the eigenvectors, i.e., compute them in the full space
     BVDuplicate(T_bv, &T_bv_new);
