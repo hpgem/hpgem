@@ -301,26 +301,36 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in, PetscInt
     BVSetSizes(R_bv, A_n_local_rows, A_n_rows, n_eigs);
     BVSetFromOptions(R_bv);
     this->compute_residual_eigen_v(this->A, this->M, ritzValues, this->eigenvectors, 0, n_eigs, R_bv);
-     
-    // Compute the max "L2" error norm
-    error_max = 0.0;  // initialise the maximum error of all eigenvectors
-                      // start with zero value to be sure we update it
-    PetscReal error_max_temp = 0.0;  // temporary storage for maximum error used in for loop below
-                                    // to compute the maximum error
-    this->eigenvectors_current_size = 0;  // reset the number of converged eigenvalues in case some went from converged to unconverged (we update all, even if already converged)
-    for(PetscInt eigen_v_idx = 0; eigen_v_idx < n_eigs; eigen_v_idx++)
-    {
-      BVNormColumn(R_bv, eigen_v_idx, NORM_2, &error_max_temp);
-      if((error_max_temp/A_n_rows) < this->tolerance) ++this->eigenvectors_current_size;  // if error below tolerance count the eigenvector as converged
-      error_max = (error_max_temp > error_max) ? error_max_temp : error_max;
+
+    // Compute convergence
+    PetscReal residualNorm, evNorm;
+    this->eigenvectors_current_size = 0;
+    std::stringstream residual_values;
+    for(PetscInt i = 0; i < n_eigs; ++i) {
+        BVNormColumn(R_bv, i, NORM_2, &residualNorm);
+        BVNormColumn(this->eigenvectors, i, NORM_2, &evNorm);
+        residual_values << " " << std::setprecision(16) << ritzValues[i]
+                        << "(" << std::setprecision(2) << (residualNorm/evNorm) << ")";
+        if (this->eigenvectors_current_size != i) {
+            // Only accept an eigenvalue as converged if all previous
+            // eigenvalues also have converged. This ensures that we get the
+            // wanted eigenvalues.
+            continue;
+        }
+        // Check for convergence either in either relative or absolute sense
+        if (residualNorm < evNorm * this->tolerance
+            || residualNorm < evNorm * this->tolerance * std::abs(ritzValues[i])) {
+            this->eigenvectors_current_size++;
+        }
     }
-    
-    error_max = error_max / A_n_rows;  // get the mean error or integral-like error
-    
-    if(rank == 0)
-    {
-      if(verbose)
-        std::cout << "iter " << iter_idx << ": \t error_max = " << error_max << std::endl;
+    if (iter_idx % 5 == 0 && rank == 0) {
+        std::string log = residual_values.str();
+        logger(INFO, "iter % converged %:%", iter_idx,
+               this->eigenvectors_current_size, log);
+    }
+    if (this->eigenvectors_current_size == n_eigs) {
+        // TODO: Improve
+        error_max = 0.0;
     }
     MPI_Barrier(PETSC_COMM_WORLD);
       
