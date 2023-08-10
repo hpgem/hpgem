@@ -133,7 +133,7 @@ class DoehlerMaxwellSolver final {
         BV &T_bv_new);
     void compute_residual_eigen_v(const std::vector<PetscScalar> &ritzValues,
                                   BV &X_bv, PetscInt eigen_idx_start,
-                                  PetscInt n_eigs, BV &R_bv);
+                                  PetscInt n_eigs, BV &R_bv, BV temp_bv);
     // void initializeMatrices();
     // void initializeVectors();
     // void initializeSearchSpace(int nev);

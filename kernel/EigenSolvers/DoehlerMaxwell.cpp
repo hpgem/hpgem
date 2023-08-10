@@ -154,7 +154,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         // Compute the residual with the updated eigenvectors
         this->compute_residual_eigen_v(ritzValues, this->eigenvectors, 0,
-                                       n_eigs, R_bv);
+                                       n_eigs, R_bv, T_bv_new);
 
         // Compute convergence
         PetscReal residualNorm, evNorm;
@@ -194,7 +194,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         // Compute the new augmented solution space (the correction space) and
         // the new search space
-        this->compute_residual_eigen_v(ritzValues, R_bv, 0, n_eigs, RR_bv);
+        this->compute_residual_eigen_v(ritzValues, R_bv, 0, n_eigs, RR_bv,
+                                       T_bv_new);
 
         //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
         //    // -v_j^H(A - lm_j B)w = R(v)^H W
@@ -541,8 +542,11 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
 
 void DoehlerMaxwellSolver::compute_residual_eigen_v(
     const std::vector<PetscScalar> &ritzValues, BV &X_bv,
-    PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv) {
+    PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv, BV temp_bv) {
     PetscErrorCode err;
+    PetscInt lead, active;
+    BVGetActiveColumns(temp_bv, &lead, &active);
+    BVSetActiveColumns(temp_bv, 0, n_eigs);
     //  Computes:
     //    R = A_Mat @ X_bv - M_Mat @ (X_bv * L)
     //
@@ -559,39 +563,18 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(
     //               [eigen_idx_start, eigen_idx_start + n_eigs] (excluding the
     //               last)
     //            NOTE: X_bv and R_bv must have n_eigs columns.
+    //    temp_bv: Temporary storage of the same size as X_bv
 
-    // Compute X * L
-    BV XL_bv;             // to hold X * L[:2*n_eigs]
-    BVDuplicate(X_bv, &XL_bv);
-    BVCopy(X_bv, XL_bv);  // start by copying X and then below we multiply each
-                          // column by the eigen value
-
-    for (PetscInt eigen_v_idx = eigen_idx_start;
-         eigen_v_idx < (eigen_idx_start + n_eigs); eigen_v_idx++) {
-        // The BV contains only the eigenvectors we want from [0, n_eigs]
-        // but the eigenvalue vector L_Vec contains all the eigenvalues
-        // by providing the eigen_v_idx and n_eigs parameters we can select
-        // the eigenvalues of the vector L_vec. We then just need to match
-        // the indices as done below.
-        PetscInt bv_column_idx =
-            eigen_v_idx -
-            eigen_idx_start;  // get the column index of the eigenvector
-                              // of the BV associated to eigenvalue eigen_v_idx
-        PetscScalar eigen_value = ritzValues[eigen_v_idx];
-        BVScaleColumn(XL_bv, bv_column_idx, eigen_value);
+    // Compute M * X -> temp_bv
+    if (this->M == nullptr) {
+        BVCopy(X_bv, temp_bv);
+    } else {
+        BVMatMult(X_bv, this->M, temp_bv);
     }
 
-    // Compute M @ (X * L)
-    BV MXL_bv;  // to hold M @ (X * L)
-    if (this->M == NULL) {
-        BVDuplicate(XL_bv, &MXL_bv);
-        BVCopy(XL_bv, MXL_bv);
-    } else {
-        BVDuplicate(XL_bv, &MXL_bv);
-        err = BVMatMult(XL_bv, this->M,
-                        MXL_bv);  // make the multiplication M @ (X *
-                                  // L[eigen_idx_start:eigen_idx_end])
-        CHKERRABORT(PETSC_COMM_WORLD, err);
+    // compute in place temp_bv * L = M * X * L
+    for (PetscInt i = 0; i < n_eigs; ++i) {
+        BVScaleColumn(temp_bv, i, ritzValues[i + eigen_idx_start]);
     }
 
     // Compute A @ X
@@ -600,12 +583,11 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(
     err = BVMatMult(X_bv, this->A, R_bv);  // make the multiplication A @ X
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
-    // Compute (A @ X) - (M @ (X * L))
-    BVMult(R_bv, -1, 1.0, MXL_bv, NULL);
+    // Compute (A @ X) - (M @ X) * L
+    BVMult(R_bv, -1, 1.0, temp_bv, nullptr);
 
-    // Cleanup work memory
-    BVDestroy(&XL_bv);
-    BVDestroy(&MXL_bv);
+    // Restore active columns
+    BVSetActiveColumns(temp_bv, lead, active);
 }
 
 }  // namespace EigenSolvers
