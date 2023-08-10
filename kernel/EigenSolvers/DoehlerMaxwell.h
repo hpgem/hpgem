@@ -131,8 +131,7 @@ class DoehlerMaxwellSolver final {
     PetscErrorCode computeRitzValuesAndVectors(
         BV &T_bv, PetscInt n_eigs, std::vector<PetscScalar> &L_std_vec,
         BV &T_bv_new);
-    void compute_residual_eigen_v(Mat &A_Mat, Mat &M_Mat,
-                                  const std::vector<PetscScalar> &ritzValues,
+    void compute_residual_eigen_v(const std::vector<PetscScalar> &ritzValues,
                                   BV &X_bv, PetscInt eigen_idx_start,
                                   PetscInt n_eigs, BV &R_bv);
     // void initializeMatrices();
