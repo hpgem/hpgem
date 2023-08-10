@@ -110,6 +110,29 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     // Apply the projector to ensure X and S satisfy the divergence free
     // constraint C S = C X = 0
     this->projectBV(T_bv);
+    // Intermediate storages
+    BV T_bv_new;
+    BV W_r_bv;  // the search space
+    BVDuplicate(T_bv, &T_bv_new);
+
+    BVCreate(PETSC_COMM_WORLD, &W_r_bv);
+    BVSetSizes(W_r_bv, A_n_local_rows, A_n_rows, n_eigs);
+    BVSetFromOptions(W_r_bv);
+
+    BV R_bv;  // the residual column vectors
+    BVCreate(PETSC_COMM_WORLD, &R_bv);
+    BVSetSizes(R_bv, A_n_local_rows, A_n_rows, n_eigs);
+    BVSetFromOptions(R_bv);
+
+    BV RR_bv;  // the BV containing the residual of the residual BV
+    BVCreate(PETSC_COMM_WORLD, &RR_bv);
+    BVSetSizes(RR_bv, A_n_local_rows, A_n_rows, n_eigs);
+    BVSetFromOptions(RR_bv);
+
+    // Temporary storage
+    std::vector<PetscScalar> values(n_eigs * n_eigs);
+    std::vector<PetscInt> indices(n_eigs);
+    std::iota(indices.begin(), indices.end(), 0);
 
     // Iterate to find corrected solutions to the eigenvalue
     PetscInt iter_idx =
@@ -118,14 +141,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         1.0;  // initialize error max to determine if the loop is over or not
     do {
         iter_idx++;   // update counter for number of iterations performed
-        BV T_bv_new;  // the updated reconstructed vectors, below just make a
-                      // copy to start with
+        // the updated reconstructed vectors, below just make a copy to start with
         this->computeRitzValuesAndVectors(T_bv, n_eigs, ritzValues, T_bv_new);
-
-        BV W_r_bv;  // the search space
-        BVCreate(PETSC_COMM_WORLD, &W_r_bv);
-        BVSetSizes(W_r_bv, A_n_local_rows, A_n_rows, n_eigs);
-        BVSetFromOptions(W_r_bv);
 
         BVSetActiveColumns(
             T_bv_new, n_eigs,
@@ -135,10 +152,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                            2 * n_eigs);  // always return to original state
 
         // Compute the residual with the updated eigenvectors
-        BV R_bv;  // the residual column vectors
-        BVCreate(PETSC_COMM_WORLD, &R_bv);
-        BVSetSizes(R_bv, A_n_local_rows, A_n_rows, n_eigs);
-        BVSetFromOptions(R_bv);
         this->compute_residual_eigen_v(this->A, this->M, ritzValues,
                                        this->eigenvectors, 0, n_eigs, R_bv);
 
@@ -180,14 +193,10 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         // Compute the new augmented solution space (the correction space) and
         // the new search space
-        BV RR_bv;  // the BV containing the residual of the residual BV
-        BVCreate(PETSC_COMM_WORLD, &RR_bv);
-        BVSetSizes(RR_bv, A_n_local_rows, A_n_rows, n_eigs);
-        BVSetFromOptions(RR_bv);
         this->compute_residual_eigen_v(this->A, this->M, ritzValues, R_bv, 0,
                                        n_eigs, RR_bv);
 
-        BVSetActiveColumns(T_bv_new, n_eigs, 2 * n_eigs);
+        BVSetActiveColumns(T_bv_new, 0, 2 * n_eigs);
 
         //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
         //    // -v_j^H(A - lm_j B)w = R(v)^H W
@@ -196,10 +205,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         err = BVDot(RR_bv, W_r_bv, out);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         // Use this matrix later on in the BVMult(R, 1, 1, W_r_bv, out);
-
-        std::vector<PetscScalar> values(n_eigs * n_eigs);
-        std::vector<PetscInt> indices(n_eigs);
-        std::iota(indices.begin(), indices.end(), 0);
         MatGetValues(out, indices.size(), indices.data(), indices.size(),
                      indices.data(), values.data());
         // Update
@@ -277,12 +282,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
             projectBV(T_bv);
         }
 
-        // Cleanup work memory
-        BVDestroy(&T_bv_new);
-        BVDestroy(&W_r_bv);
-        BVDestroy(&R_bv);
-        BVDestroy(&RR_bv);
-
     } while ((iter_idx <= this->maxIter) && (error_max > this->tolerance));
 
     // Transfer eigenvalues
@@ -294,8 +293,12 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     iter = iter_idx;
 
     this->cleanupProjection();
-    //  DSDestroy(&denseSolver);
     BVDestroy(&T_bv);
+    // Cleanup work memory
+    BVDestroy(&T_bv_new);
+    BVDestroy(&W_r_bv);
+    BVDestroy(&R_bv);
+    BVDestroy(&RR_bv);
     PetscRandomDestroy(&random_context);
 
     // Show info that solver started
@@ -511,7 +514,6 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
 
     // Now we can reconstruct the eigenvectors, i.e., compute them in the full
     // space
-    BVDuplicate(T_bv, &T_bv_new);
     BVCopy(T_bv, T_bv_new);
 
     // Reconstruct the eigenvectors (all at once)
