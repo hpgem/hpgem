@@ -136,12 +136,13 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
     // Iterate to find corrected solutions to the eigenvalue
     PetscInt iter_idx =
-        0;  // initialize counter for number of interations performed
+        0;    // initialize counter for number of interations performed
     PetscReal error_max =
         1.0;  // initialize error max to determine if the loop is over or not
     do {
-        iter_idx++;   // update counter for number of iterations performed
-        // the updated reconstructed vectors, below just make a copy to start with
+        iter_idx++;  // update counter for number of iterations performed
+        // the updated reconstructed vectors, below just make a copy to start
+        // with
         this->computeRitzValuesAndVectors(T_bv, n_eigs, ritzValues, T_bv_new);
 
         BVSetActiveColumns(
@@ -152,8 +153,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                            2 * n_eigs);  // always return to original state
 
         // Compute the residual with the updated eigenvectors
-        this->compute_residual_eigen_v(this->A, this->M, ritzValues,
-                                       this->eigenvectors, 0, n_eigs, R_bv);
+        this->compute_residual_eigen_v(ritzValues, this->eigenvectors, 0,
+                                       n_eigs, R_bv);
 
         // Compute convergence
         PetscReal residualNorm, evNorm;
@@ -193,10 +194,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         // Compute the new augmented solution space (the correction space) and
         // the new search space
-        this->compute_residual_eigen_v(this->A, this->M, ritzValues, R_bv, 0,
-                                       n_eigs, RR_bv);
-
-        BVSetActiveColumns(T_bv_new, 0, 2 * n_eigs);
+        this->compute_residual_eigen_v(ritzValues, R_bv, 0, n_eigs, RR_bv);
 
         //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
         //    // -v_j^H(A - lm_j B)w = R(v)^H W
@@ -542,8 +540,8 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
 }
 
 void DoehlerMaxwellSolver::compute_residual_eigen_v(
-    Mat &A_Mat, Mat &M_Mat, const std::vector<PetscScalar> &ritzValues,
-    BV &X_bv, PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv) {
+    const std::vector<PetscScalar> &ritzValues, BV &X_bv,
+    PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv) {
     PetscErrorCode err;
     //  Computes:
     //    R = A_Mat @ X_bv - M_Mat @ (X_bv * L)
@@ -563,7 +561,7 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(
     //            NOTE: X_bv and R_bv must have n_eigs columns.
 
     // Compute X * L
-    BV XL_bv;  // to hold X * L[:2*n_eigs]
+    BV XL_bv;             // to hold X * L[:2*n_eigs]
     BVDuplicate(X_bv, &XL_bv);
     BVCopy(X_bv, XL_bv);  // start by copying X and then below we multiply each
                           // column by the eigen value
@@ -585,12 +583,12 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(
 
     // Compute M @ (X * L)
     BV MXL_bv;  // to hold M @ (X * L)
-    if (M_Mat == NULL) {
+    if (this->M == NULL) {
         BVDuplicate(XL_bv, &MXL_bv);
         BVCopy(XL_bv, MXL_bv);
     } else {
         BVDuplicate(XL_bv, &MXL_bv);
-        err = BVMatMult(XL_bv, M_Mat,
+        err = BVMatMult(XL_bv, this->M,
                         MXL_bv);  // make the multiplication M @ (X *
                                   // L[eigen_idx_start:eigen_idx_end])
         CHKERRABORT(PETSC_COMM_WORLD, err);
@@ -599,7 +597,7 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(
     // Compute A @ X
     // We use already R_bv, we then substract M @ (X * L) to get the final
     // residual value
-    err = BVMatMult(X_bv, A_Mat, R_bv);  // make the multiplication A @ X
+    err = BVMatMult(X_bv, this->A, R_bv);  // make the multiplication A @ X
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
     // Compute (A @ X) - (M @ (X * L))
