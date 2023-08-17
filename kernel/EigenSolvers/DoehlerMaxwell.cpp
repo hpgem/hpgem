@@ -37,9 +37,21 @@ void DoehlerMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin,
     this->C = Cin;
     this->M = Min;
 }
+namespace {
+    // Static log stages
+    bool petscLogStagesRegistered = false;
+    PetscLogStage doehlerStage, projectorStage;
+}
 
 PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                                            PetscInt n_steps_projection) {
+
+    if (!petscLogStagesRegistered) {
+        petscLogStagesRegistered = true;
+        PetscLogStageRegister("Doehler", &doehlerStage);
+        PetscLogStageRegister("projector", &projectorStage);
+    }
+    PetscLogStagePush(doehlerStage);
 
     // Initialize the matrices for enforcing the condition this->C * x = 0
     // This is done by solving a Poisson-like problem, the matrices required for
@@ -309,6 +321,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                   << std::endl;
     }
 
+    PetscLogStagePop();
     return 0;
 }
 
@@ -383,6 +396,7 @@ void DoehlerMaxwellSolver::cleanupProjection() {
 }
 
 void DoehlerMaxwellSolver::projectBV(BV bv) {
+    PetscLogStagePush(projectorStage);
     PetscInt lead, active;
     BVGetActiveColumns(bv, &lead, &active);
     for (PetscInt i = lead; i < active; ++i) {
@@ -391,6 +405,7 @@ void DoehlerMaxwellSolver::projectBV(BV bv) {
         projectEigenVector(vec);
         BVRestoreColumn(bv, i, &vec);
     }
+    PetscLogStagePop();
 }
 
 PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
