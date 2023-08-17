@@ -192,7 +192,11 @@ class DoehlerMaxwellSolver final {
     Mat Y, H;
     KSP projectionSolver_;
     Vec projectionTempVector_;
+    PetscLogStage stage;
+    // Temporary dense matrices for projection
+    Mat A_Mat_p, M_Mat_p, H_Mat_p, H_Mat_p1;
     // BV Qt;
+    DS denseSolver;
 
     // BV V;
     // Vec search_vect;

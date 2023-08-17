@@ -40,6 +40,7 @@ void DoehlerMaxwellSolver::setMatrices(const Mat Ain, const Mat Cin,
 
 PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                                            PetscInt n_steps_projection) {
+    PetscLogStageRegister("test", &stage);
 
     // Initialize the matrices for enforcing the condition this->C * x = 0
     // This is done by solving a Poisson-like problem, the matrices required for
@@ -134,6 +135,30 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     std::vector<PetscInt> indices(n_eigs);
     std::iota(indices.begin(), indices.end(), 0);
 
+    // Projection storage
+    MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &A_Mat_p);
+    MatSetUp(A_Mat_p);
+
+    MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &M_Mat_p);
+    MatSetUp(M_Mat_p);
+    H_Mat_p = nullptr;
+    H_Mat_p1 = nullptr;
+
+    {
+        DSCreate(PETSC_COMM_WORLD, &denseSolver);
+        DSSetType(denseSolver, DSGHEP);
+        DSAllocate(denseSolver, 2 * n_eigs);
+        DSSetDimensions(denseSolver, 2 * n_eigs, 0, 0);
+        // Comparison context for sorting the eigenvalues
+        SlepcSC sc;
+        DSGetSlepcSC(denseSolver, &sc);
+        sc->comparison = SlepcCompareSmallestMagnitude;
+        sc->comparisonctx = nullptr;
+        sc->map = nullptr;
+        sc->mapobj = nullptr;
+        sc->rg = nullptr;
+    }
+
     // Iterate to find corrected solutions to the eigenvalue
     PetscInt iter_idx =
         0;    // initialize counter for number of interations performed
@@ -222,7 +247,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         BVMult(R_bv, 1.0, 1.0, W_r_bv, out);
         MatDestroy(&out);
-
         // Restart T_bv
 
         // Update X part
@@ -280,7 +304,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         if (iter_idx % n_steps_projection == 0) {
             projectBV(T_bv);
         }
-
     } while ((iter_idx <= this->maxIter) && (error_max > this->tolerance));
 
     // Transfer eigenvalues
@@ -298,6 +321,12 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     BVDestroy(&W_r_bv);
     BVDestroy(&R_bv);
     BVDestroy(&RR_bv);
+
+    MatDestroy(&A_Mat_p);
+    MatDestroy(&M_Mat_p);
+    MatDestroy(&H_Mat_p);
+    MatDestroy(&H_Mat_p1);
+    DSDestroy(&denseSolver);
     PetscRandomDestroy(&random_context);
 
     // Show info that solver started
@@ -430,60 +459,38 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
 PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
     BV &T_bv, PetscInt n_eigs, std::vector<PetscScalar> &ritzValues,
     BV &T_bv_new) {
-
     PetscErrorCode err;
     PetscInt iter_idx =
         0;  // initialize counter for number of interations performed
 
     // Reduced matrices obtained by projecting A_Mat and M_Mat
     // into the T_bv space (approximate eigenvectors \ocirc search space)
-    Mat A_Mat_p, M_Mat_p, H_Mat_p,
-        H_Mat_p1;  // H_Mat_p is a temporary hermitian matrix of either A_Mat_p
-                   // or M_Mat_p
-    MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &A_Mat_p);
-    MatSetUp(A_Mat_p);
-
-    MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &M_Mat_p);
-    MatSetUp(M_Mat_p);
-
     // H_Mat_p will be created on first usage
-
+    PetscLogStagePush(stage);
     // Compute the reduced matrices on the space spanned by T = [X, S]
     err = BVMatProject(T_bv, this->A, T_bv, A_Mat_p);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
     err = BVMatProject(T_bv, this->M, T_bv, M_Mat_p);
     CHKERRABORT(PETSC_COMM_WORLD, err);
+    PetscLogStagePop();
 
     // Make sure the resulting reduced matrices are still symmetric
     // Symmetry can be lost due to roundoff and accumulation errors
 
     // Force symmetry in A_Mat_p
-    MatHermitianTranspose(A_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p);
+    MatHermitianTranspose(A_Mat_p, H_Mat_p == nullptr ? MAT_INITIAL_MATRIX : MAT_REUSE_MATRIX, &H_Mat_p);
     MatAXPY(A_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
     MatScale(A_Mat_p, 0.5);
 
     // Force symmetry in M_Mat_p
-    MatHermitianTranspose(M_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p1);
+    MatHermitianTranspose(M_Mat_p,
+                          H_Mat_p1 == nullptr ? MAT_INITIAL_MATRIX : MAT_REUSE_MATRIX,
+                          &H_Mat_p1);
     MatAXPY(M_Mat_p, 1.0, H_Mat_p1, SAME_NONZERO_PATTERN);
     MatScale(M_Mat_p, 0.5);
 
     // Setup the (small) eigensolver
-    DS denseSolver;
-    {
-        DSCreate(PETSC_COMM_WORLD, &denseSolver);
-        DSSetType(denseSolver, DSGHEP);
-        DSAllocate(denseSolver, 2 * n_eigs);
-        DSSetDimensions(denseSolver, 2 * n_eigs, 0, 0);
-        // Comparison context for sorting the eigenvalues
-        SlepcSC sc;
-        DSGetSlepcSC(denseSolver, &sc);
-        sc->comparison = SlepcCompareSmallestMagnitude;
-        sc->comparisonctx = nullptr;
-        sc->map = nullptr;
-        sc->mapobj = nullptr;
-        sc->rg = nullptr;
-    }
 
     // Compute the Ritz values (L) and Ritz vectors (Q) of the reduced
     // eigenvalue problem
@@ -530,13 +537,6 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
 
     BVSetActiveColumns(T_bv_new, 0,
                        2 * n_eigs);  // always return to original state
-
-    DSDestroy(&denseSolver);
-    MatDestroy(&A_Mat_p);
-    MatDestroy(&M_Mat_p);
-    MatDestroy(&H_Mat_p);
-    MatDestroy(&H_Mat_p1);
-
     return 0;
 }
 
