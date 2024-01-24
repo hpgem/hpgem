@@ -91,7 +91,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
     // Initialize tranformation matrix T as a bv system (used to project to the
     // reduced space)
-    BV searchSpace;
+    BV searchSpace, tempBV;
     BVCreate(PETSC_COMM_WORLD, &searchSpace);
 
     BVSetSizes(searchSpace, A_n_local_rows, A_n_rows, 2 * n_eigs);
@@ -111,13 +111,11 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     // constraint C S = C X = 0
     this->projectBV(searchSpace);
     // Intermediate storages
-    BV T_bv_new;
     BV largeRitzVectors;  // the search space
-    BVDuplicate(searchSpace, &T_bv_new);
-
     BVCreate(PETSC_COMM_WORLD, &largeRitzVectors);
     BVSetSizes(largeRitzVectors, A_n_local_rows, A_n_rows, n_eigs);
     BVSetFromOptions(largeRitzVectors);
+    BVDuplicate(largeRitzVectors, &tempBV);
 
     BV residuals;  // the residual column vectors
     BVCreate(PETSC_COMM_WORLD, &residuals);
@@ -143,18 +141,18 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         iter_idx++;  // update counter for number of iterations performed
         // the updated reconstructed vectors, below just make a copy to start
         // with
-        this->computeRitzValuesAndVectors(searchSpace, n_eigs, ritzValues, T_bv_new);
+        this->ritzUpdate(searchSpace, n_eigs, ritzValues);
 
         BVSetActiveColumns(
-            T_bv_new, n_eigs,
+            searchSpace, n_eigs,
             2 * n_eigs);  // activate the columns associated to the search space
-        BVCopy(T_bv_new, largeRitzVectors);
-        BVSetActiveColumns(T_bv_new, 0,
+        BVCopy(searchSpace, largeRitzVectors);
+        BVSetActiveColumns(searchSpace, 0,
                            2 * n_eigs);  // always return to original state
 
         // Compute the residual with the updated eigenvectors
         this->compute_residual_eigen_v(ritzValues, this->eigenvectors, 0,
-                                       n_eigs, residuals, T_bv_new);
+                                       n_eigs, residuals, tempBV);
 
         // Compute convergence
         PetscReal residualNorm, evNorm;
@@ -196,7 +194,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         // the new search space
         this->compute_residual_eigen_v(ritzValues, residuals, 0, n_eigs,
                                        doubleResiduals,
-                                       T_bv_new);
+                                       tempBV);
 
         //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
         //    // -v_j^H(A - lm_j B)w = R(v)^H W
@@ -220,8 +218,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         // Restart T_bv
 
-        // Update X part
-        BVCopy(this->eigenvectors, searchSpace);
+        // Update X part not needed, this is already done in ritzUpdate
+
         // Update S part
         BVSetActiveColumns(searchSpace, n_eigs, 2*n_eigs);
         BVCopy(residuals, searchSpace);
@@ -256,7 +254,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     this->cleanupProjection();
     BVDestroy(&searchSpace);
     // Cleanup work memory
-    BVDestroy(&T_bv_new);
+    BVDestroy(&tempBV);
     BVDestroy(&largeRitzVectors);
     BVDestroy(&residuals);
     BVDestroy(&doubleResiduals);
@@ -389,9 +387,8 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
     return (0);
 }
 
-PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
-    BV &T_bv, PetscInt n_eigs, std::vector<PetscScalar> &ritzValues,
-    BV &T_bv_new) {
+PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
+    BV T_bv, PetscInt n_eigs, std::vector<PetscScalar> &ritzValues) {
 
     PetscErrorCode err;
     PetscInt iter_idx =
@@ -475,22 +472,21 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
 
     // Now we can reconstruct the eigenvectors, i.e., compute them in the full
     // space
-    BVCopy(T_bv, T_bv_new);
 
     // Reconstruct the eigenvectors (all at once)
     Mat ritzSmallVectors;  // get the matrix associated to the search space
                            // eigenvectors to use with mult below
     DSGetMat(denseSolver, DS_MAT_Q, &ritzSmallVectors);
-    BVMultInPlace(T_bv_new, ritzSmallVectors, 0,
+    BVMultInPlace(T_bv, ritzSmallVectors, 0,
                   2 * n_eigs);  // make the multiplication T_bv_new = T_bv *
                                 // Q_mat (reconstruct eigenvalues)
     DSRestoreMat(denseSolver, DS_MAT_Q, &ritzSmallVectors);
 
-    BVSetActiveColumns(T_bv_new, 0, n_eigs);  // activate the columns associated
+    BVSetActiveColumns(T_bv, 0, n_eigs);  // activate the columns associated
                                               // to the approximate solution
-    BVCopy(T_bv_new, this->eigenvectors);
+    BVCopy(T_bv, this->eigenvectors);
 
-    BVSetActiveColumns(T_bv_new, 0,
+    BVSetActiveColumns(T_bv, 0,
                        2 * n_eigs);  // always return to original state
 
     DSDestroy(&denseSolver);
