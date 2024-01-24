@@ -133,14 +133,11 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     std::iota(indices.begin(), indices.end(), 0);
 
     // Iterate to find corrected solutions to the eigenvalue
-    PetscInt iter_idx =
-        0;    // initialize counter for number of interations performed
+    this->iter = 0;
     PetscReal error_max =
         1.0;  // initialize error max to determine if the loop is over or not
     do {
-        iter_idx++;  // update counter for number of iterations performed
-        // the updated reconstructed vectors, below just make a copy to start
-        // with
+        this->iter++;  // update counter for number of iterations performed
         this->ritzUpdate(searchSpace, n_eigs, ritzValues);
 
         BVSetActiveColumns(
@@ -177,9 +174,9 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                 this->eigenvectors_current_size++;
             }
         }
-        if (iter_idx % 5 == 0 && rank == 0) {
+        if (this->iter % 5 == 0 && rank == 0) {
             std::string log = residual_values.str();
-            logger(INFO, "iter % converged %:%", iter_idx,
+            logger(INFO, "iter % converged %:%", this->iter,
                    this->eigenvectors_current_size, log);
         }
         if (this->eigenvectors_current_size == n_eigs) {
@@ -234,11 +231,11 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         // This with exact arithmetics is not necessary, but due to roundoff
         // errors, the solution is poluted, so we correct it every
         // n_steps_projection
-        if (iter_idx % n_steps_projection == 0) {
+        if (this->iter % n_steps_projection == 0) {
             projectBV(searchSpace);
         }
 
-    } while ((iter_idx <= this->maxIter) && (error_max > this->tolerance));
+    } while ((this->iter <= this->maxIter) && (error_max > this->tolerance));
 
     // Transfer eigenvalues
     this->eigenvalues.assign(
@@ -246,7 +243,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     for (PetscInt eigen_v_idx = 0; eigen_v_idx < n_eigs; eigen_v_idx++) {
         this->eigenvalues[eigen_v_idx] = ritzValues[eigen_v_idx];
     }
-    iter = iter_idx;
 
     this->cleanupProjection();
     BVDestroy(&searchSpace);
