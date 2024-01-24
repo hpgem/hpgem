@@ -128,9 +128,8 @@ class DoehlerMaxwellSolver final {
     void cleanupProjection();
     void projectBV(BV bv);
     PetscErrorCode projectEigenVector(Vec &eigen_v);
-    PetscErrorCode computeRitzValuesAndVectors(
-        BV &T_bv, PetscInt n_eigs, std::vector<PetscScalar> &L_std_vec,
-        BV &T_bv_new);
+    PetscErrorCode ritzUpdate(
+        BV T_bv, PetscInt n_eigs, std::vector<PetscScalar> &L_std_vec);
     void compute_residual_eigen_v(const std::vector<PetscScalar> &ritzValues,
                                   BV &X_bv, PetscInt eigen_idx_start,
                                   PetscInt n_eigs, BV &R_bv, BV temp_bv);
