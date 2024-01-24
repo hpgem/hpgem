@@ -91,11 +91,11 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
     // Initialize tranformation matrix T as a bv system (used to project to the
     // reduced space)
-    BV T_bv;
-    BVCreate(PETSC_COMM_WORLD, &T_bv);
+    BV searchSpace;
+    BVCreate(PETSC_COMM_WORLD, &searchSpace);
 
-    BVSetSizes(T_bv, A_n_local_rows, A_n_rows, 2 * n_eigs);
-    BVSetFromOptions(T_bv);
+    BVSetSizes(searchSpace, A_n_local_rows, A_n_rows, 2 * n_eigs);
+    BVSetFromOptions(searchSpace);
 
     // Set the initial (guess) values
     // (the n_eigs eigenvectors we wish to find and the
@@ -104,30 +104,30 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     PetscRandomCreate(PETSC_COMM_WORLD, &random_context);
     PetscRandomSetInterval(random_context, 0.0, 1.0);
     PetscRandomSetFromOptions(random_context);
-    BVSetRandomContext(T_bv, random_context);
-    BVSetRandom(T_bv);
+    BVSetRandomContext(searchSpace, random_context);
+    BVSetRandom(searchSpace);
 
     // Apply the projector to ensure X and S satisfy the divergence free
     // constraint C S = C X = 0
-    this->projectBV(T_bv);
+    this->projectBV(searchSpace);
     // Intermediate storages
     BV T_bv_new;
-    BV W_r_bv;  // the search space
-    BVDuplicate(T_bv, &T_bv_new);
+    BV largeRitzVectors;  // the search space
+    BVDuplicate(searchSpace, &T_bv_new);
 
-    BVCreate(PETSC_COMM_WORLD, &W_r_bv);
-    BVSetSizes(W_r_bv, A_n_local_rows, A_n_rows, n_eigs);
-    BVSetFromOptions(W_r_bv);
+    BVCreate(PETSC_COMM_WORLD, &largeRitzVectors);
+    BVSetSizes(largeRitzVectors, A_n_local_rows, A_n_rows, n_eigs);
+    BVSetFromOptions(largeRitzVectors);
 
-    BV R_bv;  // the residual column vectors
-    BVCreate(PETSC_COMM_WORLD, &R_bv);
-    BVSetSizes(R_bv, A_n_local_rows, A_n_rows, n_eigs);
-    BVSetFromOptions(R_bv);
+    BV residuals;  // the residual column vectors
+    BVCreate(PETSC_COMM_WORLD, &residuals);
+    BVSetSizes(residuals, A_n_local_rows, A_n_rows, n_eigs);
+    BVSetFromOptions(residuals);
 
-    BV RR_bv;  // the BV containing the residual of the residual BV
-    BVCreate(PETSC_COMM_WORLD, &RR_bv);
-    BVSetSizes(RR_bv, A_n_local_rows, A_n_rows, n_eigs);
-    BVSetFromOptions(RR_bv);
+    BV doubleResiduals;  // the BV containing the residual of the residual BV
+    BVCreate(PETSC_COMM_WORLD, &doubleResiduals);
+    BVSetSizes(doubleResiduals, A_n_local_rows, A_n_rows, n_eigs);
+    BVSetFromOptions(doubleResiduals);
 
     // Temporary storage
     std::vector<PetscScalar> values(n_eigs * n_eigs);
@@ -143,25 +143,25 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         iter_idx++;  // update counter for number of iterations performed
         // the updated reconstructed vectors, below just make a copy to start
         // with
-        this->computeRitzValuesAndVectors(T_bv, n_eigs, ritzValues, T_bv_new);
+        this->computeRitzValuesAndVectors(searchSpace, n_eigs, ritzValues, T_bv_new);
 
         BVSetActiveColumns(
             T_bv_new, n_eigs,
             2 * n_eigs);  // activate the columns associated to the search space
-        BVCopy(T_bv_new, W_r_bv);
+        BVCopy(T_bv_new, largeRitzVectors);
         BVSetActiveColumns(T_bv_new, 0,
                            2 * n_eigs);  // always return to original state
 
         // Compute the residual with the updated eigenvectors
         this->compute_residual_eigen_v(ritzValues, this->eigenvectors, 0,
-                                       n_eigs, R_bv, T_bv_new);
+                                       n_eigs, residuals, T_bv_new);
 
         // Compute convergence
         PetscReal residualNorm, evNorm;
         this->eigenvectors_current_size = 0;
         std::stringstream residual_values;
         for (PetscInt i = 0; i < n_eigs; ++i) {
-            BVNormColumn(R_bv, i, NORM_2, &residualNorm);
+            BVNormColumn(residuals, i, NORM_2, &residualNorm);
             BVNormColumn(this->eigenvectors, i, NORM_2, &evNorm);
             residual_values << " " << std::setprecision(5) << PetscRealPart(ritzValues[i])
                             << "(" << std::setprecision(2)
@@ -194,43 +194,44 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         // Compute the new augmented solution space (the correction space) and
         // the new search space
-        this->compute_residual_eigen_v(ritzValues, R_bv, 0, n_eigs, RR_bv,
+        this->compute_residual_eigen_v(ritzValues, residuals, 0, n_eigs,
+                                       doubleResiduals,
                                        T_bv_new);
 
         //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
         //    // -v_j^H(A - lm_j B)w = R(v)^H W
-        Mat out;  // Make it
-        MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &out);
-        err = BVDot(RR_bv, W_r_bv, out);
+        Mat tmatrix;  // Make it
+        MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &tmatrix);
+        err = BVDot(doubleResiduals, largeRitzVectors, tmatrix);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         // Use this matrix later on in the BVMult(R, 1, 1, W_r_bv, out);
         PetscScalar* tdata;
-        MatDenseGetArray(out, &tdata);
+        MatDenseGetArray(tmatrix, &tdata);
         for (std::size_t col = 0; col < n_eigs; col++) {
             for (std::size_t row = 0; row < n_eigs; row++) {
                 tdata[row + col  * n_eigs] /=
                     -(ritzValues[row + n_eigs] - std::conj(ritzValues[col]));
             }
         }
-        MatDenseRestoreArray(out, &tdata);
+        MatDenseRestoreArray(tmatrix, &tdata);
 
-        BVMult(R_bv, 1.0, 1.0, W_r_bv, out);
-        MatDestroy(&out);
+        BVMult(residuals, 1.0, 1.0, largeRitzVectors, tmatrix);
+        MatDestroy(&tmatrix);
 
         // Restart T_bv
 
         // Update X part
-        BVCopy(this->eigenvectors, T_bv);
+        BVCopy(this->eigenvectors, searchSpace);
         // Update S part
-        BVSetActiveColumns(T_bv, n_eigs, 2*n_eigs);
-        BVCopy(R_bv, T_bv);
-        BVSetActiveColumns(T_bv, 0, 2*n_eigs);
+        BVSetActiveColumns(searchSpace, n_eigs, 2*n_eigs);
+        BVCopy(residuals, searchSpace);
+        BVSetActiveColumns(searchSpace, 0, 2*n_eigs);
         // If nothing is done, the search directions result in vectors with very
         // small norms. This leads to very badly conditioned reduced matrices. A
         // solution to this problem is to normalize these vectors associated to
         // the new search directions. This essentially means normalizing the
         // columns of S.
-        BVNormalize(T_bv, nullptr);
+        BVNormalize(searchSpace, nullptr);
 
         // Apply the projector to ensure X and S satisfy the divergence free
         // constraint
@@ -239,7 +240,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         // errors, the solution is poluted, so we correct it every
         // n_steps_projection
         if (iter_idx % n_steps_projection == 0) {
-            projectBV(T_bv);
+            projectBV(searchSpace);
         }
 
     } while ((iter_idx <= this->maxIter) && (error_max > this->tolerance));
@@ -253,12 +254,12 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     iter = iter_idx;
 
     this->cleanupProjection();
-    BVDestroy(&T_bv);
+    BVDestroy(&searchSpace);
     // Cleanup work memory
     BVDestroy(&T_bv_new);
-    BVDestroy(&W_r_bv);
-    BVDestroy(&R_bv);
-    BVDestroy(&RR_bv);
+    BVDestroy(&largeRitzVectors);
+    BVDestroy(&residuals);
+    BVDestroy(&doubleResiduals);
     PetscRandomDestroy(&random_context);
 
     // Show info that solver started
