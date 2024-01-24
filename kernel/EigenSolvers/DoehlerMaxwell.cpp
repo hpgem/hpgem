@@ -163,7 +163,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         for (PetscInt i = 0; i < n_eigs; ++i) {
             BVNormColumn(R_bv, i, NORM_2, &residualNorm);
             BVNormColumn(this->eigenvectors, i, NORM_2, &evNorm);
-            residual_values << " " << std::setprecision(16) << ritzValues[i]
+            residual_values << " " << std::setprecision(5) << PetscRealPart(ritzValues[i])
                             << "(" << std::setprecision(2)
                             << (residualNorm / evNorm) << ")";
             if (this->eigenvectors_current_size != i) {
@@ -204,21 +204,15 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         err = BVDot(RR_bv, W_r_bv, out);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         // Use this matrix later on in the BVMult(R, 1, 1, W_r_bv, out);
-        MatGetValues(out, indices.size(), indices.data(), indices.size(),
-                     indices.data(), values.data());
-        // Update
+        PetscScalar* tdata;
+        MatDenseGetArray(out, &tdata);
         for (std::size_t col = 0; col < n_eigs; col++) {
             for (std::size_t row = 0; row < n_eigs; row++) {
-                values[row * n_eigs + col] /=
+                tdata[row + col  * n_eigs] /=
                     -(ritzValues[row + n_eigs] - std::conj(ritzValues[col]));
             }
         }
-        MatSetValues(out, indices.size(), indices.data(), indices.size(),
-                     indices.data(), values.data(), INSERT_VALUES);
-        err = MatAssemblyBegin(out, MAT_FINAL_ASSEMBLY);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-        err = MatAssemblyEnd(out, MAT_FINAL_ASSEMBLY);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
+        MatDenseRestoreArray(out, &tdata);
 
         BVMult(R_bv, 1.0, 1.0, W_r_bv, out);
         MatDestroy(&out);
