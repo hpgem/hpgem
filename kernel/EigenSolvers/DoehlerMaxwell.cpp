@@ -151,8 +151,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                            2 * n_eigs);  // always return to original state
 
         // Compute the residual with the updated eigenvectors
-        this->compute_residual_eigen_v(ritzValues, this->eigenvectors, 0,
-                                       n_eigs, residuals, tempBV);
+        this->computeResiduals(ritzValues, this->eigenvectors, 0, n_eigs,
+                               residuals, tempBV);
 
         // Compute convergence
         PetscReal residualNorm, evNorm;
@@ -190,9 +190,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         // Compute the new augmented solution space (the correction space) and
         // the new search space
-        this->compute_residual_eigen_v(ritzValues, residuals, 0, n_eigs,
-                                       doubleResiduals,
-                                       tempBV);
+        this->computeResiduals(ritzValues, residuals, 0, n_eigs,
+                               doubleResiduals, tempBV);
 
         //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
         //    // -v_j^H(A - lm_j B)w = R(v)^H W
@@ -496,13 +495,13 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
     return 0;
 }
 
-void DoehlerMaxwellSolver::compute_residual_eigen_v(
-    const std::vector<PetscScalar> &ritzValues, BV &X_bv,
-    PetscInt eigen_idx_start, PetscInt n_eigs, BV &R_bv, BV temp_bv) {
+void DoehlerMaxwellSolver::computeResiduals(
+    const std::vector<PetscScalar> &ritzValues, BV vectors,
+    PetscInt eigen_idx_start, PetscInt n_eigs, BV residuals, BV scratch) {
     PetscErrorCode err;
     PetscInt lead, active;
-    BVGetActiveColumns(temp_bv, &lead, &active);
-    BVSetActiveColumns(temp_bv, 0, n_eigs);
+    BVGetActiveColumns(scratch, &lead, &active);
+    BVSetActiveColumns(scratch, 0, n_eigs);
     //  Computes:
     //    R = A_Mat @ X_bv - M_Mat @ (X_bv * L)
     //
@@ -523,27 +522,27 @@ void DoehlerMaxwellSolver::compute_residual_eigen_v(
 
     // Compute M * X -> temp_bv
     if (this->M == nullptr) {
-        BVCopy(X_bv, temp_bv);
+        BVCopy(vectors, scratch);
     } else {
-        BVMatMult(X_bv, this->M, temp_bv);
+        BVMatMult(vectors, this->M, scratch);
     }
 
     // compute in place temp_bv * L = M * X * L
     for (PetscInt i = 0; i < n_eigs; ++i) {
-        BVScaleColumn(temp_bv, i, ritzValues[i + eigen_idx_start]);
+        BVScaleColumn(scratch, i, ritzValues[i + eigen_idx_start]);
     }
 
     // Compute A @ X
     // We use already R_bv, we then substract M @ (X * L) to get the final
     // residual value
-    err = BVMatMult(X_bv, this->A, R_bv);  // make the multiplication A @ X
+    err = BVMatMult(vectors, this->A, residuals);  // make the multiplication A @ X
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
     // Compute (A @ X) - (M @ X) * L
-    BVMult(R_bv, -1, 1.0, temp_bv, nullptr);
+    BVMult(residuals, -1, 1.0, scratch, nullptr);
 
     // Restore active columns
-    BVSetActiveColumns(temp_bv, lead, active);
+    BVSetActiveColumns(scratch, lead, active);
 }
 
 }  // namespace EigenSolvers
