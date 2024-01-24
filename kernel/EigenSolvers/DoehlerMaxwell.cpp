@@ -188,8 +188,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         }
         MPI_Barrier(PETSC_COMM_WORLD);
 
-        // TODO Apply preconditioner
-
         // Compute the new augmented solution space (the correction space) and
         // the new search space
         this->compute_residual_eigen_v(ritzValues, residuals, 0, n_eigs,
