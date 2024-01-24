@@ -220,44 +220,11 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         // Restart T_bv
 
         // Update X part
-        for (PetscInt column_idx = 0; column_idx < n_eigs; column_idx++) {
-            Vec T_bv_column_Vec;
-            BVGetColumn(
-                T_bv, column_idx,
-                &T_bv_column_Vec);  // get the column we want to replace in T_bv
-                                    // and link it to vector T_bv_column_Vec
-            BVCopyVec(
-                this->eigenvectors, column_idx,
-                T_bv_column_Vec);  // copy the column of this->eigenvectors into
-                                   // the T_bv_column_Vec vector, effectively
-                                   // copying the column of this->eigenvectors
-                                   // into the column of T_bv
-            BVRestoreColumn(T_bv, column_idx, &T_bv_column_Vec);
-        }
-
+        BVCopy(this->eigenvectors, T_bv);
         // Update S part
-        for (PetscInt column_idx = 0; column_idx < n_eigs; column_idx++) {
-            PetscInt column_idx_offset =
-                column_idx + n_eigs;  // we need to offset because now we are
-                                      // updating the S part of T_bv
-
-            Vec T_bv_column_Vec;
-            BVGetColumn(
-                T_bv, column_idx_offset,
-                &T_bv_column_Vec);  // get the column we want to replace in T_bv
-                                    // and link it to vector T_bv_column_Vec
-            BVCopyVec(
-                R_bv, column_idx,
-                T_bv_column_Vec);  // copy the column of R_bv into the
-                                   // T_bv_column_Vec vector, effectively
-                                   // copying the column of R_bv into the column
-                                   // of T_bv Note that the column index of R_bv
-                                   // is not offset, since R_bv contains only
-                                   // the search space, only T_bv contains both
-                                   // the (approximate) solution and the search
-                                   // space, hence the offset needed.
-            BVRestoreColumn(T_bv, column_idx_offset, &T_bv_column_Vec);
-        }
+        BVSetActiveColumns(T_bv, n_eigs, 2*n_eigs);
+        BVCopy(R_bv, T_bv);
+        BVSetActiveColumns(T_bv, 0, 2*n_eigs);
         // If nothing is done, the search directions result in vectors with very
         // small norms. This leads to very badly conditioned reduced matrices. A
         // solution to this problem is to normalize these vectors associated to
