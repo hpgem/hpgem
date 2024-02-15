@@ -2,12 +2,36 @@
 #include <iostream>
 #include <iomanip>
 #include <chrono>
+#include <fstream>
 
 #include "petsc.h"
 #include "slepc.h"
 
 #include "DoehlerMaxwell.h"
 #include "Logger.h"
+
+namespace {
+void writeBV(BV bv, const char* filename) {
+    PetscViewer viewer;
+    PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);
+    PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+    BVView(bv, viewer);
+    PetscViewerDestroy(&viewer);
+}
+
+void writeMatSelf(Mat mat, const char* filename) {
+    PetscMPIInt rank;
+    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+    if (rank != 0)
+        return ;
+    PetscViewer viewer;
+    PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);
+    PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+    MatView(mat, viewer);
+    PetscViewerDestroy(&viewer);
+}
+
+}
 
 namespace hpgem {
 
@@ -220,6 +244,23 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         err = MatAssemblyEnd(out, MAT_FINAL_ASSEMBLY);
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
+        if (iter_idx == this->maxIter) {
+            writeBV(this->eigenvectors, "eigenvectors.m");
+            writeBV(R_bv, "residuals.m");
+            writeBV(RR_bv, "doubleresiduals.m");
+            writeBV(W_r_bv, "largeeigenvectors.m");
+            writeMatSelf(out, "tmat.m");
+            std::ofstream evout;
+            evout.open("eigenvalues.csv");
+            for(int i = 0; i < 2*n_eigs; ++i) {
+                if(i != 0)
+                    evout << ",";
+                evout << PetscRealPart(ritzValues[i]);
+            }
+            evout << std::endl;
+            evout.close();
+        }
+
         BVMult(R_bv, 1.0, 1.0, W_r_bv, out);
         MatDestroy(&out);
 
@@ -279,6 +320,9 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         // n_steps_projection
         if (iter_idx % n_steps_projection == 0) {
             projectBV(T_bv);
+        }
+        if (iter_idx == this->maxIter) {
+            writeBV(T_bv, "searchspace.m");
         }
 
     } while ((iter_idx <= this->maxIter) && (error_max > this->tolerance));
