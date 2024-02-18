@@ -13,10 +13,15 @@
 namespace {
 void writeBV(BV bv, const char* filename) {
     PetscViewer viewer;
-    PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);
-    PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
-    BVView(bv, viewer);
-    PetscViewerDestroy(&viewer);
+    PetscErrorCode err;
+    err = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);
+//    CHKERRABORT(PETSC_COMM_WORLD, err);
+//    err = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = BVView(bv, viewer);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = PetscViewerDestroy(&viewer);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
 }
 
 void writeMatSelf(Mat mat, const char* filename) {
@@ -29,6 +34,20 @@ void writeMatSelf(Mat mat, const char* filename) {
     PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
     MatView(mat, viewer);
     PetscViewerDestroy(&viewer);
+}
+
+void writeMatGlobal(Mat mat, const char* filename) {
+    PetscViewer viewer;
+    PetscErrorCode err;
+
+    err = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = MatView(mat, viewer);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = PetscViewerDestroy(&viewer);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
 }
 
 }
@@ -203,7 +222,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                 this->eigenvectors_current_size++;
             }
         }
-        if (iter_idx % 5 == 0 && rank == 0) {
+        if (iter_idx % 1 == 0 && rank == 0) {
             std::string log = residual_values.str();
             logger(INFO, "iter % converged %:%", iter_idx,
                    this->eigenvectors_current_size, log);
@@ -245,11 +264,20 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
         if (iter_idx == this->maxIter) {
+            logger(INFO, "exporting matrices");
+            writeMatGlobal(this->A, "stiffnessMatrix.m");
+            writeMatGlobal(this->C, "constraintMatrix.m");
+            logger(INFO, "Writing eigenvectors");
             writeBV(this->eigenvectors, "eigenvectors.m");
+            logger(INFO, "Writing residuals");
             writeBV(R_bv, "residuals.m");
+            logger(INFO, "Writing double residuals");
             writeBV(RR_bv, "doubleresiduals.m");
+            logger(INFO, "Writing large eigenvectors");
             writeBV(W_r_bv, "largeeigenvectors.m");
+            logger(INFO, "Writing update matrix");
             writeMatSelf(out, "tmat.m");
+            logger(INFO, "Writing eigenvalues");
             std::ofstream evout;
             evout.open("eigenvalues.csv");
             for(int i = 0; i < 2*n_eigs; ++i) {
@@ -259,6 +287,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
             }
             evout << std::endl;
             evout.close();
+            logger(INFO, "Finished writing1");
         }
 
         BVMult(R_bv, 1.0, 1.0, W_r_bv, out);
@@ -318,11 +347,14 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         // This with exact arithmetics is not necessary, but due to roundoff
         // errors, the solution is poluted, so we correct it every
         // n_steps_projection
-        if (iter_idx % n_steps_projection == 0) {
+        if (iter_idx % n_steps_projection == 0 || true) {
             projectBV(T_bv);
         }
         if (iter_idx == this->maxIter) {
+            logger(INFO, "writing search space");
             writeBV(T_bv, "searchspace.m");
+            logger(INFO, "Finished writing");
+            break;
         }
 
     } while ((iter_idx <= this->maxIter) && (error_max > this->tolerance));
@@ -491,7 +523,8 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
     MatSetUp(M_Mat_p);
 
     // H_Mat_p will be created on first usage
-
+    BVOrthogonalize(T_bv, nullptr);
+    BVNormalize(T_bv, nullptr);
     // Compute the reduced matrices on the space spanned by T = [X, S]
     err = BVMatProject(T_bv, this->A, T_bv, A_Mat_p);
     CHKERRABORT(PETSC_COMM_WORLD, err);
@@ -504,8 +537,8 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
 
     // Force symmetry in A_Mat_p
     MatHermitianTranspose(A_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p);
-    MatAXPY(A_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
-    MatScale(A_Mat_p, 0.5);
+//    MatAXPY(A_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
+//    MatScale(A_Mat_p, 0.5);
 
     // Force symmetry in M_Mat_p
     MatHermitianTranspose(M_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p1);
@@ -516,7 +549,7 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
     DS denseSolver;
     {
         DSCreate(PETSC_COMM_WORLD, &denseSolver);
-        DSSetType(denseSolver, DSGHEP);
+        DSSetType(denseSolver, this->M != nullptr ? DSGHEP : DSHEP);
         DSAllocate(denseSolver, 2 * n_eigs);
         DSSetDimensions(denseSolver, 2 * n_eigs, 0, 0);
         // Comparison context for sorting the eigenvalues
@@ -540,9 +573,11 @@ PetscErrorCode DoehlerMaxwellSolver::computeRitzValuesAndVectors(
         DSGetMat(denseSolver, DS_MAT_A, &temp);
         MatCopy(A_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
         DSRestoreMat(denseSolver, DS_MAT_A, &temp);
-        DSGetMat(denseSolver, DS_MAT_B, &temp);
-        MatCopy(M_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
-        DSRestoreMat(denseSolver, DS_MAT_B, &temp);
+        if (this->M != nullptr) {
+            DSGetMat(denseSolver, DS_MAT_B, &temp);
+            MatCopy(M_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
+            DSRestoreMat(denseSolver, DS_MAT_B, &temp);
+        }
 
         // Solve & Sort
 
