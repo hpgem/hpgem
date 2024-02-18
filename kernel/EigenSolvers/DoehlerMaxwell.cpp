@@ -15,8 +15,8 @@ void writeBV(BV bv, const char* filename) {
     PetscViewer viewer;
     PetscErrorCode err;
     err = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);
-//    CHKERRABORT(PETSC_COMM_WORLD, err);
-//    err = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
     CHKERRABORT(PETSC_COMM_WORLD, err);
     err = BVView(bv, viewer);
     CHKERRABORT(PETSC_COMM_WORLD, err);
@@ -27,13 +27,14 @@ void writeBV(BV bv, const char* filename) {
 void writeMatSelf(Mat mat, const char* filename) {
     PetscMPIInt rank;
     MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
-    if (rank != 0)
-        return ;
-    PetscViewer viewer;
-    PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer);
-    PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
-    MatView(mat, viewer);
-    PetscViewerDestroy(&viewer);
+    if (rank == 0) {
+        PetscViewer viewer;
+        PetscViewerASCIIOpen(PETSC_COMM_SELF, filename, &viewer);
+        PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+        MatView(mat, viewer);
+        PetscViewerDestroy(&viewer);
+    }
+    MPI_Barrier(PETSC_COMM_WORLD);
 }
 
 void writeMatGlobal(Mat mat, const char* filename) {
@@ -184,6 +185,10 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         1.0;  // initialize error max to determine if the loop is over or not
     do {
         iter_idx++;  // update counter for number of iterations performed
+        if (iter_idx == this->maxIter) {
+            logger(INFO, "outputting starting search space");
+            writeBV(T_bv, "initialsearchspace.m");
+        }
         // the updated reconstructed vectors, below just make a copy to start
         // with
         this->computeRitzValuesAndVectors(T_bv, n_eigs, ritzValues, T_bv_new);
