@@ -95,14 +95,12 @@ template <std::size_t DIM>
 Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element,
                                            const Base::Edge* edge) {
     std::size_t localEdgeId = element->getLocalId(edge);
-    std::vector<std::size_t> nodeIds =
-        element->getReferenceGeometry()->getCodim2EntityLocalIndices(
-            localEdgeId);
-    const Geometry::PointPhysical<DIM> n1 =
-        element->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIds[0]);
-    const Geometry::PointPhysical<DIM> n2 =
-        element->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIds[1]);
-    return 0.5 * (n1 + n2);
+    const Geometry::ReferenceGeometry* referenceGeometry =
+        element->getReferenceGeometry();
+    Geometry::PointReference<DIM - 2> p =
+        referenceGeometry->getCodim2ReferenceGeometry(localEdgeId)->getCenter();
+    return element->referenceToPhysical(
+        referenceGeometry->getCodim2MappingPtr(localEdgeId)->transform(p));
 }
 
 /// Compute the physical coordinate of the center of a face as seen from a
