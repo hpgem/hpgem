@@ -15,6 +15,8 @@ namespace EigenSolvers {
 
 struct DoehlerMaxwellSolver::Workspace {
     DS denseSolver_;
+    Mat Ahat_, Mhat_, AhatT_, MhatT_;
+    bool smallMatsAllocated = false;
 };
 
 DoehlerMaxwellSolver::DoehlerMaxwellSolver() : eigenvectors(nullptr) {
@@ -280,6 +282,12 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     BVDestroy(&searchSpace);
     // Cleanup workspace
     DSDestroy(&workspace.denseSolver_);
+    if (workspace.smallMatsAllocated) {
+        MatDestroy(&workspace.Ahat_);
+        MatDestroy(&workspace.AhatT_);
+        MatDestroy(&workspace.Mhat_);
+        MatDestroy(&workspace.MhatT_);
+    }
     // Cleanup work memory
     MatDestroy(&tmatrix);
     BVDestroy(&tempBV);
@@ -422,55 +430,57 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
     BV T_bv, PetscInt n_eigs, Workspace& workspace,  std::vector<PetscScalar> &ritzValues) {
 
     PetscErrorCode err;
-    PetscInt iter_idx =
-        0;  // initialize counter for number of interations performed
 
-    // Reduced matrices obtained by projecting A_Mat and M_Mat
-    // into the T_bv space (approximate eigenvectors \ocirc search space)
-    Mat A_Mat_p, M_Mat_p, H_Mat_p,
-        H_Mat_p1;  // H_Mat_p is a temporary hermitian matrix of either A_Mat_p
-                   // or M_Mat_p
-    MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &A_Mat_p);
-    MatSetUp(A_Mat_p);
+    MatReuse reuse;
+    DSStateType dsState;
+    if (!workspace.smallMatsAllocated) {
+        reuse = MAT_INITIAL_MATRIX;
+        dsState = DS_STATE_RAW;
 
-    MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &M_Mat_p);
-    MatSetUp(M_Mat_p);
+        MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &workspace.Ahat_);
+        MatSetUp(workspace.Ahat_);
 
-    // H_Mat_p will be created on first usage
+        MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &workspace.Mhat_);
+        MatSetUp(workspace.Mhat_);
+        workspace.smallMatsAllocated = true;
+    } else {
+        reuse = MAT_REUSE_MATRIX;
+        dsState = DS_STATE_INTERMEDIATE;
+    }
 
     // Compute the reduced matrices on the space spanned by T = [X, S]
-    err = BVMatProject(T_bv, this->A, T_bv, A_Mat_p);
+    err = BVMatProject(T_bv, this->A, T_bv, workspace.Ahat_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
-    err = BVMatProject(T_bv, this->M, T_bv, M_Mat_p);
+    err = BVMatProject(T_bv, this->M, T_bv, workspace.Mhat_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
     // Make sure the resulting reduced matrices are still symmetric
     // Symmetry can be lost due to roundoff and accumulation errors
 
     // Force symmetry in A_Mat_p
-    MatHermitianTranspose(A_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p);
-    MatAXPY(A_Mat_p, 1.0, H_Mat_p, SAME_NONZERO_PATTERN);
-    MatScale(A_Mat_p, 0.5);
+    MatHermitianTranspose(workspace.Ahat_, reuse, &workspace.AhatT_);
+    MatAXPY(workspace.Ahat_, 1.0, workspace.AhatT_, SAME_NONZERO_PATTERN);
+    MatScale(workspace.Ahat_, 0.5);
 
     // Force symmetry in M_Mat_p
-    MatHermitianTranspose(M_Mat_p, MAT_INITIAL_MATRIX, &H_Mat_p1);
-    MatAXPY(M_Mat_p, 1.0, H_Mat_p1, SAME_NONZERO_PATTERN);
-    MatScale(M_Mat_p, 0.5);
+    MatHermitianTranspose(workspace.Mhat_, reuse, &workspace.MhatT_);
+    MatAXPY(workspace.Mhat_, 1.0, workspace.MhatT_, SAME_NONZERO_PATTERN);
+    MatScale(workspace.Mhat_, 0.5);
 
     // Compute the Ritz values (L) and Ritz vectors (Q) of the reduced
     // eigenvalue problem
     {
         // Reset the eigenvalue solver
-        DSSetState(workspace.denseSolver_, DS_STATE_RAW);
+        DSSetState(workspace.denseSolver_, dsState);
 
         // Set the matrices
         Mat temp;
         DSGetMat(workspace.denseSolver_, DS_MAT_A, &temp);
-        MatCopy(A_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
+        MatCopy(workspace.Ahat_, temp, DIFFERENT_NONZERO_PATTERN);
         DSRestoreMat(workspace.denseSolver_, DS_MAT_A, &temp);
         DSGetMat(workspace.denseSolver_, DS_MAT_B, &temp);
-        MatCopy(M_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
+        MatCopy(workspace.Mhat_, temp, DIFFERENT_NONZERO_PATTERN);
         DSRestoreMat(workspace.denseSolver_, DS_MAT_B, &temp);
 
         // Solve & Sort
@@ -502,11 +512,6 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
 
     BVSetActiveColumns(T_bv, 0,
                        2 * n_eigs);  // always return to original state
-    MatDestroy(&A_Mat_p);
-    MatDestroy(&M_Mat_p);
-    MatDestroy(&H_Mat_p);
-    MatDestroy(&H_Mat_p1);
-
     return 0;
 }
 
