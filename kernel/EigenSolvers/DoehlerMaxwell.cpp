@@ -139,6 +139,9 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     BVSetSizes(doubleResiduals, A_n_local_rows, A_n_rows, n_eigs);
     BVSetFromOptions(doubleResiduals);
 
+    Mat tmatrix;
+    MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &tmatrix);
+
     // Temporary storage
     std::vector<PetscScalar> values(n_eigs * n_eigs);
     std::vector<PetscInt> indices(n_eigs);
@@ -204,8 +207,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
         //    // T_{ij} = -v_j^H(A - lm_j B) w_i / (lm_{i+p} - lm_j)
         //    // -v_j^H(A - lm_j B)w = R(v)^H W
-        Mat tmatrix;  // Make it
-        MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &tmatrix);
         err = BVDot(doubleResiduals, largeRitzVectors, tmatrix);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         // Use this matrix later on in the BVMult(R, 1, 1, W_r_bv, out);
@@ -220,7 +221,6 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         MatDenseRestoreArray(tmatrix, &tdata);
 
         BVMult(residuals, 1.0, 1.0, largeRitzVectors, tmatrix);
-        MatDestroy(&tmatrix);
 
         // Restart T_bv
 
@@ -259,6 +259,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     this->cleanupProjection();
     BVDestroy(&searchSpace);
     // Cleanup work memory
+    MatDestroy(&tmatrix);
     BVDestroy(&tempBV);
     BVDestroy(&largeRitzVectors);
     BVDestroy(&residuals);
