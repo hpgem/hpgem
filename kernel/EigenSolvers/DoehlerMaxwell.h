@@ -67,7 +67,7 @@ namespace EigenSolvers {
  *      H = C * Y
  */
 class DoehlerMaxwellSolver final {
-
+    struct Workspace;
    public:
     DoehlerMaxwellSolver();
     // PetscErrorCode clean();
@@ -129,7 +129,8 @@ class DoehlerMaxwellSolver final {
     void projectBV(BV bv);
     PetscErrorCode projectEigenVector(Vec &eigen_v);
     PetscErrorCode ritzUpdate(
-        BV T_bv, PetscInt n_eigs, std::vector<PetscScalar> &L_std_vec);
+        BV T_bv, PetscInt n_eigs, Workspace& workspace,
+        std::vector<PetscScalar> &L_std_vec);
     void computeResiduals(const std::vector<PetscScalar> &ritzValues,
                                   BV vectors, PetscInt eigen_idx_start,
                                   PetscInt n_eigs, BV residuals, BV scratch);

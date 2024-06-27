@@ -13,6 +13,10 @@ namespace hpgem {
 
 namespace EigenSolvers {
 
+struct DoehlerMaxwellSolver::Workspace {
+    DS denseSolver_;
+};
+
 DoehlerMaxwellSolver::DoehlerMaxwellSolver() : eigenvectors(nullptr) {
     std::cout << "Initialize DoehlerMaxwellSolver!!!!!" << std::endl;
 }
@@ -142,6 +146,22 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
     Mat tmatrix;
     MatCreateSeqDense(PETSC_COMM_SELF, n_eigs, n_eigs, NULL, &tmatrix);
 
+    Workspace workspace;
+    {
+        DSCreate(PETSC_COMM_WORLD, &workspace.denseSolver_);
+        DSSetType(workspace.denseSolver_, DSGHEP);
+        DSAllocate(workspace.denseSolver_, 2 * n_eigs);
+        DSSetDimensions(workspace.denseSolver_, 2 * n_eigs, 0, 0);
+        // Comparison context for sorting the eigenvalues
+        SlepcSC sc;
+        DSGetSlepcSC(workspace.denseSolver_, &sc);
+        sc->comparison = SlepcCompareSmallestMagnitude;
+        sc->comparisonctx = nullptr;
+        sc->map = nullptr;
+        sc->mapobj = nullptr;
+        sc->rg = nullptr;
+    }
+
     // Temporary storage
     std::vector<PetscScalar> values(n_eigs * n_eigs);
     std::vector<PetscInt> indices(n_eigs);
@@ -153,7 +173,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         1.0;  // initialize error max to determine if the loop is over or not
     do {
         this->iter++;  // update counter for number of iterations performed
-        this->ritzUpdate(searchSpace, n_eigs, ritzValues);
+        this->ritzUpdate(searchSpace, n_eigs, workspace, ritzValues);
 
         BVSetActiveColumns(
             searchSpace, n_eigs,
@@ -258,6 +278,8 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
 
     this->cleanupProjection();
     BVDestroy(&searchSpace);
+    // Cleanup workspace
+    DSDestroy(&workspace.denseSolver_);
     // Cleanup work memory
     MatDestroy(&tmatrix);
     BVDestroy(&tempBV);
@@ -397,7 +419,7 @@ PetscErrorCode DoehlerMaxwellSolver::projectEigenVector(Vec &eigen_v) {
 }
 
 PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
-    BV T_bv, PetscInt n_eigs, std::vector<PetscScalar> &ritzValues) {
+    BV T_bv, PetscInt n_eigs, Workspace& workspace,  std::vector<PetscScalar> &ritzValues) {
 
     PetscErrorCode err;
     PetscInt iter_idx =
@@ -436,46 +458,29 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
     MatAXPY(M_Mat_p, 1.0, H_Mat_p1, SAME_NONZERO_PATTERN);
     MatScale(M_Mat_p, 0.5);
 
-    // Setup the (small) eigensolver
-    DS denseSolver;
-    {
-        DSCreate(PETSC_COMM_WORLD, &denseSolver);
-        DSSetType(denseSolver, DSGHEP);
-        DSAllocate(denseSolver, 2 * n_eigs);
-        DSSetDimensions(denseSolver, 2 * n_eigs, 0, 0);
-        // Comparison context for sorting the eigenvalues
-        SlepcSC sc;
-        DSGetSlepcSC(denseSolver, &sc);
-        sc->comparison = SlepcCompareSmallestMagnitude;
-        sc->comparisonctx = nullptr;
-        sc->map = nullptr;
-        sc->mapobj = nullptr;
-        sc->rg = nullptr;
-    }
-
     // Compute the Ritz values (L) and Ritz vectors (Q) of the reduced
     // eigenvalue problem
     {
         // Reset the eigenvalue solver
-        DSSetState(denseSolver, DS_STATE_RAW);
+        DSSetState(workspace.denseSolver_, DS_STATE_RAW);
 
         // Set the matrices
         Mat temp;
-        DSGetMat(denseSolver, DS_MAT_A, &temp);
+        DSGetMat(workspace.denseSolver_, DS_MAT_A, &temp);
         MatCopy(A_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
-        DSRestoreMat(denseSolver, DS_MAT_A, &temp);
-        DSGetMat(denseSolver, DS_MAT_B, &temp);
+        DSRestoreMat(workspace.denseSolver_, DS_MAT_A, &temp);
+        DSGetMat(workspace.denseSolver_, DS_MAT_B, &temp);
         MatCopy(M_Mat_p, temp, DIFFERENT_NONZERO_PATTERN);
-        DSRestoreMat(denseSolver, DS_MAT_B, &temp);
+        DSRestoreMat(workspace.denseSolver_, DS_MAT_B, &temp);
 
         // Solve & Sort
 
         std::vector<PetscScalar> evs1(2 * n_eigs);
-        err = DSSolve(denseSolver, ritzValues.data(), evs1.data());
+        err = DSSolve(workspace.denseSolver_, ritzValues.data(), evs1.data());
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        DSSort(denseSolver, ritzValues.data(), evs1.data(), nullptr, nullptr,
+        DSSort(workspace.denseSolver_, ritzValues.data(), evs1.data(), nullptr, nullptr,
                nullptr);
-        DSSynchronize(denseSolver, ritzValues.data(), nullptr);
+        DSSynchronize(workspace.denseSolver_, ritzValues.data(), nullptr);
         // Copy back the eigenvectors
     }
 
@@ -485,11 +490,11 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
     // Reconstruct the eigenvectors (all at once)
     Mat ritzSmallVectors;  // get the matrix associated to the search space
                            // eigenvectors to use with mult below
-    DSGetMat(denseSolver, DS_MAT_Q, &ritzSmallVectors);
+    DSGetMat(workspace.denseSolver_, DS_MAT_Q, &ritzSmallVectors);
     BVMultInPlace(T_bv, ritzSmallVectors, 0,
                   2 * n_eigs);  // make the multiplication T_bv_new = T_bv *
                                 // Q_mat (reconstruct eigenvalues)
-    DSRestoreMat(denseSolver, DS_MAT_Q, &ritzSmallVectors);
+    DSRestoreMat(workspace.denseSolver_, DS_MAT_Q, &ritzSmallVectors);
 
     BVSetActiveColumns(T_bv, 0, n_eigs);  // activate the columns associated
                                               // to the approximate solution
@@ -497,8 +502,6 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
 
     BVSetActiveColumns(T_bv, 0,
                        2 * n_eigs);  // always return to original state
-
-    DSDestroy(&denseSolver);
     MatDestroy(&A_Mat_p);
     MatDestroy(&M_Mat_p);
     MatDestroy(&H_Mat_p);
