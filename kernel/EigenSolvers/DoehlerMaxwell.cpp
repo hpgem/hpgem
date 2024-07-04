@@ -192,12 +192,16 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
         PetscReal residualNorm, evNorm;
         this->eigenvectors_current_size = 0;
         std::stringstream residual_values;
+        bool log_state = this->iter % 5 == 0 && rank == 0;
         for (PetscInt i = 0; i < n_eigs; ++i) {
             BVNormColumn(residuals, i, NORM_2, &residualNorm);
             BVNormColumn(this->eigenvectors, i, NORM_2, &evNorm);
-            residual_values << " " << std::setprecision(5) << PetscRealPart(ritzValues[i])
-                            << "(" << std::setprecision(2)
-                            << (residualNorm / evNorm) << ")";
+            if(log_state) {
+                residual_values << " " << std::setprecision(5)
+                                << PetscRealPart(ritzValues[i]) << "("
+                                << std::setprecision(2)
+                                << (residualNorm / evNorm) << ")";
+            }
             if (this->eigenvectors_current_size != i) {
                 // Only accept an eigenvalue as converged if all previous
                 // eigenvalues also have converged. This ensures that we get the
@@ -211,7 +215,7 @@ PetscErrorCode DoehlerMaxwellSolver::solve(PetscInt nev, Mat &T_Mat_in,
                 this->eigenvectors_current_size++;
             }
         }
-        if (this->iter % 5 == 0 && rank == 0) {
+        if (log_state) {
             std::string log = residual_values.str();
             logger(INFO, "iter % converged %:%", this->iter,
                    this->eigenvectors_current_size, log);
