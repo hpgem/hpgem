@@ -432,10 +432,8 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
     PetscErrorCode err;
 
     MatReuse reuse;
-    DSStateType dsState;
     if (!workspace.smallMatsAllocated) {
         reuse = MAT_INITIAL_MATRIX;
-        dsState = DS_STATE_RAW;
 
         MatCreateSeqDense(PETSC_COMM_SELF, 2 * n_eigs, 2 * n_eigs, NULL, &workspace.Ahat_);
         MatSetUp(workspace.Ahat_);
@@ -445,7 +443,6 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
         workspace.smallMatsAllocated = true;
     } else {
         reuse = MAT_REUSE_MATRIX;
-        dsState = DS_STATE_INTERMEDIATE;
     }
 
     // Compute the reduced matrices on the space spanned by T = [X, S]
@@ -472,7 +469,7 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
     // eigenvalue problem
     {
         // Reset the eigenvalue solver
-        DSSetState(workspace.denseSolver_, dsState);
+        DSSetState(workspace.denseSolver_, DS_STATE_RAW);
 
         // Set the matrices
         Mat temp;
@@ -485,10 +482,9 @@ PetscErrorCode DoehlerMaxwellSolver::ritzUpdate(
 
         // Solve & Sort
 
-        std::vector<PetscScalar> evs1(2 * n_eigs);
-        err = DSSolve(workspace.denseSolver_, ritzValues.data(), evs1.data());
+        err = DSSolve(workspace.denseSolver_, ritzValues.data(), nullptr);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        DSSort(workspace.denseSolver_, ritzValues.data(), evs1.data(), nullptr, nullptr,
+        DSSort(workspace.denseSolver_, ritzValues.data(), nullptr, nullptr, nullptr,
                nullptr);
         DSSynchronize(workspace.denseSolver_, ritzValues.data(), nullptr);
         // Copy back the eigenvectors
