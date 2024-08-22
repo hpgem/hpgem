@@ -226,7 +226,7 @@ template <std::size_t DIM>
 class DGMaxEigenvalue<DIM>::ProjectorWorkspace {
    public:
     explicit ProjectorWorkspace(
-        DGMaxEigenvalue<DIM>::SolverWorkspace& workspace);
+        DGMaxEigenvalue<DIM>::SolverWorkspace& workspace, bool matrixOnly);
     // TODO Remove constructors
     ~ProjectorWorkspace();
 
@@ -242,6 +242,7 @@ class DGMaxEigenvalue<DIM>::ProjectorWorkspace {
 
    private:
     void initKPhaseShifts();
+    bool matrixOnly_;
 
     DGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;
 
@@ -364,8 +365,10 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
     }
 
     if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
+        bool matrixOnly = config_.use_doehler_ || config_.use_jdmax_;
         projector =
-            std::make_unique<DGMaxEigenvalue<DIM>::ProjectorWorkspace>(*this);
+            std::make_unique<DGMaxEigenvalue<DIM>::ProjectorWorkspace>(*this,
+                                                                       matrixOnly);
         DGMaxLogger(INFO, "ProjectorWorksapce Initialized");
     }
 
@@ -697,33 +700,6 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     // Setup search space //
     ////////////////////////
 
-    if (eigenpairs_.size() == 0) {
-        // Generate fresh starting vector
-        eigenpairs_.reserve(1, tempFieldVector_);
-        DGMaxLogger(INFO, "Generating initial vector");
-        error = VecSetRandom(eigenpairs_.getRawEigenvectors()[0], nullptr);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-    } else {
-        DGMaxLogger(INFO, "Combining previous eigen vectors");
-        for (PetscInt j = 1; j < eigenpairs_.size(); ++j) {
-            // Some eigenvalue solvers only uses a single starting vector.
-            // Mix the eigenvalue spaces from the previous k-point in the
-            // hope that these are rich in the eigenvectors for the next
-            // space.
-            error = VecAYPX(eigenpairs_.getRawEigenvectors()[0], 1,
-                            eigenpairs_.getRawEigenvectors()[j]);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
-        // Add all previous eigenvectors to the eigenvalue solver, even
-        // if they are not all used.
-    }
-    if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
-        for (std::size_t j = 0; j < eigenpairs_.size(); ++j) {
-            projector->project(eigenpairs_.getRawEigenvectors()[j]);
-        }
-        DGMaxLogger(INFO, "Projected initial vector");
-    }
-
     auto start = std::chrono::high_resolution_clock::now();
     if (config_.use_doehler_) {
         Mat temp = nullptr;
@@ -739,6 +715,33 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         numEigenvalues = jdmaxSolver_.getConverged();
         iterations = jdmaxSolver_.getIterationCount();
     } else {
+
+        if (eigenpairs_.size() == 0) {
+            // Generate fresh starting vector
+            eigenpairs_.reserve(1, tempFieldVector_);
+            DGMaxLogger(INFO, "Generating initial vector");
+            error = VecSetRandom(eigenpairs_.getRawEigenvectors()[0], nullptr);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+        } else {
+            DGMaxLogger(INFO, "Combining previous eigen vectors");
+            for (PetscInt j = 1; j < eigenpairs_.size(); ++j) {
+                // Some eigenvalue solvers only uses a single starting vector.
+                // Mix the eigenvalue spaces from the previous k-point in the
+                // hope that these are rich in the eigenvectors for the next
+                // space.
+                error = VecAYPX(eigenpairs_.getRawEigenvectors()[0], 1,
+                                eigenpairs_.getRawEigenvectors()[j]);
+                CHKERRABORT(PETSC_COMM_WORLD, error);
+            }
+            // Add all previous eigenvectors to the eigenvalue solver, even
+            // if they are not all used.
+        }
+        if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
+            for (std::size_t j = 0; j < eigenpairs_.size(); ++j) {
+                projector->project(eigenpairs_.getRawEigenvectors()[j]);
+            }
+            DGMaxLogger(INFO, "Projected initial vector");
+        }
 
         // Use solution of previous time as starting point for the next one.
         error = EPSSetInitialSpace(epsSolver_, eigenpairs_.size(),
@@ -916,8 +919,9 @@ void DGMaxEigenvalue<DIM>::ShiftWorkspace::updateShiftVectors(
 
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::ProjectorWorkspace::ProjectorWorkspace(
-    DGMaxEigenvalue<DIM>::SolverWorkspace& workspace)
+    DGMaxEigenvalue<DIM>::SolverWorkspace& workspace, bool matrixOnly)
     : workspace_(workspace),
+      matrixOnly_(matrixOnly),
       projectorIndex_(nullptr),
       projectorMatrix_(projectorIndex_, workspace.fieldIndex_,
                        DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID),
@@ -933,31 +937,34 @@ DGMaxEigenvalue<DIM>::ProjectorWorkspace::ProjectorWorkspace(
     projectorMatrix_.reinit();
     tempProjectorVector_.reinit();
 
-    PetscErrorCode error;
-    error = MatCreate(PETSC_COMM_WORLD, &projectionStiffness_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (!matrixOnly_) {
+        PetscErrorCode error;
+        error = MatCreate(PETSC_COMM_WORLD, &projectionStiffness_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    // Create the required solver
-    error = KSPCreate(PETSC_COMM_WORLD, &projectionSolver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = KSPSetType(projectionSolver_, KSPPREONLY);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    PC pc;
-    error = KSPGetPC(projectionSolver_, &pc);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = PCSetType(pc, PCLU);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
+        // Create the required solver
+        error = KSPCreate(PETSC_COMM_WORLD, &projectionSolver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = KSPSetType(projectionSolver_, KSPPREONLY);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        PC pc;
+        error = KSPGetPC(projectionSolver_, &pc);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = PCSetType(pc, PCLU);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
     initKPhaseShifts();
 }
 
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::ProjectorWorkspace::~ProjectorWorkspace() {
-    PetscErrorCode error;
-    error = KSPDestroy(&projectionSolver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = MatDestroy(&projectionStiffness_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (!matrixOnly_) {
+        PetscErrorCode error;
+        error = KSPDestroy(&projectionSolver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = MatDestroy(&projectionStiffness_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
 }
 
 template <std::size_t DIM>
@@ -965,6 +972,7 @@ void DGMaxEigenvalue<DIM>::ProjectorWorkspace::project(Vec vec) {
     logger.assert_always(
         workspace_.config_.useProjector_ != DGMaxEigenvalueBase::NONE,
         "Projecting without projector");
+    logger.assert_always(!matrixOnly_, "Projecting in matrix only mode");
     // Projection P of a vector u, this is
     // P u = u - M^{-1} * B^H * C^{-1} * B * u
     // where
@@ -1039,6 +1047,9 @@ void DGMaxEigenvalue<DIM>::ProjectorWorkspace::updateKPoint(
     const LinearAlgebra::SmallVector<DIM>& k) {
     // Update the matrix
     phaseShifts_.apply(k, projectorMatrix_);
+
+    if (matrixOnly_)
+        return;
 
     // Update the KSP & the inner projectionMatrix.
     PetscErrorCode error;
